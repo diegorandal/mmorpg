@@ -1,6 +1,7 @@
 'use client'; // Importante: Phaser solo corre en el cliente
 
 import { useEffect, useRef } from 'react';
+import './global.css';
 
 export default function Home() {
   const gameContainerRef = useRef<HTMLDivElement>(null);
