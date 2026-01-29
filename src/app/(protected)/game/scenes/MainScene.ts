@@ -17,8 +17,10 @@ export class MainScene extends Phaser.Scene {
         // 2. Inicializamos el objeto con física
         // Usamos "this.physics.add.sprite" para obtener un objeto con cuerpo físico
         this.player = this.physics.add.sprite(400, 300, 'ball');
+        this.player = this.physics.add.sprite(300, 200, 'ball');
+        this.player = this.physics.add.sprite(200, 100, 'ball');
 
-        this.player.setBounce(0.2);
+        this.player.setBounce(0.6);
         this.player.setCollideWorldBounds(true);
 
     }
