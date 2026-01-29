@@ -14,6 +14,12 @@ export default function Home() {
 
       // Configuración básica del "Hola Mundo"
       const config: Phaser.Types.Core.GameConfig = {
+        scale: {
+          mode: Phaser.Scale.FIT, 
+          autoCenter: Phaser.Scale.CENTER_BOTH,
+          width: '100%',
+          height: '100%'
+        },
         type: Phaser.AUTO,
         width: '100%',
         height: '100%',
