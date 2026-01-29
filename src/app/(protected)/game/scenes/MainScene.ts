@@ -1,30 +1,29 @@
-// src/game/scenes/MainScene.ts
 import Phaser from 'phaser';
 
 export class MainScene extends Phaser.Scene {
-    private player: any;
+    // 1. Definimos los tipos específicos
+    // Para imágenes con física usamos Arcade.Sprite o Arcade.Image
+    private player!: Phaser.Physics.Arcade.Sprite;
 
     constructor() {
-        super('MainScene'); // Nombre de la escena
+        super('MainScene');
     }
 
-    preload() {
-        // Carga de imágenes/sprites
-        this.load.image('logo', 'https://labs.phaser.io/assets/sprites/phaser3-logo.png');
+    preload(): void {
+        this.load.image('ball', 'https://labs.phaser.io/assets/sprites/shinyball.png');
     }
 
-    create() {
-        // Se ejecuta una vez al inicio
-        this.player = this.physics.add.image(400, 300, 'logo');
+    create(): void {
+        // 2. Inicializamos el objeto con física
+        // Usamos "this.physics.add.sprite" para obtener un objeto con cuerpo físico
+        this.player = this.physics.add.sprite(400, 300, 'ball');
+
+        this.player.setBounce(0.2);
         this.player.setCollideWorldBounds(true);
-        this.player.setBounce(1, 1);
-        this.player.setVelocity(200, 200);
 
-        this.add.text(10, 10, 'World App Game - Verificado', { color: '#00ff00' });
     }
 
-    update(time: number, delta: number) {
-        // Bucle del juego (60 FPS)
-        // Aquí va la lógica de movimiento, inputs, etc.
+    update(): void {
+
     }
 }
