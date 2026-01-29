@@ -9,6 +9,7 @@ export const getGameConfig = (containerId: string): Phaser.Types.Core.GameConfig
         width: '100%',
         height: '100%'
     },
+    parent: containerId,
     type: Phaser.AUTO,
     width: '100%',
     height: '100%',
