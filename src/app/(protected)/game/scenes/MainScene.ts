@@ -1,6 +1,15 @@
 import Phaser from 'phaser';
 import { Room } from 'colyseus.js';
 
+interface IPlayer {
+    name: string;
+    x: number;
+    y: number;
+    lastMessage: string;
+    // Colyseus añade métodos de escucha a los objetos del estado
+    onChange: (callback: () => void) => void;
+}
+
 export class MainScene extends Phaser.Scene {
     private room!: Room;
     private playerEntities: { [sessionId: string]: { sprite: Phaser.Physics.Arcade.Sprite, label: Phaser.GameObjects.Text } } = {};
@@ -20,7 +29,7 @@ export class MainScene extends Phaser.Scene {
         this.cursors = this.input.keyboard!.createCursorKeys();
 
         // Escuchamos cuando alguien entra (incluyéndonos)
-        this.room.state.players.onAdd((player: any, sessionId: string) => {
+        this.room.state.players.onAdd((player: IPlayer, sessionId: string) => {
             // Crear Sprite
             const sprite = this.physics.add.sprite(player.x, player.y, 'ball');
 
@@ -43,7 +52,7 @@ export class MainScene extends Phaser.Scene {
         });
 
         // Escuchamos cuando alguien sale
-        this.room.state.players.onRemove((player: any, sessionId: string) => {
+        this.room.state.players.onRemove((player: IPlayer, sessionId: string) => {
             if (this.playerEntities[sessionId]) {
                 this.playerEntities[sessionId].sprite.destroy();
                 this.playerEntities[sessionId].label.destroy();
@@ -57,7 +66,7 @@ export class MainScene extends Phaser.Scene {
 
         // Movimiento básico: enviamos al servidor nuestra intención de movernos
         // En un RPG real, aquí calcularías la velocidad
-        let moveData = { x: 0, y: 0, moving: false };
+        //let moveData = { x: 0, y: 0, moving: false };
         const myPlayer = this.playerEntities[this.room.sessionId]?.sprite;
 
         if (myPlayer) {
