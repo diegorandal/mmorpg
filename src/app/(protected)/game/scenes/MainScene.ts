@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 import { Room } from 'colyseus.js';
 
+// Definimos la interfaz para que TypeScript sepa qué esperar del estado de Colyseus
 interface IPlayer {
     name: string;
     x: number;
     y: number;
-    lastMessage: string;
-    // Colyseus añade métodos de escucha a los objetos del estado
+    // Los esquemas de Colyseus tienen métodos especiales como listen y onChange
+    listen: (prop: string, callback: (value: any) => void) => void;
     onChange: (callback: () => void) => void;
 }
 
@@ -20,69 +21,97 @@ export class MainScene extends Phaser.Scene {
     }
 
     preload(): void {
+        // Usamos una imagen externa para pruebas rápidas
         this.load.image('ball', 'https://labs.phaser.io/assets/sprites/shinyball.png');
     }
 
     create(): void {
-        // Recuperamos la sala que guardamos en el registry de React
+        // 1. RECUPERACIÓN SEGURA: Validamos que la sala exista en el registry
         this.room = this.registry.get('room');
+
+        if (!this.room) {
+            console.error("Error: No se encontró la instancia de la sala en el registry.");
+            return;
+        }
+
         this.cursors = this.input.keyboard!.createCursorKeys();
 
-        // Escuchamos cuando alguien entra (incluyéndonos)
+        // 2. ESCUCHAR CUANDO UN JUGADOR SE UNE
         this.room.state.players.onAdd((player: IPlayer, sessionId: string) => {
-            // Crear Sprite
+            console.log(`Jugador unido: ${sessionId}`, player);
+
+            // Verificación extra para evitar el error 'name' de undefined
+            const playerName = player.name || "Cargando...";
+
+            // Crear el Sprite en la posición inicial del servidor
             const sprite = this.physics.add.sprite(player.x, player.y, 'ball');
 
-            // Crear Texto del nombre
-            const label = this.add.text(player.x, player.y + 30, player.name, {
+            // Crear el Texto del nombre sobre el jugador
+            const label = this.add.text(player.x, player.y - 30, playerName, {
                 fontSize: '14px',
                 color: '#ffffff',
-                backgroundColor: '#000000aa'
+                stroke: '#000000',
+                strokeThickness: 3
             }).setOrigin(0.5);
 
+            // Guardamos la referencia para poder moverlo o borrarlo después
             this.playerEntities[sessionId] = { sprite, label };
 
-            // Escuchar cambios de posición de este jugador específico
-            player.onChange(() => {
-                sprite.x = player.x;
-                sprite.y = player.y;
-                label.x = player.x;
-                label.y = player.y + 30;
+            // 3. SINCRONIZACIÓN DE POSICIÓN (Método listen: más eficiente que onChange)
+            player.listen("x", (newX) => {
+                sprite.x = newX;
+                label.x = newX;
+            });
+
+            player.listen("y", (newY) => {
+                sprite.y = newY;
+                label.y = newY - 30;
+            });
+
+            // Si el nombre cambia dinámicamente
+            player.listen("name", (newName) => {
+                label.setText(newName);
             });
         });
 
-        // Escuchamos cuando alguien sale
+        // 4. ESCUCHAR CUANDO UN JUGADOR SE VA
         this.room.state.players.onRemove((player: IPlayer, sessionId: string) => {
             if (this.playerEntities[sessionId]) {
                 this.playerEntities[sessionId].sprite.destroy();
                 this.playerEntities[sessionId].label.destroy();
                 delete this.playerEntities[sessionId];
+                console.log(`Jugador eliminado: ${sessionId}`);
             }
         });
     }
 
     update(): void {
-        if (!this.room) return;
+        // 5. MOVIMIENTO (Client-Side Prediction simple)
+        if (!this.room || !this.playerEntities[this.room.sessionId]) return;
 
-        // Movimiento básico: enviamos al servidor nuestra intención de movernos
-        // En un RPG real, aquí calcularías la velocidad
-        //let moveData = { x: 0, y: 0, moving: false };
-        const myPlayer = this.playerEntities[this.room.sessionId]?.sprite;
+        const myEntity = this.playerEntities[this.room.sessionId];
+        const speed = 5;
+        let vx = 0;
+        let vy = 0;
 
-        if (myPlayer) {
-            const speed = 4;
-            let vx = 0;
-            let vy = 0;
+        // Detectar teclas
+        if (this.cursors.left.isDown) vx -= speed;
+        else if (this.cursors.right.isDown) vx += speed;
 
-            if (this.cursors.left.isDown) vx -= speed;
-            if (this.cursors.right.isDown) vx += speed;
-            if (this.cursors.up.isDown) vy -= speed;
-            if (this.cursors.down.isDown) vy += speed;
+        if (this.cursors.up.isDown) vy -= speed;
+        else if (this.cursors.down.isDown) vy += speed;
 
-            if (vx !== 0 || vy !== 0) {
-                // Enviamos la nueva posición al servidor
-                this.room.send("move", { x: myPlayer.x + vx, y: myPlayer.y + vy });
-            }
+        // Si hay movimiento, informamos al servidor
+        if (vx !== 0 || vy !== 0) {
+            // Enviamos la NUEVA posición deseada
+            this.room.send("move", {
+                x: myEntity.sprite.x + vx,
+                y: myEntity.sprite.y + vy
+            });
+
+            /* NOTA: En un entorno de producción con lag, aquí moveríamos el sprite 
+               localmente de inmediato y luego corregiríamos con la respuesta del servidor.
+            */
         }
     }
 }
