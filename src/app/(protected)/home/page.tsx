@@ -2,8 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import * as Colyseus from 'colyseus.js';
-import './global.css';
-import type { PlayerState } from './PlayerState';
 
 interface IPlayerMonitor {
   sessionId: string;
@@ -16,73 +14,53 @@ interface IPlayerMonitor {
 export default function Home() {
   const [room, setRoom] = useState<Colyseus.Room | null>(null);
   const [players, setPlayers] = useState<Record<string, IPlayerMonitor>>({});
-  const [form, setForm] = useState({ user: '', pass: '' });
-  const [error, setError] = useState('');
-
   const roomRef = useRef<Colyseus.Room | null>(null);
 
   const handleLogin = async () => {
-    try {
-      setError('');
+    const client = new Colyseus.Client('wss://randalmmorpg.duckdns.org');
+    const joinedRoom = await client.joinOrCreate('my_room');
 
-      const client = new Colyseus.Client(
-        'wss://randalmmorpg.duckdns.org'
-      );
+    roomRef.current = joinedRoom;
+    setRoom(joinedRoom);
 
-      const joinedRoom = await client.joinOrCreate('my_room', {
-        username: form.user,
-        password: form.pass,
+    joinedRoom.onStateChange.once((state: any) => {
+      const playersMap = state.players;
+
+      playersMap.onAdd((player: any, sessionId: string) => {
+        setPlayers((prev) => ({
+          ...prev,
+          [sessionId]: {
+            sessionId,
+            name: player.name ?? '',
+            x: player.x ?? 0,
+            y: player.y ?? 0,
+            lastMessage: player.lastMessage ?? '',
+          },
+        }));
       });
 
-      roomRef.current = joinedRoom;
-      setRoom(joinedRoom);
+      playersMap.onChange((player: any, sessionId: string) => {
+        setPlayers((prev) => ({
+          ...prev,
+          [sessionId]: {
+            sessionId,
+            username: player.username ?? '',
+            name: player.name ?? '',
+            x: player.x ?? 0,
+            y: player.y ?? 0,
+            lastMessage: player.lastMessage ?? '',
+          },
+        }));
+      });
 
-      joinedRoom.onStateChange.once((state) => {
-        const playersMap = state.players;
-
-        // ADD
-        playersMap.onAdd((player: PlayerState, sessionId: string) => {
-          setPlayers((prev) => ({
-            ...prev,
-            [sessionId]: {
-              sessionId,
-              name: player.name,
-              x: player.x,
-              y: player.y,
-              lastMessage: player.lastMessage,
-            },
-          }));
-        });
-
-        // CHANGE (FORMA CORRECTA)
-        playersMap.onChange((player: PlayerState, sessionId: string) => {
-          setPlayers((prev) => ({
-            ...prev,
-            [sessionId]: {
-              sessionId,
-              name: player.name,
-              x: player.x,
-              y: player.y,
-              lastMessage: player.lastMessage,
-            },
-          }));
-        });
-
-        // REMOVE
-        playersMap.onRemove((_: PlayerState, sessionId: string) => {
-          setPlayers((prev) => {
-            const copy = { ...prev };
-            delete copy[sessionId];
-            return copy;
-          });
+      playersMap.onRemove((_: any, sessionId: string) => {
+        setPlayers((prev) => {
+          const copy = { ...prev };
+          delete copy[sessionId];
+          return copy;
         });
       });
-    } catch (e: unknown) {
-      console.error(e);
-      setError(
-        e instanceof Error ? e.message : 'Error al conectar'
-      );
-    }
+    });
   };
 
   useEffect(() => {
@@ -92,64 +70,17 @@ export default function Home() {
   }, []);
 
   if (!room) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh',
-          background: '#222',
-          color: 'white',
-        }}
-      >
-        <h2>RPG Login</h2>
-
-        <input
-          placeholder="Usuario"
-          onChange={(e) =>
-            setForm((f) => ({ ...f, user: e.target.value }))
-          }
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          onChange={(e) =>
-            setForm((f) => ({ ...f, pass: e.target.value }))
-          }
-        />
-
-        <button onClick={handleLogin}>Entrar</button>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-      </div>
-    );
+    return <button onClick={handleLogin}>Entrar</button>;
   }
 
-  const playerList = Object.values(players);
-
   return (
-    <main
-      style={{
-        padding: 20,
-        background: '#000',
-        color: '#0f0',
-        minHeight: '100vh',
-        fontFamily: 'monospace',
-      }}
-    >
-      <h2>📡 Sala: {room.name}</h2>
-      <p>Session ID: {room.sessionId}</p>
-
-      <h3>👥 Jugadores ({playerList.length})</h3>
-
-      {playerList.map((p) => (
+    <div>
+      <h2>Jugadores</h2>
+      {Object.values(players).map((p) => (
         <div key={p.sessionId}>
-          <p>
-            ({p.name}) → {p.x},{p.y}
-          </p>
+          {p.name} ({p.x},{p.y})
         </div>
       ))}
-    </main>
+    </div>
   );
 }
