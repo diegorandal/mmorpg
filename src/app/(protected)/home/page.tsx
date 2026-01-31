@@ -1,214 +1,87 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import * as Colyseus from 'colyseus.js';
-import { Schema } from '@colyseus/schema';
-import { MyRoomState, Player } from './PlayerState';
-
-/* =========================
-   Tipos locales (React)
-========================= */
-
-interface PlayerView {
-  sessionId: string;
-  name: string;
-  x: number;
-  y: number;
-}
-
-/* =========================
-   Página
-========================= */
 
 export default function Page() {
-  const roomRef = useRef<Colyseus.Room | null>(null);
-
-  const [room, setRoom] = useState<Colyseus.Room | null>(null);
-  const [players, setPlayers] = useState<Record<string, PlayerView>>({});
-  const [status, setStatus] = useState<'idle' | 'connecting' | 'connected'>(
-    'idle'
-  );
-  const [error, setError] = useState<string>('');
-
-  /* =========================
-     Conexión
-  ========================= */
-
-  const connect = async () => {
-    try {
-      setError('');
-      setStatus('connecting');
-
-      const client = new Colyseus.Client(
-        'wss://randalmmorpg.duckdns.org'
-      );
-
-      const joinedRoom = await client.joinOrCreate('my_room', {
-        username: 'test',
-        password: 'test',
-      });
-
-      roomRef.current = joinedRoom;
-      setRoom(joinedRoom);
-      setStatus('connected');
-
-      /* =========================
-         STATE LISTENERS
-      ========================= */
-
-      joinedRoom.onStateChange.once((state) => {
-        // MAPA DE PLAYERS
-        state.players.onAdd((player: Player, sessionId: string) => {
-          console.log('onAdd', sessionId);
-
-          const build = (): PlayerView => ({
-            sessionId,
-            name:
-              // @ts-ignore — schema runtime
-              (player as any).name ?? 'Cargando…',
-            x:
-              // @ts-ignore
-              (player as any).x ?? 0,
-            y:
-              // @ts-ignore
-              (player as any).y ?? 0,
-          });
-
-          // Estado inicial
-          setPlayers((prev) => ({
-            ...prev,
-            [sessionId]: build(),
-          }));
-
-          // Cambios posteriores
-          // @ts-ignore
-          player.onChange(() => {
-            setPlayers((prev) => ({
-              ...prev,
-              [sessionId]: build(),
-            }));
-          });
-        });
-
-        state.players.onRemove((_, sessionId: string) => {
-          console.log('onRemove', sessionId);
-          setPlayers((prev) => {
-            const copy = { ...prev };
-            delete copy[sessionId];
-            return copy;
-          });
-        });
-      });
-    } catch (e) {
-      console.error(e);
-      setError('Error al conectar');
-      setStatus('idle');
-    }
-  };
-
-  /* =========================
-     Cleanup
-  ========================= */
-
   useEffect(() => {
+    let room: Colyseus.Room | null = null;
+
+    const run = async () => {
+      try {
+        console.log('🚀 Creando cliente…');
+
+        const client = new Colyseus.Client(
+          'wss://randalmmorpg.duckdns.org'
+        );
+
+        console.log('🔐 Join room…');
+
+        room = await client.joinOrCreate('my_room', {
+          username: 'debug',
+          password: 'debug',
+        });
+
+        console.log('✅ Conectado');
+        console.log('ROOM:', room);
+        console.log('SESSION:', room.sessionId);
+
+        // Log de CUALQUIER cambio de estado
+        room.onStateChange((state) => {
+          console.log('🧠 STATE CHANGE');
+          console.log(state);
+        });
+
+        // Log crudo del mapa players
+        room.onStateChange.once((state) => {
+          console.log('🗺 players map:', state.players);
+
+          state.players.onAdd((value, key) => {
+            console.log('➕ PLAYER ADD');
+            console.log('key:', key);
+            console.log('value:', value);
+            console.log('value keys:', Object.keys(value as any));
+          });
+
+          state.players.onChange((value, key) => {
+            console.log('✏️ PLAYER CHANGE');
+            console.log('key:', key);
+            console.log('value:', value);
+          });
+
+          state.players.onRemove((value, key) => {
+            console.log('❌ PLAYER REMOVE');
+            console.log('key:', key);
+            console.log('value:', value);
+          });
+        });
+      } catch (err) {
+        console.error('💥 ERROR', err);
+      }
+    };
+
+    run();
+
     return () => {
-      roomRef.current?.leave();
-      roomRef.current = null;
+      if (room) {
+        console.log('👋 Leaving room');
+        room.leave();
+      }
     };
   }, []);
 
-  /* =========================
-     UI
-  ========================= */
-
-  if (status === 'idle') {
-    return (
-      <main style={styles.center}>
-        <button onClick={connect} style={styles.button}>
-          Conectar
-        </button>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-      </main>
-    );
-  }
-
-  if (status === 'connecting') {
-    return (
-      <main style={styles.center}>
-        <p>Conectando…</p>
-      </main>
-    );
-  }
-
-  const list = Object.values(players);
-
   return (
-    <main style={styles.main}>
-      <h2>🟢 Conectado</h2>
-      <p>Room: {room?.name}</p>
-      <p>Session: {room?.sessionId}</p>
-
-      <hr />
-
-      <h3>👥 Jugadores ({list.length})</h3>
-
-      {list.map((p) => (
-        <div key={p.sessionId} style={styles.card}>
-          <p>
-            <strong>Session:</strong> {p.sessionId}
-          </p>
-          <p>
-            <strong>Nombre:</strong> {p.name || 'Cargando…'}
-          </p>
-          <p>
-            <strong>Pos:</strong> {p.x}, {p.y}
-          </p>
-        </div>
-      ))}
-
-      <button
-        style={{ ...styles.button, marginTop: 20 }}
-        onClick={() => {
-          roomRef.current?.leave();
-          setRoom(null);
-          setPlayers({});
-          setStatus('idle');
-        }}
-      >
-        Desconectar
-      </button>
+    <main
+      style={{
+        minHeight: '100vh',
+        background: '#000',
+        color: '#0f0',
+        padding: 20,
+        fontFamily: 'monospace',
+      }}
+    >
+      <h2>Colyseus Debug</h2>
+      <p>Mirá la consola del navegador 👀</p>
     </main>
   );
 }
-
-/* =========================
-   Estilos
-========================= */
-
-const styles: Record<string, React.CSSProperties> = {
-  center: {
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: '#111',
-    color: '#0f0',
-  },
-  main: {
-    minHeight: '100vh',
-    padding: 20,
-    background: '#000',
-    color: '#0f0',
-    fontFamily: 'monospace',
-  },
-  button: {
-    padding: '10px 20px',
-    cursor: 'pointer',
-  },
-  card: {
-    border: '1px solid #0f0',
-    padding: 10,
-    marginBottom: 10,
-  },
-};
