@@ -3,7 +3,7 @@ import { Room } from 'colyseus.js';
 
 // Definimos los tipos exactos de las propiedades del jugador
 interface IPlayer {
-    name: string;
+    username: string;
     x: number;
     y: number;
     lastMessage: string;
@@ -74,15 +74,15 @@ export class MainScene extends Phaser.Scene {
             };
 
             // PROTECCIÓN: Si el nombre no existe aún, esperamos a que cambie
-            if (!player.name) {
-                const unbind = player.listen("name", (newName: string) => {
+            if (!player.username) {
+                const unbind = player.listen("username", (newName: string) => {
                     if (newName) {
                         createEntity(newName);
                         unbind(); // Dejamos de escuchar este cambio específico
                     }
                 });
             } else {
-                createEntity(player.name);
+                createEntity(player.username);
             }
         });
 
