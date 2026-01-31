@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as Colyseus from 'colyseus.js';
 import { Schema } from '@colyseus/schema';
+import { MyRoomState, Player } from './PlayerState';
 
 /* =========================
    Tipos locales (React)
@@ -57,7 +58,7 @@ export default function Page() {
 
       joinedRoom.onStateChange.once((state) => {
         // MAPA DE PLAYERS
-        state.players.onAdd((player: Schema, sessionId: string) => {
+        state.players.onAdd((player: Player, sessionId: string) => {
           console.log('onAdd', sessionId);
 
           const build = (): PlayerView => ({
