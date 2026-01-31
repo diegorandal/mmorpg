@@ -3,7 +3,7 @@ import { Room } from 'colyseus.js';
 
 // Definimos los tipos exactos de las propiedades del jugador
 interface IPlayer {
-    username: string;
+    name: string;
     x: number;
     y: number;
     lastMessage: string;
@@ -45,12 +45,9 @@ export class MainScene extends Phaser.Scene {
         this.room = roomInstance;
         this.cursors = this.input.keyboard!.createCursorKeys();
 
-        console.log("Connected to room:", this.room.name);
-
         // Escuchamos a los jugadores
         this.room.state.players.onAdd((player: IPlayer, sessionId: string) => {
 
-            console.log("Player added:", player, sessionId);
             // FUNCIÓN INTERNA PARA CREAR LA ENTIDAD
             const createEntity = (name: string) => {
                 if (this.playerEntities[sessionId]) return;
@@ -74,15 +71,15 @@ export class MainScene extends Phaser.Scene {
             };
 
             // PROTECCIÓN: Si el nombre no existe aún, esperamos a que cambie
-            if (!player.username) {
-                const unbind = player.listen("username", (newName: string) => {
+            if (!player.name) {
+                const unbind = player.listen("name", (newName: string) => {
                     if (newName) {
                         createEntity(newName);
                         unbind(); // Dejamos de escuchar este cambio específico
                     }
                 });
             } else {
-                createEntity(player.username);
+                createEntity(player.name);
             }
         });
 
