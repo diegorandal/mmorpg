@@ -18,7 +18,7 @@ export default function Home() {
         username: form.user,
         password: form.pass
       });
-      console.log("Joined successfully:", joinedRoom.name);
+
       setRoom(joinedRoom);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Error al conectar");
