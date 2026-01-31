@@ -4,7 +4,7 @@ import { useState } from 'react';
 import * as Colyseus from "colyseus.js";
 import './global.css';
 
-// 1. Definimos el contrato de datos del Jugador según tu Schema
+// Interfaces estrictas
 interface IPlayerState {
   username?: string;
   name?: string;
@@ -13,7 +13,6 @@ interface IPlayerState {
   lastMessage: string;
 }
 
-// 2. Definimos cómo luce el ID de sesión junto con los datos del jugador
 interface IPlayerMonitor extends IPlayerState {
   sessionId: string;
 }
@@ -26,39 +25,42 @@ export default function Home() {
 
   const handleLogin = async () => {
     try {
+      setError(''); // Limpiamos errores previos
       const client = new Colyseus.Client("wss://randalmmorpg.duckdns.org");
 
-      // Especificamos que la Room manejará un estado genérico
       const joinedRoom = await client.joinOrCreate("my_room", {
         username: form.user,
         password: form.pass
       });
 
-      // Escuchamos cambios en el estado
-      joinedRoom.onStateChange((state) => {
-        const playersArray: IPlayerMonitor[] = [];
+      // Guardamos la sala PRIMERO
+      setRoom(joinedRoom);
 
-        // Colyseus usa MapSchema, que se puede recorrer con forEach
+      // Configuramos los listeners del estado
+      joinedRoom.onStateChange((state) => {
+        if (!state || !state.players) return;
+
+        const playersArray: IPlayerMonitor[] = [];
         state.players.forEach((player: IPlayerState, sessionId: string) => {
           playersArray.push({
             sessionId,
-            username: player.username,
-            name: player.name,
-            x: player.x,
-            y: player.y,
-            lastMessage: player.lastMessage
+            username: player?.username,
+            name: player?.name,
+            x: player?.x || 0,
+            y: player?.y || 0,
+            lastMessage: player?.lastMessage || ""
           });
         });
-
         setPlayers(playersArray);
       });
 
-      setRoom(joinedRoom);
     } catch (e: unknown) {
+      console.error("Error en login:", e);
       setError(e instanceof Error ? e.message : "Error al conectar");
     }
   };
 
+  // Pantalla de Login
   if (!room) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#222', color: 'white' }}>
@@ -66,15 +68,17 @@ export default function Home() {
         <input type="text" placeholder="Usuario" onChange={e => setForm({ ...form, user: e.target.value })} style={{ margin: 5, padding: 8 }} />
         <input type="password" placeholder="Password" onChange={e => setForm({ ...form, pass: e.target.value })} style={{ margin: 5, padding: 8 }} />
         <button onClick={handleLogin} style={{ padding: '10px 20px', cursor: 'pointer' }}>Entrar</button>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
       </div>
     );
   }
 
+  // Pantalla de Monitor (Solo se renderiza si room existe)
   return (
     <main style={{ padding: '20px', backgroundColor: '#000', color: '#0f0', minHeight: '100vh', fontFamily: 'monospace' }}>
-      <h2>📡 Monitor de Sala: {room.name}</h2>
-      <p>ID de sesión: {room.sessionId}</p>
+      {/* Usamos Optional Chaining (?.) para evitar leer 'name' de undefined */}
+      <h2>📡 Monitor de Sala: {room?.name || "Conectando..."}</h2>
+      <p>ID de sesión: {room?.sessionId}</p>
       <hr style={{ borderColor: '#0f0' }} />
 
       <h3>👥 Jugadores detectados ({players.length}):</h3>
@@ -83,29 +87,22 @@ export default function Home() {
         {players.map((p) => (
           <div key={p.sessionId} style={{ border: '1px solid #0f0', padding: '15px', borderRadius: '5px' }}>
             <p><strong>SessionID:</strong> <span style={{ color: '#fff' }}>{p.sessionId}</span></p>
-
-            {/* Visualización clara de qué propiedad está llegando */}
-            <p><strong>Propiedad .name:</strong> {p.name !== undefined ?
-              <span style={{ color: '#fff' }}>{p.name}</span> :
-              <span style={{ color: '#ff4444' }}>UNDEFINED</span>}
-            </p>
-
-            <p><strong>Propiedad .username:</strong> {p.username !== undefined ?
-              <span style={{ color: '#fff' }}>{p.username}</span> :
-              <span style={{ color: '#ff4444' }}>UNDEFINED</span>}
-            </p>
-
+            <p><strong>Propiedad .name:</strong> {p.name ?? <span style={{ color: '#ff4444' }}>UNDEFINED</span>}</p>
+            <p><strong>Propiedad .username:</strong> {p.username ?? <span style={{ color: '#ff4444' }}>UNDEFINED</span>}</p>
             <p><strong>Posición:</strong> X: {p.x}, Y: {p.y}</p>
-            <p><strong>Último Mensaje:</strong> {p.lastMessage || "(vacio)"}</p>
           </div>
         ))}
       </div>
 
       <button
-        onClick={() => room.leave()}
+        onClick={() => {
+          room.leave();
+          setRoom(null);
+          setPlayers([]);
+        }}
         style={{ marginTop: '30px', padding: '10px 20px', background: '#440000', color: '#ffaaaa', border: '1px solid #ff4444', cursor: 'pointer' }}
       >
-        Desconectar y volver
+        Desconectar
       </button>
     </main>
   );
