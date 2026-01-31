@@ -38,19 +38,23 @@ export default function Home() {
 
       // Configuramos los listeners del estado
       joinedRoom.onStateChange((state) => {
-        if (!state || !state.players) return;
+        if (!state?.players) return;
 
         const playersArray: IPlayerMonitor[] = [];
-        state.players.forEach((player: IPlayerState, sessionId: string) => {
+
+        state.players.forEach((player: IPlayerState | undefined, sessionId: string) => {
+          if (!player) return; // ⬅️ ESTO ES CLAVE
+
           playersArray.push({
             sessionId,
-            username: player?.username,
-            name: player?.name,
-            x: player?.x || 0,
-            y: player?.y || 0,
-            lastMessage: player?.lastMessage || ""
+            username: player.username,
+            name: player.name,
+            x: player.x ?? 0,
+            y: player.y ?? 0,
+            lastMessage: player.lastMessage ?? ""
           });
         });
+
         setPlayers(playersArray);
       });
 
