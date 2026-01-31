@@ -38,38 +38,49 @@ export class MainScene extends Phaser.Scene {
         const roomInstance = this.registry.get('room') as Room;
 
         if (!roomInstance) {
-            console.error("No room instance found in registry");
+            console.error("No room instance found");
             return;
         }
 
         this.room = roomInstance;
         this.cursors = this.input.keyboard!.createCursorKeys();
 
-        // Escuchamos la adición de jugadores
+        // Escuchamos a los jugadores
         this.room.state.players.onAdd((player: IPlayer, sessionId: string) => {
-            const sprite = this.physics.add.sprite(player.x, player.y, 'ball');
 
-            const label = this.add.text(player.x, player.y - 30, player.name || "...", {
-                fontSize: '14px',
-                color: '#ffffff'
-            }).setOrigin(0.5);
+            // FUNCIÓN INTERNA PARA CREAR LA ENTIDAD
+            const createEntity = (name: string) => {
+                if (this.playerEntities[sessionId]) return;
 
-            this.playerEntities[sessionId] = { sprite, label };
+                const sprite = this.physics.add.sprite(player.x, player.y, 'ball');
+                const label = this.add.text(player.x, player.y - 30, name, {
+                    fontSize: '14px',
+                    color: '#ffffff'
+                }).setOrigin(0.5);
 
-            // Escuchas tipadas: el compilador sabrá que 'newX' es number y 'newName' es string
-            player.listen("x", (newX: number) => {
-                sprite.x = newX;
-                label.x = newX;
-            });
+                this.playerEntities[sessionId] = { sprite, label };
 
-            player.listen("y", (newY: number) => {
-                sprite.y = newY;
-                label.y = newY - 30;
-            });
+                player.listen("x", (newX: number) => {
+                    sprite.x = newX;
+                    label.x = newX;
+                });
+                player.listen("y", (newY: number) => {
+                    sprite.y = newY;
+                    label.y = newY - 30;
+                });
+            };
 
-            player.listen("name", (newName: string) => {
-                label.setText(newName);
-            });
+            // PROTECCIÓN: Si el nombre no existe aún, esperamos a que cambie
+            if (!player.name) {
+                const unbind = player.listen("name", (newName: string) => {
+                    if (newName) {
+                        createEntity(newName);
+                        unbind(); // Dejamos de escuchar este cambio específico
+                    }
+                });
+            } else {
+                createEntity(player.name);
+            }
         });
 
         this.room.state.players.onRemove((_: IPlayer, sessionId: string) => {

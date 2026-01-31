@@ -28,19 +28,18 @@ export default function Home() {
     if (!room) return;
 
     let game: Phaser.Game | null = null;
+
     const initPhaser = async () => {
       const Phaser = (await import('phaser')).default;
       const { getGameConfig } = await import('../game/PhaserGame');
 
       if (gameContainerRef.current) {
         const config = getGameConfig(gameContainerRef.current.id);
-        // Pasamos la room a los datos iniciales de la escena
-        config.callbacks = {
-          preBoot: (g) => {
-            g.registry.set('room', room);
-          }
-        };
+
         game = new Phaser.Game(config);
+
+        // Forma más segura: Inyectar directamente en el registry apenas se crea la instancia
+        game.registry.set('room', room);
       }
     };
 
