@@ -41,6 +41,8 @@ export class MainScene extends Phaser.Scene {
             console.error("No room instance found");
             return;
         }
+        
+        console.log("MainScene connected to room:", roomInstance);
 
         this.room = roomInstance;
         this.cursors = this.input.keyboard!.createCursorKeys();
@@ -50,6 +52,7 @@ export class MainScene extends Phaser.Scene {
 
             // FUNCIÓN INTERNA PARA CREAR LA ENTIDAD
             const createEntity = (name: string) => {
+                console.log(`Creating entity for player ${name} (${sessionId})`);
                 if (this.playerEntities[sessionId]) return;
 
                 const sprite = this.physics.add.sprite(player.x, player.y, 'ball');
