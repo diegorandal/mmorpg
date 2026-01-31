@@ -1,29 +1,55 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as Colyseus from "colyseus.js";
 import './global.css';
 
+// 1. Definimos el contrato de datos del Jugador según tu Schema
+interface IPlayerState {
+  username?: string;
+  name?: string;
+  x: number;
+  y: number;
+  lastMessage: string;
+}
+
+// 2. Definimos cómo luce el ID de sesión junto con los datos del jugador
+interface IPlayerMonitor extends IPlayerState {
+  sessionId: string;
+}
+
 export default function Home() {
   const [room, setRoom] = useState<Colyseus.Room | null>(null);
-  const [players, setPlayers] = useState<any[]>([]); // Para mostrar la lista en pantalla
+  const [players, setPlayers] = useState<IPlayerMonitor[]>([]);
   const [form, setForm] = useState({ user: '', pass: '' });
   const [error, setError] = useState('');
 
   const handleLogin = async () => {
     try {
       const client = new Colyseus.Client("wss://randalmmorpg.duckdns.org");
+
+      // Especificamos que la Room manejará un estado genérico
       const joinedRoom = await client.joinOrCreate("my_room", {
         username: form.user,
         password: form.pass
       });
 
-      // Escuchar cambios en el estado para actualizar React
+      // Escuchamos cambios en el estado
       joinedRoom.onStateChange((state) => {
-        const playersArray: any[] = [];
-        state.players.forEach((player: any, sessionId: string) => {
-          playersArray.push({ id: sessionId, ...player });
+        const playersArray: IPlayerMonitor[] = [];
+
+        // Colyseus usa MapSchema, que se puede recorrer con forEach
+        state.players.forEach((player: IPlayerState, sessionId: string) => {
+          playersArray.push({
+            sessionId,
+            username: player.username,
+            name: player.name,
+            x: player.x,
+            y: player.y,
+            lastMessage: player.lastMessage
+          });
         });
+
         setPlayers(playersArray);
       });
 
@@ -46,34 +72,40 @@ export default function Home() {
   }
 
   return (
-    <main style={{ padding: '20px', backgroundColor: '#000', color: '#0f0', height: '100vh', fontFamily: 'monospace' }}>
+    <main style={{ padding: '20px', backgroundColor: '#000', color: '#0f0', minHeight: '100vh', fontFamily: 'monospace' }}>
       <h2>📡 Monitor de Sala: {room.name}</h2>
       <p>ID de sesión: {room.sessionId}</p>
-      <hr />
+      <hr style={{ borderColor: '#0f0' }} />
 
-      <h3>👥 Jugadores en el Estado:</h3>
-      {players.length === 0 && <p>Esperando sincronización de jugadores...</p>}
+      <h3>👥 Jugadores detectados ({players.length}):</h3>
 
-      <div style={{ display: 'grid', gap: '10px' }}>
+      <div style={{ display: 'grid', gap: '15px', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
         {players.map((p) => (
-          <div key={p.id} style={{ border: '1px solid #0f0', padding: '10px' }}>
-            <p><strong>SessionID:</strong> {p.id}</p>
-            {/* Aquí es donde veremos si existe 'name' o 'username' */}
-            <p><strong>Propiedad .name:</strong> {p.name !== undefined ? String(p.name) : <span style={{ color: 'red' }}>undefined</span>}</p>
-            <p><strong>Propiedad .username:</strong> {p.username !== undefined ? String(p.username) : <span style={{ color: 'red' }}>undefined</span>}</p>
+          <div key={p.sessionId} style={{ border: '1px solid #0f0', padding: '15px', borderRadius: '5px' }}>
+            <p><strong>SessionID:</strong> <span style={{ color: '#fff' }}>{p.sessionId}</span></p>
+
+            {/* Visualización clara de qué propiedad está llegando */}
+            <p><strong>Propiedad .name:</strong> {p.name !== undefined ?
+              <span style={{ color: '#fff' }}>{p.name}</span> :
+              <span style={{ color: '#ff4444' }}>UNDEFINED</span>}
+            </p>
+
+            <p><strong>Propiedad .username:</strong> {p.username !== undefined ?
+              <span style={{ color: '#fff' }}>{p.username}</span> :
+              <span style={{ color: '#ff4444' }}>UNDEFINED</span>}
+            </p>
+
             <p><strong>Posición:</strong> X: {p.x}, Y: {p.y}</p>
-            <pre style={{ fontSize: '10px', color: '#888' }}>
-              JSON crudo: {JSON.stringify(p)}
-            </pre>
+            <p><strong>Último Mensaje:</strong> {p.lastMessage || "(vacio)"}</p>
           </div>
         ))}
       </div>
 
       <button
         onClick={() => room.leave()}
-        style={{ marginTop: '20px', padding: '10px', background: 'red', color: 'white', border: 'none', cursor: 'pointer' }}
+        style={{ marginTop: '30px', padding: '10px 20px', background: '#440000', color: '#ffaaaa', border: '1px solid #ff4444', cursor: 'pointer' }}
       >
-        Desconectar
+        Desconectar y volver
       </button>
     </main>
   );
