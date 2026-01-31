@@ -14,10 +14,12 @@ export default function Home() {
     try {
       const client = new Colyseus.Client("ws://204.216.153.247:2567");
       // Intentamos unirnos enviando las credenciales a onAuth
+      console.log("client.http: ", client.http);
       const joinedRoom = await client.joinOrCreate("my_room", {
         username: form.user,
         password: form.pass
       });
+      console.log("room: ", joinedRoom);
       setRoom(joinedRoom);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Error al conectar");
