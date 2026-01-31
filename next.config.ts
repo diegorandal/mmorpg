@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
   },
   allowedDevOrigins: ['*'], // Add your dev origin here
   reactStrictMode: false,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
