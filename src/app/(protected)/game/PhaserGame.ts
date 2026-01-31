@@ -15,7 +15,10 @@ export const getGameConfig = (containerId: string): Phaser.Types.Core.GameConfig
     height: '100%',
     physics: {
         default: 'arcade',
-        arcade: { gravity: { x: 0, y: 300 } },
+        arcade: {
+            gravity: { x: 0, y: 0 }, // RPG top-down no usa gravedad
+            debug: false
+        },
     },
     scene: [MainScene], // Aquí añades todas tus escenas
 
