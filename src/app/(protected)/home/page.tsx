@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import * as Colyseus from "colyseus.js";
 import './global.css';
 
