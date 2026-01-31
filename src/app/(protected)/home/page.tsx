@@ -77,6 +77,9 @@ export default function Home() {
         /* ===== Player ADD ===== */
 
         playersMap.onAdd((player: unknown, sessionId: string) => {
+          
+          console.log("PLAYER FROM SERVER:", JSON.parse(JSON.stringify(player)));
+
           if (!isPlayerDTO(player)) return;
 
           setPlayers(prev => ({
@@ -221,7 +224,10 @@ export default function Home() {
               <span style={{ color: '#fff' }}>{p.sessionId}</span>
             </p>
             <p>
-              <strong>Name:</strong> {p.name}
+              <strong>Name:</strong>{" "}
+              {typeof p.name === "string" && p.name.length > 0
+                ? p.name
+                : "(cargando)"}
             </p>
             <p>
               <strong>Pos:</strong> {p.x}, {p.y}
