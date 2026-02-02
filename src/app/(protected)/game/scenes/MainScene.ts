@@ -25,22 +25,23 @@ export class MainScene extends Phaser.Scene {
     create(): void {
         const roomInstance = this.registry.get('room') as Room<MyRoomState>;
         if (!roomInstance) return;
-
         this.room = roomInstance;
-        this.cursors = this.input.keyboard!.createCursorKeys();
 
-        // Esperamos a que llegue el primer estado
         this.room.onStateChange.once((state) => {
-            // Fix: Casting a any porque TS no ve onAdd en MapSchema
-            const playersMap = state.players as any;
+            // Log para debug: Si ves un objeto {} vacío sin funciones, el Schema falló
+            console.log("State players type:", state.players);
 
-            playersMap.onAdd((player: Player, sessionId: string) => {
-                this.addPlayer(player, sessionId);
-            });
+            try {
+                (state.players as any).onAdd((player: any, key: string) => {
+                    this.addPlayer(player, key);
+                });
 
-            playersMap.onRemove((_: Player, sessionId: string) => {
-                this.removePlayer(sessionId);
-            });
+                (state.players as any).onRemove((_: any, key: string) => {
+                    this.removePlayer(key);
+                });
+            } catch (err) {
+                console.error("Error crítico: El Schema no reconoció MapSchema. Revisa que PlayerState.ts sea igual al del server.", err);
+            }
         });
     }
 
