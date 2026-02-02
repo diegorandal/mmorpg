@@ -17,10 +17,7 @@ export default function Page() {
 
         console.log('🔐 Join room…');
 
-        room = await client.joinOrCreate('my_room', {
-          username: 'debug',
-          password: 'debug',
-        });
+        room = await client.joinOrCreate('my_room', {username: 'debug', password: 'debug'});
 
         console.log('✅ Conectado');
         console.log('ROOM:', room);

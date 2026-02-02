@@ -13,12 +13,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@colyseus/schema": "4.0.0",
     "@worldcoin/mini-apps-ui-kit-react": "^1.0.2",
     "@worldcoin/minikit-js": "latest",
     "@worldcoin/minikit-react": "latest",
     "clsx": "^2.1.1",
-    "colyseus": "^0.17.8",
-    "colyseus.js": "^0.16.22",
+    "colyseus.js": "0.16.22",
     "iconoir-react": "^7.11.0",
     "next": "^15.2.8",
     "next-auth": "^5.0.0-beta.25",
