@@ -42,7 +42,7 @@ export class MainScene extends Phaser.Scene {
         });
 
         // 2. Escuchar movimientos
-        this.room.onMessage("chat", (data) => {
+        this.room.onMessage("player_chat", (data) => {
             console.log(`${data.playerName} says: ${data.message}`);
         });
 
