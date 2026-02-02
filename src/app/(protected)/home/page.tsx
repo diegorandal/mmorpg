@@ -16,11 +16,13 @@ export default function Home() {
       const client = new Colyseus.Client("wss://randalmmorpg.duckdns.org");
       // Intentamos unirnos enviando las credenciales a onAuth
       
-      const joinedRoom = await client.joinOrCreate<MyRoomState>("my_room", {
+      const joinedRoom = await client.joinOrCreate("my_room", {
         username: form.user,
         password: form.pass
-      });
+      }, MyRoomState);
+
       setRoom(joinedRoom);
+      
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Error al conectar");
     }
