@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import * as Colyseus from "@colyseus/sdk";
+import { MyRoomState } from '@/app/(protected)/home/PlayerState';
 import './global.css';
 
 export default function Home() {
@@ -14,7 +15,8 @@ export default function Home() {
     try {
       const client = new Colyseus.Client("wss://randalmmorpg.duckdns.org");
       // Intentamos unirnos enviando las credenciales a onAuth
-      const joinedRoom = await client.joinOrCreate("my_room", {
+      
+      const joinedRoom = await client.joinOrCreate<MyRoomState>("my_room", {
         username: form.user,
         password: form.pass
       });
