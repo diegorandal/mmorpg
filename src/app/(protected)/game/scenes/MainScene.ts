@@ -6,6 +6,8 @@ interface IPlayer {
     name: string;
     x: number;
     y: number;
+    hp: number;
+    level: number;
     lastMessage: string;
     // Tipamos 'listen' para que el valor (V) sea del tipo de la propiedad (K)
     listen<K extends keyof IPlayer>(
@@ -94,6 +96,9 @@ export class MainScene extends Phaser.Scene {
                 delete this.playerEntities[sessionId];
             }
         });
+
+
+
     }
 
     update(): void {
