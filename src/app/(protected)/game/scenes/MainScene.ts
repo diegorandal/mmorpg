@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Room } from 'colyseus.js';
+import { Room } from '@colyseus/sdk';
 
 // Definimos los tipos exactos de las propiedades del jugador
 interface IPlayer {
