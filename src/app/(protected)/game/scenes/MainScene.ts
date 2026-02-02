@@ -26,26 +26,26 @@ export class MainScene extends Phaser.Scene {
         const roomInstance = this.registry.get('room') as Room<MyRoomState>;
         if (!roomInstance) return;
         this.room = roomInstance;
+        this.cursors = this.input.keyboard!.createCursorKeys();
 
+        // 1. Escuchar el estado inicial
         this.room.onStateChange.once((state) => {
-            // Log para debug: Si ves un objeto {} vacío sin funciones, el Schema falló
-            console.log("State players type:", state.players);
 
-            try {
-                (state.players as any).onAdd((player: any, key: string) => {
-                    this.addPlayer(player, key);
-                });
+            // Usamos casting a any para que el compilador de Next.js/TS no bloquee el onAdd
+            const playersMap = state.players as any;
 
-                (state.players as any).onRemove((_: any, key: string) => {
-                    this.removePlayer(key);
-                });
-            } catch (err) {
-                console.error("Error crítico: El Schema no reconoció MapSchema. Revisa que PlayerState.ts sea igual al del server.", err);
-            }
+            playersMap.onAdd((player: Player, sessionId: string) => {
+                this.addPlayer(player, sessionId);
+            });
+
+            playersMap.onRemove((_: Player, sessionId: string) => {
+                this.removePlayer(sessionId);
+            });
         });
     }
 
     private addPlayer(player: Player, sessionId: string) {
+        // Crear visuales
         const sprite = this.physics.add.sprite(player.x, player.y, 'ball');
         const label = this.add.text(player.x, player.y - 30, player.name || "...", {
             fontSize: '14px',
@@ -56,14 +56,13 @@ export class MainScene extends Phaser.Scene {
             sprite, label, serverX: player.x, serverY: player.y
         };
 
-        // Fix: Casting a any porque TS no ve onChange en la instancia de Player
+        // 2. Escuchar cambios en el jugador usando decoradores (onChange)
         (player as any).onChange(() => {
             const entity = this.playerEntities[sessionId];
             if (entity) {
-                // Actualizar nombre si cambia
                 if (player.name) entity.label.setText(player.name);
 
-                // Si es un jugador remoto, actualizamos su posición objetivo
+                // Solo interpolamos si es un jugador remoto
                 if (sessionId !== this.room.sessionId) {
                     entity.serverX = player.x;
                     entity.serverY = player.y;
@@ -88,7 +87,7 @@ export class MainScene extends Phaser.Scene {
         const speed = 5;
         let moved = false;
 
-        // Movimiento local (Predicción)
+        // Movimiento local (Predicción del cliente)
         if (this.cursors.left.isDown) { myEntity.sprite.x -= speed; moved = true; }
         else if (this.cursors.right.isDown) { myEntity.sprite.x += speed; moved = true; }
         if (this.cursors.up.isDown) { myEntity.sprite.y -= speed; moved = true; }
@@ -97,19 +96,19 @@ export class MainScene extends Phaser.Scene {
         if (moved) {
             myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 30);
 
-            // Enviamos posición al servidor
+            // Enviar posición al servidor (Redondeado para evitar floats infinitos)
             this.room.send("move", {
                 x: Math.floor(myEntity.sprite.x),
                 y: Math.floor(myEntity.sprite.y)
             });
         }
 
-        // Suavizado para los demás jugadores
+        // 3. Interpolación para suavizar el movimiento de los demás
         for (let id in this.playerEntities) {
             if (id === this.room.sessionId) continue;
             const entity = this.playerEntities[id];
 
-            // Interpolación lineal (15% del camino por frame)
+            // Suavizamos el movimiento hacia la posición que dice el servidor
             entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.15);
             entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.15);
             entity.label.setPosition(entity.sprite.x, entity.sprite.y - 30);
