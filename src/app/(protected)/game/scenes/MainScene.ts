@@ -1,82 +1,70 @@
 import Phaser from 'phaser';
 import { Room } from '@colyseus/sdk';
-import { MyRoomState, Player } from '@/app/(protected)/home/PlayerState';
+// Importamos solo como tipo para TS, no dependemos de su lógica interna
+import type { MyRoomState } from '@/app/(protected)/home/PlayerState';
 
 export class MainScene extends Phaser.Scene {
     private room!: Room<MyRoomState>;
-    private playerEntities: {
-        [sessionId: string]: {
-            sprite: Phaser.Physics.Arcade.Sprite,
-            label: Phaser.GameObjects.Text,
-            serverX: number,
-            serverY: number
-        }
-    } = {};
+    private playerEntities: { [sessionId: string]: any } = {};
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
 
-    constructor() {
-        super('MainScene');
-    }
-
-    preload(): void {
-        this.load.image('ball', 'https://labs.phaser.io/assets/sprites/shinyball.png');
-    }
-
     create(): void {
-        const roomInstance = this.registry.get('room') as Room;
+        const roomInstance = this.registry.get('room') as Room<MyRoomState>;
         this.room = roomInstance;
+        this.cursors = this.input.keyboard!.createCursorKeys();
 
-        // 1. Escuchar nuevos jugadores
-        this.room.onMessage("player_joined", (data) => {
-            this.addPlayer(data, data.id);
-        });
+        // Escuchamos CUALQUIER cambio en el estado
+        this.room.onStateChange((state) => {
+            // Convertimos el mapa de jugadores a un objeto plano de JS
+            // Esto elimina la dependencia de onAdd/onChange
+            const playersData = state.players.toJSON();
 
-        // 2. Escuchar movimientos
-        this.room.onMessage("player_moved", (data) => {
-            const entity = this.playerEntities[data.id];
-            if (entity) {
-                // Actualizamos posición objetivo para la interpolación
-                entity.serverX = data.x;
-                entity.serverY = data.y;
+            // 1. Sincronizar jugadores existentes y nuevos
+            for (const sessionId in playersData) {
+                const data = playersData[sessionId];
+
+                if (!this.playerEntities[sessionId]) {
+                    this.addPlayer(data, sessionId);
+                } else {
+                    this.updatePlayer(data, sessionId);
+                }
             }
-        });
 
-        // 2. Escuchar movimientos
-        this.room.onMessage("player_chat", (data) => {
-            console.log(`${data.playerName} says: ${data.message}`);
-        });
-
-        // 3. Escuchar desconexiones
-        this.room.onMessage("player_left", (data) => {
-            this.removePlayer(data.id);
-        });
-    }
-
-    private addPlayer(player: Player, sessionId: string) {
-        // Crear visuales
-        const sprite = this.physics.add.sprite(player.x, player.y, 'ball');
-        const label = this.add.text(player.x, player.y - 30, player.name || "...", {
-            fontSize: '14px',
-            color: '#ffffff'
-        }).setOrigin(0.5);
-
-        this.playerEntities[sessionId] = {
-            sprite, label, serverX: player.x, serverY: player.y
-        };
-
-        // 2. Escuchar cambios en el jugador usando decoradores (onChange)
-        (player as any).onChange(() => {
-            const entity = this.playerEntities[sessionId];
-            if (entity) {
-                if (player.name) entity.label.setText(player.name);
-
-                // Solo interpolamos si es un jugador remoto
-                if (sessionId !== this.room.sessionId) {
-                    entity.serverX = player.x;
-                    entity.serverY = player.y;
+            // 2. Eliminar jugadores que ya no están en el JSON
+            for (const sessionId in this.playerEntities) {
+                if (!playersData[sessionId]) {
+                    this.removePlayer(sessionId);
                 }
             }
         });
+    }
+
+    private addPlayer(data: any, sessionId: string) {
+        const sprite = this.physics.add.sprite(data.x, data.y, 'ball');
+        const label = this.add.text(data.x, data.y - 30, data.name || "...", { fontSize: '14px' }).setOrigin(0.5);
+
+        this.playerEntities[sessionId] = {
+            sprite,
+            label,
+            serverX: data.x,
+            serverY: data.y,
+            hp: data.hp
+        };
+    }
+
+    private updatePlayer(data: any, sessionId: string) {
+        const entity = this.playerEntities[sessionId];
+        if (!entity) return;
+
+        // Actualizamos HP, Nombre, etc.
+        entity.hp = data.hp;
+        if (data.name) entity.label.setText(data.name);
+
+        // Si es un jugador remoto, guardamos posición para interpolar en el update()
+        if (sessionId !== this.room.sessionId) {
+            entity.serverX = data.x;
+            entity.serverY = data.y;
+        }
     }
 
     private removePlayer(sessionId: string) {
@@ -89,36 +77,30 @@ export class MainScene extends Phaser.Scene {
     }
 
     update(): void {
-        if (!this.room || !this.playerEntities[this.room.sessionId]) return;
+        if (!this.room) return;
 
-        const myEntity = this.playerEntities[this.room.sessionId];
-        const speed = 5;
-        let moved = false;
+        // Movimiento local (Predicción)
+        const myId = this.room.sessionId;
+        const myEntity = this.playerEntities[myId];
+        if (myEntity) {
+            let moved = false;
+            if (this.cursors.left.isDown) { myEntity.sprite.x -= 5; moved = true; }
+            if (this.cursors.right.isDown) { myEntity.sprite.x += 5; moved = true; }
+            if (this.cursors.up.isDown) { myEntity.sprite.y -= 5; moved = true; }
+            if (this.cursors.down.isDown) { myEntity.sprite.y += 5; moved = true; }
 
-        // Movimiento local (Predicción del cliente)
-        if (this.cursors.left.isDown) { myEntity.sprite.x -= speed; moved = true; }
-        else if (this.cursors.right.isDown) { myEntity.sprite.x += speed; moved = true; }
-        if (this.cursors.up.isDown) { myEntity.sprite.y -= speed; moved = true; }
-        else if (this.cursors.down.isDown) { myEntity.sprite.y += speed; moved = true; }
-
-        if (moved) {
-            myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 30);
-
-            // Enviar posición al servidor (Redondeado para evitar floats infinitos)
-            this.room.send("move", {
-                x: Math.floor(myEntity.sprite.x),
-                y: Math.floor(myEntity.sprite.y)
-            });
+            if (moved) {
+                myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 30);
+                this.room.send("move", { x: Math.floor(myEntity.sprite.x), y: Math.floor(myEntity.sprite.y) });
+            }
         }
 
-        // 3. Interpolación para suavizar el movimiento de los demás
-        for (let id in this.playerEntities) {
-            if (id === this.room.sessionId) continue;
+        // Interpolación de remotos
+        for (const id in this.playerEntities) {
+            if (id === myId) continue;
             const entity = this.playerEntities[id];
-
-            // Suavizamos el movimiento hacia la posición que dice el servidor
-            entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.15);
-            entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.15);
+            entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.2);
+            entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.2);
             entity.label.setPosition(entity.sprite.x, entity.sprite.y - 30);
         }
     }
