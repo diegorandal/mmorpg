@@ -1,27 +1,15 @@
 import Phaser from 'phaser';
 import { Room } from '@colyseus/sdk';
-
-// Definimos la interfaz del jugador según tu Schema de Colyseus
-interface IPlayer {
-    name: string;
-    x: number;
-    y: number;
-    hp: number;
-    level: number;
-    lastMessage: string;
-    // Tipado para los listeners de Colyseus SDK 2026
-    listen<K extends keyof IPlayer>(
-        prop: K,
-        callback: (value: IPlayer[K], previousValue?: IPlayer[K]) => void
-    ): () => void;
-}
+import { MyRoomState, Player } from '@/app/(protected)/home/PlayerState';
 
 export class MainScene extends Phaser.Scene {
-    private room!: Room;
+    private room!: Room<MyRoomState>;
     private playerEntities: {
         [sessionId: string]: {
             sprite: Phaser.Physics.Arcade.Sprite,
-            label: Phaser.GameObjects.Text
+            label: Phaser.GameObjects.Text,
+            serverX: number,
+            serverY: number
         }
     } = {};
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -31,87 +19,64 @@ export class MainScene extends Phaser.Scene {
     }
 
     preload(): void {
-        // Usamos un asset externo para pruebas
         this.load.image('ball', 'https://labs.phaser.io/assets/sprites/shinyball.png');
     }
 
     create(): void {
-        const roomInstance = this.registry.get('room') as Room;
-
-        if (!roomInstance) {
-            console.error("No se encontró la instancia de la sala en el registry");
-            return;
-        }
+        const roomInstance = this.registry.get('room') as Room<MyRoomState>;
+        if (!roomInstance) return;
 
         this.room = roomInstance;
         this.cursors = this.input.keyboard!.createCursorKeys();
 
-        console.log("🎮 Conectado a la sala:", this.room.name);
-
-        // --- SOLUCIÓN AL ERROR: Esperar a que el estado esté listo ---
+        // Esperamos a que llegue el primer estado
         this.room.onStateChange.once((state) => {
+            // Fix: Casting a any porque TS no ve onAdd en MapSchema
+            const playersMap = state.players as any;
 
-            // 1. Manejar jugadores que entran (o que ya estaban)
-            state.players.onAdd((player: IPlayer, sessionId: string) => {
-                this.createPlayerEntity(player, sessionId);
+            playersMap.onAdd((player: Player, sessionId: string) => {
+                this.addPlayer(player, sessionId);
             });
 
-            // 2. Manejar jugadores que salen
-            state.players.onRemove((player: IPlayer, sessionId: string) => {
-                this.removePlayerEntity(sessionId);
+            playersMap.onRemove((_: Player, sessionId: string) => {
+                this.removePlayer(sessionId);
             });
         });
     }
 
-    private createPlayerEntity(player: IPlayer, sessionId: string) {
-        console.log(`Añadiendo entidad: ${sessionId}`);
+    private addPlayer(player: Player, sessionId: string) {
+        const sprite = this.physics.add.sprite(player.x, player.y, 'ball');
+        const label = this.add.text(player.x, player.y - 30, player.name || "...", {
+            fontSize: '14px',
+            color: '#ffffff'
+        }).setOrigin(0.5);
 
-        // Función para inicializar el sprite y texto
-        const setupVisuals = (name: string) => {
-            if (this.playerEntities[sessionId]) return;
-
-            const sprite = this.physics.add.sprite(player.x, player.y, 'ball');
-            const label = this.add.text(player.x, player.y - 30, name, {
-                fontSize: '14px',
-                color: '#ffffff',
-                backgroundColor: '#00000088'
-            }).setOrigin(0.5);
-
-            this.playerEntities[sessionId] = { sprite, label };
-
-            // Listeners de movimiento (solo para otros jugadores, el nuestro es local)
-            if (sessionId !== this.room.sessionId) {
-                player.listen("x", (newX) => {
-                    sprite.x = newX;
-                    label.x = newX;
-                });
-                player.listen("y", (newY) => {
-                    sprite.y = newY;
-                    label.y = newY - 30;
-                });
-            }
+        this.playerEntities[sessionId] = {
+            sprite, label, serverX: player.x, serverY: player.y
         };
 
-        // Si el nombre no está listo (por lag de DB), esperamos a que cambie
-        if (!player.name) {
-            const unbind = player.listen("name", (newName) => {
-                if (newName) {
-                    setupVisuals(newName);
-                    unbind();
+        // Fix: Casting a any porque TS no ve onChange en la instancia de Player
+        (player as any).onChange(() => {
+            const entity = this.playerEntities[sessionId];
+            if (entity) {
+                // Actualizar nombre si cambia
+                if (player.name) entity.label.setText(player.name);
+
+                // Si es un jugador remoto, actualizamos su posición objetivo
+                if (sessionId !== this.room.sessionId) {
+                    entity.serverX = player.x;
+                    entity.serverY = player.y;
                 }
-            });
-        } else {
-            setupVisuals(player.name);
-        }
+            }
+        });
     }
 
-    private removePlayerEntity(sessionId: string) {
+    private removePlayer(sessionId: string) {
         const entity = this.playerEntities[sessionId];
         if (entity) {
             entity.sprite.destroy();
             entity.label.destroy();
             delete this.playerEntities[sessionId];
-            console.log(`Entidad eliminada: ${sessionId}`);
         }
     }
 
@@ -122,22 +87,31 @@ export class MainScene extends Phaser.Scene {
         const speed = 5;
         let moved = false;
 
-        // Movimiento Local (Predicción)
+        // Movimiento local (Predicción)
         if (this.cursors.left.isDown) { myEntity.sprite.x -= speed; moved = true; }
         else if (this.cursors.right.isDown) { myEntity.sprite.x += speed; moved = true; }
-
         if (this.cursors.up.isDown) { myEntity.sprite.y -= speed; moved = true; }
         else if (this.cursors.down.isDown) { myEntity.sprite.y += speed; moved = true; }
 
         if (moved) {
-            // Actualizar etiqueta localmente
             myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 30);
 
-            // Notificar al servidor
+            // Enviamos posición al servidor
             this.room.send("move", {
                 x: Math.floor(myEntity.sprite.x),
                 y: Math.floor(myEntity.sprite.y)
             });
+        }
+
+        // Suavizado para los demás jugadores
+        for (let id in this.playerEntities) {
+            if (id === this.room.sessionId) continue;
+            const entity = this.playerEntities[id];
+
+            // Interpolación lineal (15% del camino por frame)
+            entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.15);
+            entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.15);
+            entity.label.setPosition(entity.sprite.x, entity.sprite.y - 30);
         }
     }
 }
