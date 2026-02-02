@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import * as Colyseus from 'colyseus.js';
+import * as Colyseus from '@colyseus/sdk';
 
 export default function Page() {
   useEffect(() => {
