@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { Room } from '@colyseus/sdk';
 
-// Definimos los tipos exactos de las propiedades del jugador
+// Definimos la interfaz del jugador según tu Schema de Colyseus
 interface IPlayer {
     name: string;
     x: number;
@@ -9,13 +9,11 @@ interface IPlayer {
     hp: number;
     level: number;
     lastMessage: string;
-    // Tipamos 'listen' para que el valor (V) sea del tipo de la propiedad (K)
+    // Tipado para los listeners de Colyseus SDK 2026
     listen<K extends keyof IPlayer>(
         prop: K,
         callback: (value: IPlayer[K], previousValue?: IPlayer[K]) => void
     ): () => void;
-
-    onChange: (callback: () => void) => void;
 }
 
 export class MainScene extends Phaser.Scene {
@@ -33,6 +31,7 @@ export class MainScene extends Phaser.Scene {
     }
 
     preload(): void {
+        // Usamos un asset externo para pruebas
         this.load.image('ball', 'https://labs.phaser.io/assets/sprites/shinyball.png');
     }
 
@@ -40,87 +39,104 @@ export class MainScene extends Phaser.Scene {
         const roomInstance = this.registry.get('room') as Room;
 
         if (!roomInstance) {
-            console.error("No room instance found");
+            console.error("No se encontró la instancia de la sala en el registry");
             return;
         }
-        
-        console.log("MainScene connected to room:", roomInstance);
 
         this.room = roomInstance;
         this.cursors = this.input.keyboard!.createCursorKeys();
 
-        // Escuchamos a los jugadores
-        this.room.state.players.onAdd((player: IPlayer, sessionId: string) => {
+        console.log("🎮 Conectado a la sala:", this.room.name);
 
-            // FUNCIÓN INTERNA PARA CREAR LA ENTIDAD
-            const createEntity = (name: string) => {
-                console.log(`Creating entity for player ${name} (${sessionId})`);
-                if (this.playerEntities[sessionId]) return;
+        // --- SOLUCIÓN AL ERROR: Esperar a que el estado esté listo ---
+        this.room.onStateChange.once((state) => {
 
-                const sprite = this.physics.add.sprite(player.x, player.y, 'ball');
-                const label = this.add.text(player.x, player.y - 30, name, {
-                    fontSize: '14px',
-                    color: '#ffffff'
-                }).setOrigin(0.5);
+            // 1. Manejar jugadores que entran (o que ya estaban)
+            state.players.onAdd((player: IPlayer, sessionId: string) => {
+                this.createPlayerEntity(player, sessionId);
+            });
 
-                this.playerEntities[sessionId] = { sprite, label };
+            // 2. Manejar jugadores que salen
+            state.players.onRemove((player: IPlayer, sessionId: string) => {
+                this.removePlayerEntity(sessionId);
+            });
+        });
+    }
 
-                player.listen("x", (newX: number) => {
+    private createPlayerEntity(player: IPlayer, sessionId: string) {
+        console.log(`Añadiendo entidad: ${sessionId}`);
+
+        // Función para inicializar el sprite y texto
+        const setupVisuals = (name: string) => {
+            if (this.playerEntities[sessionId]) return;
+
+            const sprite = this.physics.add.sprite(player.x, player.y, 'ball');
+            const label = this.add.text(player.x, player.y - 30, name, {
+                fontSize: '14px',
+                color: '#ffffff',
+                backgroundColor: '#00000088'
+            }).setOrigin(0.5);
+
+            this.playerEntities[sessionId] = { sprite, label };
+
+            // Listeners de movimiento (solo para otros jugadores, el nuestro es local)
+            if (sessionId !== this.room.sessionId) {
+                player.listen("x", (newX) => {
                     sprite.x = newX;
                     label.x = newX;
                 });
-                player.listen("y", (newY: number) => {
+                player.listen("y", (newY) => {
                     sprite.y = newY;
                     label.y = newY - 30;
                 });
-            };
-
-            // PROTECCIÓN: Si el nombre no existe aún, esperamos a que cambie
-            if (!player.name) {
-                const unbind = player.listen("name", (newName: string) => {
-                    if (newName) {
-                        createEntity(newName);
-                        unbind(); // Dejamos de escuchar este cambio específico
-                    }
-                });
-            } else {
-                createEntity(player.name);
             }
-        });
+        };
 
-        this.room.state.players.onRemove((_: IPlayer, sessionId: string) => {
-            const entity = this.playerEntities[sessionId];
-            if (entity) {
-                entity.sprite.destroy();
-                entity.label.destroy();
-                delete this.playerEntities[sessionId];
-            }
-        });
+        // Si el nombre no está listo (por lag de DB), esperamos a que cambie
+        if (!player.name) {
+            const unbind = player.listen("name", (newName) => {
+                if (newName) {
+                    setupVisuals(newName);
+                    unbind();
+                }
+            });
+        } else {
+            setupVisuals(player.name);
+        }
+    }
 
-
-
+    private removePlayerEntity(sessionId: string) {
+        const entity = this.playerEntities[sessionId];
+        if (entity) {
+            entity.sprite.destroy();
+            entity.label.destroy();
+            delete this.playerEntities[sessionId];
+            console.log(`Entidad eliminada: ${sessionId}`);
+        }
     }
 
     update(): void {
-        if (!this.room) return;
+        if (!this.room || !this.playerEntities[this.room.sessionId]) return;
 
         const myEntity = this.playerEntities[this.room.sessionId];
-        if (!myEntity) return;
+        const speed = 5;
+        let moved = false;
 
-        const speed = 4;
-        let vx = 0;
-        let vy = 0;
+        // Movimiento Local (Predicción)
+        if (this.cursors.left.isDown) { myEntity.sprite.x -= speed; moved = true; }
+        else if (this.cursors.right.isDown) { myEntity.sprite.x += speed; moved = true; }
 
-        if (this.cursors.left.isDown) vx -= speed;
-        else if (this.cursors.right.isDown) vx += speed;
+        if (this.cursors.up.isDown) { myEntity.sprite.y -= speed; moved = true; }
+        else if (this.cursors.down.isDown) { myEntity.sprite.y += speed; moved = true; }
 
-        if (this.cursors.up.isDown) vy -= speed;
-        else if (this.cursors.down.isDown) vy += speed;
+        if (moved) {
+            // Actualizar etiqueta localmente
+            myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 30);
 
-        if (vx !== 0 || vy !== 0) {
+            // Notificar al servidor
             this.room.send("move", {
-                x: myEntity.sprite.x + vx,
-                y: myEntity.sprite.y + vy
+                x: Math.floor(myEntity.sprite.x),
+                y: Math.floor(myEntity.sprite.y)
             });
         }
     }
