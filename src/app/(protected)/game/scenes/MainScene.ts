@@ -28,41 +28,40 @@ export class MainScene extends Phaser.Scene {
         this.room = roomInstance;
         this.cursors = this.input.keyboard!.createCursorKeys();
 
-        // 1. Escuchar el estado inicial
+        // Esperamos al estado inicial
         this.room.onStateChange.once((state) => {
 
-            // Usamos casting a any para que el compilador de Next.js/TS no bloquee el onAdd
-            const playersMap = state.players as any;
+            // Usamos 'as any' para evitar el error de TS, 
+            // pero la lógica sigue siendo la de los decoradores.
+            const players = state.players as any;
 
-            playersMap.onAdd((player: Player, sessionId: string) => {
+            players.onAdd((player: Player, sessionId: string) => {
                 this.addPlayer(player, sessionId);
             });
 
-            playersMap.onRemove((_: Player, sessionId: string) => {
+            players.onRemove((player: Player, sessionId: string) => {
                 this.removePlayer(sessionId);
             });
         });
     }
 
     private addPlayer(player: Player, sessionId: string) {
-        // Crear visuales
         const sprite = this.physics.add.sprite(player.x, player.y, 'ball');
         const label = this.add.text(player.x, player.y - 30, player.name || "...", {
-            fontSize: '14px',
-            color: '#ffffff'
+            fontSize: '14px', color: '#ffffff'
         }).setOrigin(0.5);
 
         this.playerEntities[sessionId] = {
             sprite, label, serverX: player.x, serverY: player.y
         };
 
-        // 2. Escuchar cambios en el jugador usando decoradores (onChange)
+        // Escuchar cambios individuales en el jugador (HP, X, Y, etc.)
         (player as any).onChange(() => {
             const entity = this.playerEntities[sessionId];
             if (entity) {
                 if (player.name) entity.label.setText(player.name);
 
-                // Solo interpolamos si es un jugador remoto
+                // Si no soy yo, guardo la posición para interpolar
                 if (sessionId !== this.room.sessionId) {
                     entity.serverX = player.x;
                     entity.serverY = player.y;
@@ -87,7 +86,6 @@ export class MainScene extends Phaser.Scene {
         const speed = 5;
         let moved = false;
 
-        // Movimiento local (Predicción del cliente)
         if (this.cursors.left.isDown) { myEntity.sprite.x -= speed; moved = true; }
         else if (this.cursors.right.isDown) { myEntity.sprite.x += speed; moved = true; }
         if (this.cursors.up.isDown) { myEntity.sprite.y -= speed; moved = true; }
@@ -95,22 +93,18 @@ export class MainScene extends Phaser.Scene {
 
         if (moved) {
             myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 30);
-
-            // Enviar posición al servidor (Redondeado para evitar floats infinitos)
             this.room.send("move", {
                 x: Math.floor(myEntity.sprite.x),
                 y: Math.floor(myEntity.sprite.y)
             });
         }
 
-        // 3. Interpolación para suavizar el movimiento de los demás
+        // Interpolación lineal para otros jugadores
         for (let id in this.playerEntities) {
             if (id === this.room.sessionId) continue;
             const entity = this.playerEntities[id];
-
-            // Suavizamos el movimiento hacia la posición que dice el servidor
-            entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.15);
-            entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.15);
+            entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.2);
+            entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.2);
             entity.label.setPosition(entity.sprite.x, entity.sprite.y - 30);
         }
     }
