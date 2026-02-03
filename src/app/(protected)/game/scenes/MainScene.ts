@@ -18,7 +18,7 @@ export class MainScene extends Phaser.Scene {
         for (let i = 1; i <= 10; i++) {
             this.load.spritesheet(`char_${i}`, `/npc${i}.png`, { frameWidth: 16, frameHeight: 24 });
         }
-        this.load.image('tiles', '/assets/tileset.png');
+        this.load.image('tileset-image', '/assets/tileset.png');
         this.load.json('mapData', './map.json');
     }
 
@@ -38,7 +38,7 @@ export class MainScene extends Phaser.Scene {
             width: data.mapWidth,
             height: data.mapHeight
         });
-        const tileset = map.addTilesetImage('tileset', 'tiles');
+        const tileset = map.addTilesetImage('tileset-image', 'tileset-image');
 
         // 5. Recorrer las capas del JSON e inyectarlas en Phaser
         data.layers.forEach((layerData: any) => {
