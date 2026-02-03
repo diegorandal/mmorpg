@@ -19,7 +19,7 @@ export class MainScene extends Phaser.Scene {
             this.load.spritesheet(`char_${i}`, `/npc${i}.png`, { frameWidth: 16, frameHeight: 24 });
         }
         this.load.image('tiles', '/assets/tileset.png');
-        this.load.json('mapData', '/map.json');
+        this.load.json('mapData', './map.json');
     }
 
     create(): void {
