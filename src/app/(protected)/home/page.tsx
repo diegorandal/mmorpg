@@ -53,9 +53,9 @@ export default function Home() {
         justifyContent: 'center', minHeight: '100vh', background: '#1a1a1a', color: 'white',
         fontFamily: 'sans-serif', padding: '10px'
       }}>
-        {/* Título más discreto */}
+        {/* Título */}
         <h2 style={{ fontSize: '2rem', marginBottom: '1rem', textAlign: 'center' }}>
-          {isRegistering ? 'Nuevo Personaje' : 'Mundo RPG'}
+          {isRegistering ? 'Nuevo PJ' : 'Randal RPG'}
         </h2>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', maxWidth: '320px' }}>
