@@ -53,18 +53,28 @@ export class MainScene extends Phaser.Scene {
             });
         }
 
+        this.room.state.players.forEach((player, sessionId) => {
+            this.addPlayer(player, sessionId);
+        });
+
+        // 2. Sincronización en Tiempo Real:
+        // Usamos onStateChange para detectar nuevos y eliminados manualmente
         this.room.onStateChange((state) => {
-            const playersData = state.players.toJSON();
-            for (const sessionId in playersData) {
-                const data = playersData[sessionId];
+            // Detectar nuevos
+            state.players.forEach((player, sessionId) => {
                 if (!this.playerEntities[sessionId]) {
-                    this.addPlayer(data, sessionId);
+                    this.addPlayer(player, sessionId);
                 } else {
-                    this.updatePlayer(data, sessionId);
+                    // Actualizar posiciones de los que ya existen
+                    this.updatePlayer(player, sessionId);
                 }
-            }
+            });
+
+            // Detectar los que se fueron
             for (const sessionId in this.playerEntities) {
-                if (!playersData[sessionId]) this.removePlayer(sessionId);
+                if (!state.players.has(sessionId)) {
+                    this.removePlayer(sessionId);
+                }
             }
         });
 
