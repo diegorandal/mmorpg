@@ -17,7 +17,7 @@ export default function Home() {
   const handleConnection = async () => {
     try {
       setError('');
-      const client = new Colyseus.Client("wss://randalmmorpg.duckdns.org");
+      const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
       const options = {
         username: form.user,
         password: form.pass,

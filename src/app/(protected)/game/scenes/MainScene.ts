@@ -31,6 +31,7 @@ export class MainScene extends Phaser.Scene {
             console.error("No se pudo cargar el JSON del mapa");
             return;
         }
+
         const map = this.make.tilemap({
             tileWidth: data.tileSize,
             tileHeight: data.tileSize,
