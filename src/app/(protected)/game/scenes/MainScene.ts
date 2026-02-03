@@ -114,7 +114,7 @@ export class MainScene extends Phaser.Scene {
         sprite.body?.setSize(16, 16);
         sprite.body?.setOffset(0, 8);
 
-        const label = this.add.text(data.x, data.y - 32, data.name || "Anon", {
+        const label = this.add.text(data.x, data.y - 24, data.name || "Anon", {
             fontSize: '14px', backgroundColor: 'rgba(0,0,0,0.5)'
         }).setOrigin(0.5);
 
