@@ -93,7 +93,14 @@ export class MainScene extends Phaser.Scene {
     private addPlayer(data: any, sessionId: string) {
         // Usamos el sprite animado 'player'
         const sprite = this.physics.add.sprite(data.x, data.y, 'player');
-        const label = this.add.text(data.x, data.y - 30, data.name || "Anon", {
+
+        sprite.setScale(2);
+
+        // Ajustamos el cuerpo de físicas para que coincida con el nuevo tamaño
+        sprite.body?.setSize(16, 16); // Cuerpo de colisión (opcional)
+        sprite.body?.setOffset(0, 8);  // Ajuste para que los pies toquen el suelo
+
+        const label = this.add.text(data.x, data.y - 45, data.name || "Anon", {
             fontSize: '14px', backgroundColor: 'rgba(0,0,0,0.5)'
         }).setOrigin(0.5);
 
