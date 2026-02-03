@@ -114,8 +114,8 @@ export class MainScene extends Phaser.Scene {
         sprite.body?.setSize(16, 16);
         sprite.body?.setOffset(0, 8);
 
-        const label = this.add.text(data.x, data.y - 24, data.name || "Anon", {
-            fontSize: '14px', backgroundColor: 'rgba(0,0,0,0.5)'
+        const label = this.add.text(data.x, data.y - 16, data.name, {
+            fontSize: '14px', backgroundColor: 'rgba(71, 71, 71, 0.14)'
         }).setOrigin(0.5);
 
         // 4. Guardamos el characterId para saber qué animación llamar después
