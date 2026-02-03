@@ -18,16 +18,13 @@ export default function Home() {
     try {
       setError('');
       const client = new Colyseus.Client("wss://randalmmorpg.duckdns.org");
-
       const options = {
         username: form.user,
         password: form.pass,
         ...(isRegistering && { character: form.character })
       };
-
       const joinedRoom = await client.joinOrCreate<MyRoomState>("my_room", options);
       setRoom(joinedRoom);
-
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Error al conectar");
     }
@@ -39,14 +36,9 @@ export default function Home() {
     const initPhaser = async () => {
       const Phaser = (await import('phaser')).default;
       const { getGameConfig } = await import('../game/PhaserGame');
-
       if (gameContainerRef.current) {
         const config = getGameConfig(gameContainerRef.current.id);
-        config.callbacks = {
-          preBoot: (g) => {
-            g.registry.set('room', room);
-          }
-        };
+        config.callbacks = { preBoot: (g) => { g.registry.set('room', room); } };
         game = new Phaser.Game(config);
       }
     };
@@ -59,36 +51,38 @@ export default function Home() {
       <div style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         justifyContent: 'center', minHeight: '100vh', background: '#1a1a1a', color: 'white',
-        fontFamily: 'sans-serif', padding: '20px'
+        fontFamily: 'sans-serif', padding: '10px'
       }}>
-        <h2 style={{ fontSize: '3.5rem', marginBottom: '1.5rem', textAlign: 'center' }}>
-          {isRegistering ? 'Nuevo Héroe' : 'Mundo RPG'}
+        {/* Título más discreto */}
+        <h2 style={{ fontSize: '2rem', marginBottom: '1rem', textAlign: 'center' }}>
+          {isRegistering ? 'Nuevo Personaje' : 'Mundo RPG'}
         </h2>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', maxWidth: '500px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', maxWidth: '320px' }}>
           <input
             type="text"
             placeholder="Usuario"
             onChange={e => setForm({ ...form, user: e.target.value })}
-            style={{ padding: '25px', fontSize: '1.8rem', borderRadius: '12px', border: 'none', width: '100%' }}
+            style={{ padding: '12px', fontSize: '1.1rem', borderRadius: '8px', border: 'none', width: '100%', boxSizing: 'border-box' }}
           />
           <input
             type="password"
             placeholder="Contraseña"
             onChange={e => setForm({ ...form, pass: e.target.value })}
-            style={{ padding: '25px', fontSize: '1.8rem', borderRadius: '12px', border: 'none', width: '100%' }}
+            style={{ padding: '12px', fontSize: '1.1rem', borderRadius: '8px', border: 'none', width: '100%', boxSizing: 'border-box' }}
           />
 
           {isRegistering && (
-            <div style={{ marginTop: '20px' }}>
-              <p style={{ fontSize: '1.5rem', marginBottom: '15px', textAlign: 'center' }}>Selecciona tu apariencia:</p>
+            <div style={{ marginTop: '10px', width: '100%' }}>
+              <p style={{ fontSize: '1rem', marginBottom: '8px', textAlign: 'center' }}>Selecciona tu personaje:</p>
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(5, 1fr)',
-                gap: '10px',
-                background: '#333',
-                padding: '15px',
-                borderRadius: '12px'
+                gridTemplateColumns: 'repeat(5, 1fr)', // 5 columnas para que quepan bien
+                gap: '8px',
+                background: '#2a2a2a',
+                padding: '10px',
+                borderRadius: '8px',
+                justifyItems: 'center'
               }}>
                 {characters.map((id) => (
                   <div
@@ -96,19 +90,19 @@ export default function Home() {
                     onClick={() => setForm({ ...form, character: id })}
                     style={{
                       cursor: 'pointer',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      border: form.character === id ? '4px solid #4CAF50' : '4px solid transparent',
-                      backgroundColor: form.character === id ? '#444' : 'transparent',
-                      transition: '0.2s',
+                      padding: '4px',
+                      borderRadius: '6px',
+                      border: form.character === id ? '2px solid #4CAF50' : '2px solid transparent',
+                      backgroundColor: form.character === id ? '#333' : 'transparent',
                       display: 'flex',
+                      alignItems: 'center',
                       justifyContent: 'center'
                     }}
                   >
                     <img
                       src={`/char${id}.png`}
-                      alt={`Char ${id}`}
-                      style={{ width: '48px', height: 'auto', imageRendering: 'pixelated' }}
+                      alt={`C${id}`}
+                      style={{ width: '32px', height: 'auto', imageRendering: 'pixelated' }}
                     />
                   </div>
                 ))}
@@ -119,26 +113,26 @@ export default function Home() {
           <button
             onClick={handleConnection}
             style={{
-              padding: '25px', fontSize: '2rem', cursor: 'pointer',
+              padding: '15px', fontSize: '1.2rem', cursor: 'pointer',
               backgroundColor: '#4CAF50', color: 'white', border: 'none',
-              borderRadius: '12px', fontWeight: 'bold', marginTop: '20px'
+              borderRadius: '8px', fontWeight: 'bold', marginTop: '10px'
             }}
           >
-            {isRegistering ? 'CREAR Y JUGAR' : 'ENTRAR'}
+            {isRegistering ? 'CREAR Y ENTRAR' : 'ENTRAR'}
           </button>
 
           <button
             onClick={() => setIsRegistering(!isRegistering)}
             style={{
               background: 'none', border: 'none', color: '#4da6ff',
-              textDecoration: 'underline', cursor: 'pointer', fontSize: '1.4rem'
+              textDecoration: 'underline', cursor: 'pointer', fontSize: '0.9rem'
             }}
           >
             {isRegistering ? '« Volver al Login' : '¿Eres nuevo? Crear personaje'}
           </button>
         </div>
 
-        {error && <p style={{ color: '#ff5555', fontSize: '1.5rem', marginTop: '30px', fontWeight: 'bold', textAlign: 'center' }}>{error}</p>}
+        {error && <p style={{ color: '#ff5555', fontSize: '1rem', marginTop: '15px', textAlign: 'center', maxWidth: '300px' }}>{error}</p>}
       </div>
     );
   }
