@@ -14,8 +14,10 @@ export class MainScene extends Phaser.Scene {
     private readonly SEND_RATE = 100;
 
     preload(): void {
-        // Cargamos el spritesheet desde /public/npc30.png
-        this.load.spritesheet('player', '/npc30.png', { frameWidth: 16, frameHeight: 24 });
+        // 1. Cargamos cada archivo con una clave única: char_1, char_2, etc.
+        for (let i = 1; i <= 10; i++) {
+            this.load.spritesheet(`char_${i}`, `/npc${i}.png`, { frameWidth: 16, frameHeight: 24 });
+        }
     }
 
     create(): void {
@@ -26,27 +28,30 @@ export class MainScene extends Phaser.Scene {
         this.cameras.main.setBounds(0, 0, 2000, 2000);
         this.physics.world.setBounds(0, 0, 2000, 2000);
 
-        // Definición de animaciones según tus índices
-        this.anims.create({
-            key: 'walk-down',
-            frames: this.anims.generateFrameNumbers('player', { start: 0, end: 2 }),
-            frameRate: 10, repeat: -1
-        });
-        this.anims.create({
-            key: 'walk-left',
-            frames: this.anims.generateFrameNumbers('player', { start: 3, end: 5 }),
-            frameRate: 10, repeat: -1
-        });
-        this.anims.create({
-            key: 'walk-right',
-            frames: this.anims.generateFrameNumbers('player', { start: 6, end: 8 }),
-            frameRate: 10, repeat: -1
-        });
-        this.anims.create({
-            key: 'walk-up',
-            frames: this.anims.generateFrameNumbers('player', { start: 9, end: 11 }),
-            frameRate: 10, repeat: -1
-        });
+        // 2. Creamos animaciones específicas para cada personaje
+        for (let i = 1; i <= 10; i++) {
+            const key = `char_${i}`;
+            this.anims.create({
+                key: `walk-down-${i}`,
+                frames: this.anims.generateFrameNumbers(key, { start: 0, end: 2 }),
+                frameRate: 10, repeat: -1
+            });
+            this.anims.create({
+                key: `walk-left-${i}`,
+                frames: this.anims.generateFrameNumbers(key, { start: 3, end: 5 }),
+                frameRate: 10, repeat: -1
+            });
+            this.anims.create({
+                key: `walk-right-${i}`,
+                frames: this.anims.generateFrameNumbers(key, { start: 6, end: 8 }),
+                frameRate: 10, repeat: -1
+            });
+            this.anims.create({
+                key: `walk-up-${i}`,
+                frames: this.anims.generateFrameNumbers(key, { start: 9, end: 11 }),
+                frameRate: 10, repeat: -1
+            });
+        }
 
         this.room.onStateChange((state) => {
             const playersData = state.players.toJSON();
@@ -91,21 +96,21 @@ export class MainScene extends Phaser.Scene {
     }
 
     private addPlayer(data: any, sessionId: string) {
-        // Usamos el sprite animado 'player'
-        const sprite = this.physics.add.sprite(data.x, data.y, 'player');
+        // 3. Obtenemos el ID del character y asignamos su textura
+        const charId = data.character || 1;
+        const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
 
         sprite.setScale(2);
-
-        // Ajustamos el cuerpo de físicas para que coincida con el nuevo tamaño
-        sprite.body?.setSize(16, 16); // Cuerpo de colisión (opcional)
-        sprite.body?.setOffset(0, 8);  // Ajuste para que los pies toquen el suelo
+        sprite.body?.setSize(16, 16);
+        sprite.body?.setOffset(0, 8);
 
         const label = this.add.text(data.x, data.y - 45, data.name || "Anon", {
             fontSize: '14px', backgroundColor: 'rgba(0,0,0,0.5)'
         }).setOrigin(0.5);
 
+        // 4. Guardamos el characterId para saber qué animación llamar después
         this.playerEntities[sessionId] = {
-            sprite, label, serverX: data.x, serverY: data.y, hp: data.hp
+            sprite, label, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp
         };
 
         if (sessionId === this.room.sessionId) {
@@ -133,12 +138,15 @@ export class MainScene extends Phaser.Scene {
         }
     }
 
-    // Función para manejar la lógica de qué animación poner
-    private updatePlayerAnimation(sprite: Phaser.Physics.Arcade.Sprite, dx: number, dy: number) {
+    // 5. Ajustamos para usar el ID del personaje en el nombre de la animación
+    private updatePlayerAnimation(entity: any, dx: number, dy: number) {
+        const sprite = entity.sprite;
+        const id = entity.characterId;
+
         if (Math.abs(dx) > Math.abs(dy)) {
-            sprite.anims.play(dx > 0 ? 'walk-right' : 'walk-left', true);
+            sprite.anims.play(dx > 0 ? `walk-right-${id}` : `walk-left-${id}`, true);
         } else if (Math.abs(dy) > 0.1) {
-            sprite.anims.play(dy > 0 ? 'walk-down' : 'walk-up', true);
+            sprite.anims.play(dy > 0 ? `walk-down-${id}` : `walk-up-${id}`, true);
         } else {
             sprite.anims.stop();
         }
@@ -155,7 +163,6 @@ export class MainScene extends Phaser.Scene {
         let dy = 0;
         const speed = 4;
 
-        // 1. Control Local (Joystick o Teclado)
         if (this.isDragging && this.joystickThumb && this.joystickBase) {
             dx = (this.joystickThumb.x - this.joystickBase.x) / 50;
             dy = (this.joystickThumb.y - this.joystickBase.y) / 50;
@@ -171,8 +178,9 @@ export class MainScene extends Phaser.Scene {
         if (moved) {
             myEntity.sprite.x += dx * speed;
             myEntity.sprite.y += dy * speed;
-            this.updatePlayerAnimation(myEntity.sprite, dx, dy);
-            myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 30);
+            // Pasamos la entidad completa para que la animación sepa el ID
+            this.updatePlayerAnimation(myEntity, dx, dy);
+            myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 45);
 
             this.moveTimer += delta;
             if (this.moveTimer >= this.SEND_RATE) {
@@ -183,23 +191,20 @@ export class MainScene extends Phaser.Scene {
             myEntity.sprite.anims.stop();
         }
 
-        // 2. Jugadores Remotos
         for (const id in this.playerEntities) {
             if (id === myId) continue;
             const entity = this.playerEntities[id];
-
-            // Calculamos la dirección del movimiento para la animación antes de interpolar
             const diffX = entity.serverX - entity.sprite.x;
             const diffY = entity.serverY - entity.sprite.y;
 
             if (Math.abs(diffX) > 1 || Math.abs(diffY) > 1) {
-                this.updatePlayerAnimation(entity.sprite, diffX, diffY);
+                this.updatePlayerAnimation(entity, diffX, diffY);
                 entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.15);
                 entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.15);
             } else {
                 entity.sprite.anims.stop();
             }
-            entity.label.setPosition(entity.sprite.x, entity.sprite.y - 30);
+            entity.label.setPosition(entity.sprite.x, entity.sprite.y - 45);
         }
     }
 }
