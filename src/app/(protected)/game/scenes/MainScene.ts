@@ -42,6 +42,7 @@ export class MainScene extends Phaser.Scene {
 
         // 5. Recorrer las capas del JSON e inyectarlas en Phaser
         data.layers.forEach((layerData: any) => {
+           
             const layer = map.createBlankLayer(layerData.name, tileset!);
 
             if (layer) {
@@ -72,11 +73,8 @@ export class MainScene extends Phaser.Scene {
         const worldHeight = data.mapHeight * data.tileSize;
         this.cameras.main.setBounds(0, 0, worldWidth, worldHeight);
         this.physics.world.setBounds(0, 0, worldWidth, worldHeight);
-
         this.room = roomInstance;
         this.cursors = this.input.keyboard!.createCursorKeys();
-        this.cameras.main.setBounds(0, 0, 2000, 2000);
-        this.physics.world.setBounds(0, 0, 2000, 2000);
         
 
         // 2. Creamos animaciones específicas para cada personaje
