@@ -15,19 +15,22 @@ export class MainScene extends Phaser.Scene {
 
     preload(): void {
         const BASE_URL = 'https://randalrpg.onepixperday.xyz';
-        
+        const version = Date.now(); // Genera un número único basado en el tiempo
+
         this.load.crossOrigin = 'anonymous';
 
         for (let i = 1; i <= 10; i++) {
-            this.load.spritesheet(
-                `char_${i}`,
-                `${BASE_URL}/npc${i}.png`,
-                { frameWidth: 16, frameHeight: 24 }
-            );
+            // Al añadir ?v=... la URL es "nueva" para el navegador
+            this.load.spritesheet(`char_${i}`, `${BASE_URL}/npc${i}.png?v=${version}`, {
+                frameWidth: 16,
+                frameHeight: 24
+            });
         }
-        this.load.image('tileset-image', `${BASE_URL}/tileset.png`);
-        this.load.json('mapData', `${BASE_URL}/map.json`);
+
+        this.load.image('tileset-image', `${BASE_URL}/tileset.png?v=${version}`);
+        this.load.json('mapData', `${BASE_URL}/map.json?v=${version}`);
     }
+        
     create(): void {
 
         const roomInstance = this.registry.get('room') as Room<MyRoomState>;
