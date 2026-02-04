@@ -30,7 +30,7 @@ export class MainScene extends Phaser.Scene {
         this.load.image('tileset-image', `${BASE_URL}/tileset.png?v=${version}`);
         this.load.json('mapData', `${BASE_URL}/map.json?v=${version}`);
     }
-        
+
     create(): void {
 
         const roomInstance = this.registry.get('room') as Room<MyRoomState>;
@@ -57,6 +57,8 @@ export class MainScene extends Phaser.Scene {
                 const t = layer.putTileAt(parseInt(tile.id), tile.x, tile.y);
                 if (layerData.name === "Collisions") t.setCollision(true);
             });
+            
+            layer.setScale(4);
 
             // GESTIÓN DE PROFUNDIDAD Y COLISIONES
             switch (layerData.name) {
@@ -167,7 +169,7 @@ export class MainScene extends Phaser.Scene {
         const charId = data.character || 1;
         const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
 
-        sprite.setScale(2); // Bajamos un poco la escala ya que el tile es de 16px
+        sprite.setScale(3); // Bajamos un poco la escala ya que el tile es de 16px
         sprite.setDepth(2); // <--- IMPORTANTE: Entre Decor y Trees
         // 2. Ajustamos hitbox basándonos en los 16x24 originales
         // Queremos que la colisión sea un cuadrado de 10x10 en la base
