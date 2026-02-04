@@ -82,8 +82,8 @@ export class MainScene extends Phaser.Scene {
         });
 
         // Ajustamos los límites del mundo según el tamaño del mapa
-        const worldWidth = data.mapWidth * data.tileSize;
-        const worldHeight = data.mapHeight * data.tileSize;
+        const worldWidth = data.mapWidth * data.tileSize * 3;
+        const worldHeight = data.mapHeight * data.tileSize * 3;
         this.cameras.main.setBounds(0, 0, worldWidth, worldHeight);
         this.physics.world.setBounds(0, 0, worldWidth, worldHeight);
         // 1. Guardamos la referencia de la sala y configuramos controles
@@ -169,7 +169,7 @@ export class MainScene extends Phaser.Scene {
         const charId = data.character || 1;
         const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
 
-        sprite.setScale(1); // Bajamos un poco la escala ya que el tile es de 16px
+        sprite.setScale(3); // Bajamos un poco la escala ya que el tile es de 16px
         sprite.setDepth(2); // <--- IMPORTANTE: Entre Decor y Trees
         // 2. Ajustamos hitbox basándonos en los 16x24 originales
         // Queremos que la colisión sea un cuadrado de 10x10 en la base
@@ -185,6 +185,8 @@ export class MainScene extends Phaser.Scene {
         const label = this.add.text(data.x, data.y - 32, data.name, {
             fontSize: '14px', backgroundColor: 'rgba(96, 96, 96, 0.24)'
         }).setOrigin(0.5);
+        
+        label.setDepth(2);
 
         // 4. Guardamos el characterId para saber qué animación llamar después
         this.playerEntities[sessionId] = {sprite, label, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp};
