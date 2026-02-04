@@ -6,7 +6,7 @@ export class MainScene extends Phaser.Scene {
     private room!: Room<MyRoomState>;
     private playerEntities: { [sessionId: string]: any } = {};
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-
+    private collisionLayer?: Phaser.Tilemaps.TilemapLayer;
     private joystickBase?: Phaser.GameObjects.Arc;
     private joystickThumb?: Phaser.GameObjects.Arc;
     private isDragging: boolean = false;
@@ -42,36 +42,30 @@ export class MainScene extends Phaser.Scene {
 
         // 5. Recorrer las capas del JSON e inyectarlas en Phaser
         data.layers.forEach((layerData: any) => {
-            // Creamos una capa vacía en Phaser por cada capa del JSON
             const layer = map.createBlankLayer(layerData.name, tileset!);
 
-            layerData.tiles.forEach((tile: any) => {
-                // Ponemos el tile en la posición x, y
-                // Nota: Usamos parseInt(tile.id) porque SpriteFusion lo exporta como string
-                layer?.putTileAt(parseInt(tile.id), tile.x, tile.y);
-            });
+            if (layer) {
+                layerData.tiles.forEach((tile: any) => {
+                    const t = layer.putTileAt(parseInt(tile.id), tile.x, tile.y);
 
-            // 6. Configurar la capa de colisiones
-            if (layerData.name === "Collisions") {
-                // Activamos la colisión para todos los tiles existentes en esta capa
-                layer.setCollision(0);
+                    // Si es la capa de colisiones, forzamos la propiedad física en el tile
+                    if (layerData.name === "Collisions") {
+                        t.setCollision(true);
+                    }
+                });
 
-                // Si ya tienes a tu personaje creado:
-                // this.physics.add.collider(this.myPlayer, layer);
-                layer.setDepth(10);
+                if (layerData.name === "Collisions") {
+                    // Esto le dice a la capa que use las propiedades de colisión de los tiles
+                    layer.setCollisionByProperty({ collides: true });
 
-                // Opcional: Si quieres que la capa sea invisible pero que bloquee:
-                layer?.setAlpha(0); 
+                    // O de forma más agresiva, por índice (tu muro es ID 0)
+                    layer.setCollision(0);
 
-            }
-
-            // Ajustar profundidad (opcional)
-            if (layerData.name === "terrain") {
-                layer?.setDepth(0);
-            } else if (layerData.name === "Collisions") {
-                layer?.setDepth(1);
+                    this.collisionLayer = layer;
+                }
             }
         });
+
 
         // Ajustamos los límites del mundo según el tamaño del mapa
         const worldWidth = data.mapWidth * data.tileSize;
@@ -166,6 +160,7 @@ export class MainScene extends Phaser.Scene {
         // 3. Obtenemos el ID del character y asignamos su textura
         const charId = data.character || 1;
         const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
+
         // Guardar referencia a las capas de colisión si las necesitas
         const collisionLayer = this.children.list.find(c => c.name === "Collisions") as Phaser.Tilemaps.TilemapLayer;
 
