@@ -14,21 +14,62 @@ export class MainScene extends Phaser.Scene {
     private readonly SEND_RATE = 100;
 
     preload(): void {
+
+        //PROGRESO
+
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+
+        // 1. Crear los elementos gráficos de la barra
+        const progressBar = this.add.graphics();
+        const progressBox = this.add.graphics();
+        progressBox.fillStyle(0x222222, 0.8);
+        progressBox.fillRect(width / 2 - 160, height / 2 - 25, 320, 50);
+
+        // 2. Crear texto de carga
+        const loadingText = this.make.text({
+            x: width / 2,
+            y: height / 2 - 50,
+            text: 'Cargando...',
+            style: { font: '20px monospace', color: '#ffffff' }
+        }).setOrigin(0.5);
+
+        const percentText = this.make.text({
+            x: width / 2,
+            y: height / 2,
+            text: '0%',
+            style: { font: '18px monospace', color: '#ffffff' }
+        }).setOrigin(0.5);
+
+        // 3. Escuchar los eventos de progreso de Phaser
+        this.load.on('progress', (value: number) => {
+            // value es un número entre 0 y 1
+            percentText.setText(Math.floor(value * 100) + '%');
+            progressBar.clear();
+            progressBar.fillStyle(0xffffff, 1);
+            progressBar.fillRect(width / 2 - 150, height / 2 - 15, 300 * value, 30);
+        });
+
+        // 4. Limpiar al terminar
+        this.load.on('complete', () => {
+            progressBar.destroy();
+            progressBox.destroy();
+            loadingText.destroy();
+            percentText.destroy();
+        });
+
         const BASE_URL = 'https://randalrpg.onepixperday.xyz';
-        const version = Date.now(); // Genera un número único basado en el tiempo
-
+        //const version = Date.now(); // Genera un número único basado en el tiempo
+        // ?v=${version} << agregar para evitar cache --- IGNORE ---
         this.load.crossOrigin = 'anonymous';
-
         for (let i = 1; i <= 10; i++) {
-            // Al añadir ?v=... la URL es "nueva" para el navegador
-            this.load.spritesheet(`char_${i}`, `${BASE_URL}/npc${i}.png?v=${version}`, {
+            this.load.spritesheet(`char_${i}`, `${BASE_URL}/npc${i}.png`, {
                 frameWidth: 16,
                 frameHeight: 24
             });
         }
-
-        this.load.image('tileset-image', `${BASE_URL}/tileset.png?v=${version}`);
-        this.load.json('mapData', `${BASE_URL}/map.json?v=${version}`);
+        this.load.image('tileset-image', `${BASE_URL}/tileset.png`);
+        this.load.json('mapData', `${BASE_URL}/map.json`);
     }
 
     create(): void {
