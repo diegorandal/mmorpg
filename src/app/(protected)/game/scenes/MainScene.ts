@@ -14,15 +14,19 @@ export class MainScene extends Phaser.Scene {
     private readonly SEND_RATE = 100;
 
     preload(): void {
-        // 1. Cargamos cada archivo con una clave única: char_1, char_2, etc.
+        const BASE_URL = 'https://randalrpg.onepixperday.xyz';
         for (let i = 1; i <= 10; i++) {
-            this.load.spritesheet(`char_${i}`, `/npc${i}.png`, { frameWidth: 16, frameHeight: 24 });
+            this.load.spritesheet(
+                `char_${i}`,
+                `${BASE_URL}/npc${i}.png`,
+                { frameWidth: 16, frameHeight: 24 }
+            );
         }
-        this.load.image('tileset-image', '/tileset.png');
-        this.load.json('mapData', './map.json');
+        this.load.image('tileset-image', `${BASE_URL}/tileset.png`);
+        this.load.json('mapData', `${BASE_URL}/map.json`);
     }
-
     create(): void {
+
         const roomInstance = this.registry.get('room') as Room<MyRoomState>;
         
         // configuramos el mapa
@@ -40,29 +44,41 @@ export class MainScene extends Phaser.Scene {
         data.layers.forEach((layerData: any) => {
            
             const layer = map.createBlankLayer(layerData.name, tileset!);
-            
-            if (layer) {
-                layerData.tiles.forEach((tile: any) => {
-                    const t = layer.putTileAt(parseInt(tile.id), tile.x, tile.y);
-                    // Si es la capa de colisiones, forzamos la propiedad física en el tile
-                    if (layerData.name === "Collisions") t.setCollision(true);
-                });
 
-                if (layerData.name === "Collisions") {
-                    // Esto le dice a la capa que use las propiedades de colisión de los tiles
-                    layer.setCollisionByProperty({ collides: true });
-                    layer.setCollision(0);
+            if (!layer) return;
+
+            layerData.tiles.forEach((tile: any) => {
+                const t = layer.putTileAt(parseInt(tile.id), tile.x, tile.y);
+                if (layerData.name === "Collisions") t.setCollision(true);
+            });
+
+            // GESTIÓN DE PROFUNDIDAD Y COLISIONES
+            switch (layerData.name) {
+                case "terrain":
+                    layer.setDepth(0);
+                    break;
+                case "decor":
+                    layer.setDepth(1);
+                    break;
+                case "trees":
+                    layer.setDepth(3); // Por encima de los jugadores
+                    break;
+                case "Collisions":
+                    layer.setDepth(4);
+                    layer.setCollision(0); // O el ID que uses para muros
                     this.collisionLayer = layer;
-                }
+                    layer.setAlpha(0); // Lo hacemos invisible para que no tape el arte
+                    break;
             }
+            
         });
-
 
         // Ajustamos los límites del mundo según el tamaño del mapa
         const worldWidth = data.mapWidth * data.tileSize;
         const worldHeight = data.mapHeight * data.tileSize;
         this.cameras.main.setBounds(0, 0, worldWidth, worldHeight);
         this.physics.world.setBounds(0, 0, worldWidth, worldHeight);
+        // 1. Guardamos la referencia de la sala y configuramos controles
         this.room = roomInstance;
         this.cursors = this.input.keyboard!.createCursorKeys();
         
@@ -145,11 +161,12 @@ export class MainScene extends Phaser.Scene {
         const charId = data.character || 1;
         const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
 
-        sprite.setScale(3);
+        sprite.setScale(2); // Bajamos un poco la escala ya que el tile es de 16px
+        sprite.setDepth(2); // <--- IMPORTANTE: Entre Decor y Trees
         // 2. Ajustamos hitbox basándonos en los 16x24 originales
         // Queremos que la colisión sea un cuadrado de 10x10 en la base
-        const hitboxW = 4;
-        const hitboxH = 4;
+        const hitboxW = 8;
+        const hitboxH = 8;
         const offsetX = (16 - hitboxW) / 2; // Centrado automático
         const offsetY = 16; // Empujamos el hitbox hacia la base del sprite
         sprite.body?.setSize(hitboxW, hitboxH);
