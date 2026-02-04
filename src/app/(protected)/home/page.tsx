@@ -100,7 +100,7 @@ export default function Home() {
                     }}
                   >
                     <img
-                      src={`/char${id}.png`}
+                      src={`https://randalrpg.onepixperday.xyz/char${id}.png`}
                       alt={`C${id}`}
                       style={{ width: '32px', height: 'auto', imageRendering: 'pixelated' }}
                     />
