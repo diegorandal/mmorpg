@@ -58,7 +58,7 @@ export class MainScene extends Phaser.Scene {
                 if (layerData.name === "Collisions") t.setCollision(true);
             });
             
-            layer.setScale(4);
+            layer.setScale(3);
 
             // GESTIÓN DE PROFUNDIDAD Y COLISIONES
             switch (layerData.name) {
@@ -169,7 +169,7 @@ export class MainScene extends Phaser.Scene {
         const charId = data.character || 1;
         const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
 
-        sprite.setScale(3); // Bajamos un poco la escala ya que el tile es de 16px
+        sprite.setScale(1); // Bajamos un poco la escala ya que el tile es de 16px
         sprite.setDepth(2); // <--- IMPORTANTE: Entre Decor y Trees
         // 2. Ajustamos hitbox basándonos en los 16x24 originales
         // Queremos que la colisión sea un cuadrado de 10x10 en la base
