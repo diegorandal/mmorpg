@@ -44,6 +44,8 @@ export class MainScene extends Phaser.Scene {
         data.layers.forEach((layerData: any) => {
            
             const layer = map.createBlankLayer(layerData.name, tileset!);
+            
+            console.log(`Creando capa: ${layerData.name}`);
 
             if (layer) {
                 layerData.tiles.forEach((tile: any) => {
@@ -56,6 +58,7 @@ export class MainScene extends Phaser.Scene {
                 });
 
                 if (layerData.name === "Collisions") {
+
                     // Esto le dice a la capa que use las propiedades de colisión de los tiles
                     layer.setCollisionByProperty({ collides: true });
 
@@ -63,6 +66,9 @@ export class MainScene extends Phaser.Scene {
                     layer.setCollision(0);
 
                     this.collisionLayer = layer;
+
+                    console.log('Configurando colisiones para la capa Collisions');
+
                 }
             }
         });
@@ -159,15 +165,12 @@ export class MainScene extends Phaser.Scene {
         const charId = data.character || 1;
         const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
 
-        // Guardar referencia a las capas de colisión si las necesitas
-        const collisionLayer = this.children.list.find(c => c.name === "Collisions") as Phaser.Tilemaps.TilemapLayer;
-
         sprite.setScale(2);
         sprite.body?.setSize(16, 16);
         sprite.body?.setOffset(0, 8);
 
-        if (collisionLayer) {
-            this.physics.add.collider(sprite, collisionLayer);
+        if (this.collisionLayer) {
+            this.physics.add.collider(sprite, this.collisionLayer);
         }
 
         const label = this.add.text(data.x, data.y - 32, data.name, {
