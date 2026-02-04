@@ -15,6 +15,9 @@ export class MainScene extends Phaser.Scene {
 
     preload(): void {
         const BASE_URL = 'https://randalrpg.onepixperday.xyz';
+        
+        this.load.crossOrigin = 'anonymous';
+
         for (let i = 1; i <= 10; i++) {
             this.load.spritesheet(
                 `char_${i}`,
