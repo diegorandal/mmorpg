@@ -54,13 +54,15 @@ export class MainScene extends Phaser.Scene {
             // 6. Configurar la capa de colisiones
             if (layerData.name === "Collisions") {
                 // Activamos la colisión para todos los tiles existentes en esta capa
-                layer?.setCollisionByExclusion([-1]);
+                layer.setCollision(0);
 
                 // Si ya tienes a tu personaje creado:
                 // this.physics.add.collider(this.myPlayer, layer);
+                layer.setDepth(10);
 
                 // Opcional: Si quieres que la capa sea invisible pero que bloquee:
                 layer?.setAlpha(0); 
+
             }
 
             // Ajustar profundidad (opcional)
@@ -167,15 +169,15 @@ export class MainScene extends Phaser.Scene {
         // Guardar referencia a las capas de colisión si las necesitas
         const collisionLayer = this.children.list.find(c => c.name === "Collisions") as Phaser.Tilemaps.TilemapLayer;
 
-        if (collisionLayer) {
-            this.physics.add.collider(sprite, collisionLayer);
-        }
-
         sprite.setScale(2);
         sprite.body?.setSize(16, 16);
         sprite.body?.setOffset(0, 8);
 
-        const label = this.add.text(data.x, data.y - 24, data.name, {
+        if (collisionLayer) {
+            this.physics.add.collider(sprite, collisionLayer);
+        }
+
+        const label = this.add.text(data.x, data.y - 32, data.name, {
             fontSize: '14px', backgroundColor: 'rgba(71, 71, 71, 0.14)'
         }).setOrigin(0.5);
 
@@ -251,7 +253,7 @@ export class MainScene extends Phaser.Scene {
             myEntity.sprite.y += dy * speed;
             // Pasamos la entidad completa para que la animación sepa el ID
             this.updatePlayerAnimation(myEntity, dx, dy);
-            myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 45);
+            myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 32);
 
             this.moveTimer += delta;
             if (this.moveTimer >= this.SEND_RATE) {
