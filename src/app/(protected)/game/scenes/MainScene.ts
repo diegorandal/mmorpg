@@ -59,17 +59,17 @@ export class MainScene extends Phaser.Scene {
         });
 
         const BASE_URL = 'https://randalrpg.onepixperday.xyz';
-        //const version = Date.now(); // Genera un número único basado en el tiempo
+        const version = Date.now(); // Genera un número único basado en el tiempo
         // ?v=${version} << agregar para evitar cache --- IGNORE ---
         this.load.crossOrigin = 'anonymous';
         for (let i = 1; i <= 10; i++) {
-            this.load.spritesheet(`char_${i}`, `${BASE_URL}/npc${i}.png`, {
+            this.load.spritesheet(`char_${i}`, `${BASE_URL}/npc${i}.png?v=${version}`, {
                 frameWidth: 16,
                 frameHeight: 24
             });
         }
-        this.load.image('tileset-image', `${BASE_URL}/tileset.png`);
-        this.load.json('mapData', `${BASE_URL}/map.json`);
+        this.load.image('tileset-image', `${BASE_URL}/tileset.png?v=${version}`);
+        this.load.json('mapData', `${BASE_URL}/map.json?v=${version}`);
     }
 
     create(): void {
