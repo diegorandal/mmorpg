@@ -27,10 +27,6 @@ export class MainScene extends Phaser.Scene {
         
         // configuramos el mapa
         const data = this.cache.json.get('mapData');
-        if (!data) {
-            console.error("No se pudo cargar el JSON del mapa");
-            return;
-        }
 
         const map = this.make.tilemap({
             tileWidth: data.tileSize,
@@ -45,30 +41,18 @@ export class MainScene extends Phaser.Scene {
            
             const layer = map.createBlankLayer(layerData.name, tileset!);
             
-            console.log(`Creando capa: ${layerData.name}`);
-
             if (layer) {
                 layerData.tiles.forEach((tile: any) => {
                     const t = layer.putTileAt(parseInt(tile.id), tile.x, tile.y);
-
                     // Si es la capa de colisiones, forzamos la propiedad física en el tile
-                    if (layerData.name === "Collisions") {
-                        t.setCollision(true);
-                    }
+                    if (layerData.name === "Collisions") t.setCollision(true);
                 });
 
                 if (layerData.name === "Collisions") {
-
                     // Esto le dice a la capa que use las propiedades de colisión de los tiles
                     layer.setCollisionByProperty({ collides: true });
-
-                    // O de forma más agresiva, por índice (tu muro es ID 0)
                     layer.setCollision(0);
-
                     this.collisionLayer = layer;
-
-                    console.log('Configurando colisiones para la capa Collisions');
-
                 }
             }
         });
@@ -82,7 +66,6 @@ export class MainScene extends Phaser.Scene {
         this.room = roomInstance;
         this.cursors = this.input.keyboard!.createCursorKeys();
         
-
         // 2. Creamos animaciones específicas para cada personaje
         for (let i = 1; i <= 10; i++) {
             const key = `char_${i}`;
@@ -113,18 +96,15 @@ export class MainScene extends Phaser.Scene {
         });
 
         // 2. Sincronización en Tiempo Real:
-        // Usamos onStateChange para detectar nuevos y eliminados manualmente
         this.room.onStateChange((state) => {
             // Detectar nuevos
             state.players.forEach((player, sessionId) => {
                 if (!this.playerEntities[sessionId]) {
                     this.addPlayer(player, sessionId);
                 } else {
-                    // Actualizar posiciones de los que ya existen
                     this.updatePlayer(player, sessionId);
                 }
             });
-
             // Detectar los que se fueron
             for (const sessionId in this.playerEntities) {
                 if (!state.players.has(sessionId)) {
@@ -165,26 +145,20 @@ export class MainScene extends Phaser.Scene {
         const charId = data.character || 1;
         const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
 
-        sprite.setScale(2);
+        sprite.setScale(4);
         sprite.body?.setSize(16, 16);
         sprite.body?.setOffset(0, 8);
 
-        if (this.collisionLayer) {
-            this.physics.add.collider(sprite, this.collisionLayer);
-        }
-
+        if (this.collisionLayer) this.physics.add.collider(sprite, this.collisionLayer);
+   
         const label = this.add.text(data.x, data.y - 32, data.name, {
-            fontSize: '14px', backgroundColor: 'rgba(71, 71, 71, 0.14)'
+            fontSize: '14px', backgroundColor: 'rgba(96, 96, 96, 0.24)'
         }).setOrigin(0.5);
 
         // 4. Guardamos el characterId para saber qué animación llamar después
-        this.playerEntities[sessionId] = {
-            sprite, label, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp
-        };
-
-        if (sessionId === this.room.sessionId) {
-            this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
-        }
+        this.playerEntities[sessionId] = {sprite, label, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp};
+        if (sessionId === this.room.sessionId) this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
+        
     }
 
     private updatePlayer(data: any, sessionId: string) {
@@ -211,14 +185,9 @@ export class MainScene extends Phaser.Scene {
     private updatePlayerAnimation(entity: any, dx: number, dy: number) {
         const sprite = entity.sprite;
         const id = entity.characterId;
-
-        if (Math.abs(dx) > Math.abs(dy)) {
-            sprite.anims.play(dx > 0 ? `walk-right-${id}` : `walk-left-${id}`, true);
-        } else if (Math.abs(dy) > 0.1) {
-            sprite.anims.play(dy > 0 ? `walk-down-${id}` : `walk-up-${id}`, true);
-        } else {
-            sprite.anims.stop();
-        }
+        if (Math.abs(dx) > Math.abs(dy)) {sprite.anims.play(dx > 0 ? `walk-right-${id}` : `walk-left-${id}`, true);
+        } else if (Math.abs(dy) > 0.1) {sprite.anims.play(dy > 0 ? `walk-down-${id}` : `walk-up-${id}`, true);
+        } else {sprite.anims.stop();}
     }
 
     update(time: number, delta: number): void {
@@ -245,8 +214,6 @@ export class MainScene extends Phaser.Scene {
         }
 
         if (moved) {
-            //myEntity.sprite.x += dx * speed;
-            //myEntity.sprite.y += dy * speed;
             
             myEntity.sprite.body.setVelocity(dx * speed * 60, dy * speed * 60);
 
