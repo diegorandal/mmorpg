@@ -245,8 +245,11 @@ export class MainScene extends Phaser.Scene {
         }
 
         if (moved) {
-            myEntity.sprite.x += dx * speed;
-            myEntity.sprite.y += dy * speed;
+            //myEntity.sprite.x += dx * speed;
+            //myEntity.sprite.y += dy * speed;
+            
+            myEntity.sprite.body.setVelocity(dx * speed * 60, dy * speed * 60);
+
             // Pasamos la entidad completa para que la animación sepa el ID
             this.updatePlayerAnimation(myEntity, dx, dy);
             myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 32);
@@ -258,6 +261,7 @@ export class MainScene extends Phaser.Scene {
             }
         } else {
             myEntity.sprite.anims.stop();
+            myEntity.sprite.body.setVelocity(0, 0);
         }
 
         for (const id in this.playerEntities) {
