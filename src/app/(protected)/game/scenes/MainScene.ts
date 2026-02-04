@@ -151,7 +151,7 @@ export class MainScene extends Phaser.Scene {
         const hitboxW = 4;
         const hitboxH = 4;
         const offsetX = (16 - hitboxW) / 2; // Centrado automático
-        const offsetY = 14; // Empujamos el hitbox hacia la base del sprite
+        const offsetY = 16; // Empujamos el hitbox hacia la base del sprite
         sprite.body?.setSize(hitboxW, hitboxH);
         sprite.body?.setOffset(offsetX, offsetY);
 
