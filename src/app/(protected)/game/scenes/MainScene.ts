@@ -146,8 +146,14 @@ export class MainScene extends Phaser.Scene {
         const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
 
         sprite.setScale(3);
-        sprite.body?.setSize(16, 16);
-        sprite.body?.setOffset(0, 8);
+        // 2. Ajustamos hitbox basándonos en los 16x24 originales
+        // Queremos que la colisión sea un cuadrado de 10x10 en la base
+        const hitboxW = 10;
+        const hitboxH = 10;
+        const offsetX = (16 - hitboxW) / 2; // Centrado automático
+        const offsetY = 14; // Empujamos el hitbox hacia la base del sprite
+        sprite.body?.setSize(hitboxW, hitboxH);
+        sprite.body?.setOffset(offsetX, offsetY);
 
         if (this.collisionLayer) this.physics.add.collider(sprite, this.collisionLayer);
    
