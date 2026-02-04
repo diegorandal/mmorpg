@@ -145,7 +145,7 @@ export class MainScene extends Phaser.Scene {
         const charId = data.character || 1;
         const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
 
-        sprite.setScale(4);
+        sprite.setScale(3);
         sprite.body?.setSize(16, 16);
         sprite.body?.setOffset(0, 8);
 
