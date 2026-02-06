@@ -62,10 +62,11 @@ export class MainScene extends Phaser.Scene {
         const version = Date.now(); // Genera un número único basado en el tiempo
         // ?v=${version} << agregar para evitar cache --- IGNORE ---
         this.load.crossOrigin = 'anonymous';
+        // Dentro de preload()
         for (let i = 1; i <= 10; i++) {
             this.load.spritesheet(`char_${i}`, `${BASE_URL}/npc${i}.png?v=${version}`, {
-                frameWidth: 16,
-                frameHeight: 24
+                frameWidth: 32, // Ancho de un frame
+                frameHeight: 32 // Alto de un frame
             });
         }
         this.load.image('tileset-image', `${BASE_URL}/tileset.png?v=${version}`);
@@ -132,29 +133,37 @@ export class MainScene extends Phaser.Scene {
         this.cursors = this.input.keyboard!.createCursorKeys();
         
         // 2. Creamos animaciones específicas para cada personaje
+        const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
+        const actions = {
+            'idle': [0, 1],
+            'walk': [2, 3, 4],
+            'sword-idle': [5, 6],
+            'sword-attack': [7, 8],
+            'bow-attack': [9, 10],
+            'bow-idle': [11, 12],
+            'wand-idle': [13, 14],
+            'wand-attack': [15],
+            'spell-idle': [16, 17],
+            'spell-attack': [18],
+            'hurt': [19, 20, 21],
+            'death': [22, 23]
+        };
         for (let i = 1; i <= 10; i++) {
-            const key = `char_${i}`;
-            this.anims.create({
-                key: `walk-down-${i}`,
-                frames: this.anims.generateFrameNumbers(key, { start: 0, end: 2 }),
-                frameRate: 10, repeat: -1
-            });
-            this.anims.create({
-                key: `walk-left-${i}`,
-                frames: this.anims.generateFrameNumbers(key, { start: 3, end: 5 }),
-                frameRate: 10, repeat: -1
-            });
-            this.anims.create({
-                key: `walk-right-${i}`,
-                frames: this.anims.generateFrameNumbers(key, { start: 6, end: 8 }),
-                frameRate: 10, repeat: -1
-            });
-            this.anims.create({
-                key: `walk-up-${i}`,
-                frames: this.anims.generateFrameNumbers(key, { start: 9, end: 11 }),
-                frameRate: 10, repeat: -1
+            directions.forEach((dir, row) => {
+                Object.entries(actions).forEach(([actionName, frames]) => {
+                    this.anims.create({
+                        key: `${actionName}-${dir}-${i}`,
+                        frames: this.anims.generateFrameNumbers(`char_${i}`, {
+                            // Calculamos el frame real: (fila * total_columnas) + columna_animacion
+                            frames: frames.map(f => (row * 24) + f)
+                        }),
+                        frameRate: actionName.includes('attack') ? 15 : 8,
+                        repeat: actionName.includes('attack') ? 0 : -1 // Ataques no repiten
+                    });
+                });
             });
         }
+
 
         this.room.state.players.forEach((player, sessionId) => {
             this.addPlayer(player, sessionId);
@@ -179,6 +188,54 @@ export class MainScene extends Phaser.Scene {
         });
 
         this.setupJoystick();
+    }
+    
+    // Nueva función para obtener la dirección según dx y dy
+    private getDirectionName(dx: number, dy: number): string {
+        if (dx > 0 && dy > 0) return 'down-right';
+        if (dx > 0 && dy < 0) return 'up-right';
+        if (dx < 0 && dy > 0) return 'down-left';
+        if (dx < 0 && dy < 0) return 'up-left';
+        if (dx > 0) return 'right';
+        if (dx < 0) return 'left';
+        if (dy > 0) return 'down';
+        if (dy < 0) return 'up';
+        return '';
+    }
+
+    // Nueva función de gestión de animaciones
+    private updatePlayerAnimation(entity: any, dx: number, dy: number, attackType: number) {
+        const id = entity.characterId;
+        const sprite = entity.sprite;
+
+        // Si hay una animación de ataque reproduciéndose, no hacemos nada (prioridad)
+        if (sprite.anims.currentAnim && sprite.anims.currentAnim.key.includes('attack') && sprite.anims.isPlaying) {
+            return;
+        }
+
+        // Actualizar dirección actual si hay movimiento
+        const newDir = this.getDirectionName(dx, dy);
+        if (newDir) entity.currentDir = newDir;
+        const dir = entity.currentDir || 'down';
+
+        // Determinar acción
+        let action = 'idle';
+        if (attackType > 0) {
+            const attackMap: any = { 1: 'sword-attack', 2: 'bow-attack', 3: 'wand-attack', 4: 'spell-attack' };
+            action = attackMap[attackType];
+        } else if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1) {
+            action = 'walk';
+        } else {
+            // Idle dinámico según el arma equipada (opcional, si quieres que el idle cambie)
+            const idleMap: any = { 0: 'idle', 1: 'sword-idle', 2: 'bow-idle', 3: 'wand-idle', 4: 'spell-idle' };
+            // Si tienes el tipo de arma actual en el estado del jugador, úsalo aquí
+            action = idleMap[0];
+        }
+
+        const animKey = `${action}-${dir}-${id}`;
+        if (sprite.anims.currentAnim?.key !== animKey) {
+            sprite.anims.play(animKey, true);
+        }
     }
 
     private setupJoystick() {
@@ -210,14 +267,15 @@ export class MainScene extends Phaser.Scene {
         const charId = data.character || 1;
         const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
 
-        sprite.setScale(3); // Bajamos un poco la escala ya que el tile es de 16px
-        sprite.setDepth(2); // <--- IMPORTANTE: Entre Decor y Trees
-        // 2. Ajustamos hitbox basándonos en los 16x24 originales
-        // Queremos que la colisión sea un cuadrado de 10x10 en la base
+        sprite.setScale(2); 
+
+        sprite.setDepth(2); 
         const hitboxW = 8;
         const hitboxH = 8;
+
         const offsetX = (16 - hitboxW) / 2; // Centrado automático
         const offsetY = 16; // Empujamos el hitbox hacia la base del sprite
+
         sprite.body?.setSize(hitboxW, hitboxH);
         sprite.body?.setOffset(offsetX, offsetY);
 
@@ -255,19 +313,11 @@ export class MainScene extends Phaser.Scene {
         }
     }
 
-    // 5. Ajustamos para usar el ID del personaje en el nombre de la animación
-    private updatePlayerAnimation(entity: any, dx: number, dy: number) {
-        const sprite = entity.sprite;
-        const id = entity.characterId;
-        if (Math.abs(dx) > Math.abs(dy)) {sprite.anims.play(dx > 0 ? `walk-right-${id}` : `walk-left-${id}`, true);
-        } else if (Math.abs(dy) > 0.1) {sprite.anims.play(dy > 0 ? `walk-down-${id}` : `walk-up-${id}`, true);
-        } else {sprite.anims.stop();}
-    }
-
     update(time: number, delta: number): void {
         if (!this.room) return;
         const myId = this.room.sessionId;
         const myEntity = this.playerEntities[myId];
+        const attackType = myEntity.attack || 0;
         if (!myEntity) return;
 
         let moved = false;
@@ -287,12 +337,13 @@ export class MainScene extends Phaser.Scene {
             moved = dx !== 0 || dy !== 0;
         }
 
-        if (moved) {
+        if (moved || attackType > 0 || true) {
             
             myEntity.sprite.body.setVelocity(dx * speed * 60, dy * speed * 60);
 
             // Pasamos la entidad completa para que la animación sepa el ID
-            this.updatePlayerAnimation(myEntity, dx, dy);
+            this.updatePlayerAnimation(myEntity, dx, dy, attackType);
+
             myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 32);
 
             this.moveTimer += delta;
@@ -300,9 +351,6 @@ export class MainScene extends Phaser.Scene {
                 this.room.send("move", { x: Math.floor(myEntity.sprite.x), y: Math.floor(myEntity.sprite.y) });
                 this.moveTimer = 0;
             }
-        } else {
-            myEntity.sprite.anims.stop();
-            myEntity.sprite.body.setVelocity(0, 0);
         }
 
         for (const id in this.playerEntities) {
@@ -312,7 +360,7 @@ export class MainScene extends Phaser.Scene {
             const diffY = entity.serverY - entity.sprite.y;
 
             if (Math.abs(diffX) > 1 || Math.abs(diffY) > 1) {
-                this.updatePlayerAnimation(entity, diffX, diffY);
+                this.updatePlayerAnimation(entity, diffX, diffY, entity.attack || 0);
                 entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.15);
                 entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.15);
             } else {
