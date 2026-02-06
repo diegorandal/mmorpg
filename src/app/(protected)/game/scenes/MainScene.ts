@@ -259,16 +259,18 @@ export class MainScene extends Phaser.Scene {
         const myEntity = this.playerEntities[this.room.sessionId];
         
         // Evitar spam si ya está atacando (opcional, Phaser lo maneja con isPlaying)
+        /*
         if (myEntity.sprite.anims.currentAnim?.key.includes('attack') && myEntity.sprite.anims.isPlaying) {
             return;
         }
+        */
 
         // 1. Notificar al servidor
         this.room.send("attack", { type: this.myCurrentWeaponType });
 
         // 2. Lanzar animación localmente de inmediato
         // Usamos dx=0, dy=0 para que mantenga la dirección actual (currentDir)
-        this.updatePlayerAnimation(myEntity, 0, 0, this.myCurrentWeaponType);
+        this.updatePlayerAnimation(myEntity, 0, 0, this.myCurrentWeaponType || 1);
     }
 
     private setupJoystick() {
