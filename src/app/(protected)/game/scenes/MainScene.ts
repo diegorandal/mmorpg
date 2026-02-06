@@ -11,6 +11,9 @@ export class MainScene extends Phaser.Scene {
     private joystickThumb?: Phaser.GameObjects.Arc;
     private isDragging: boolean = false;
     private moveTimer: number = 0;
+    private attackButton?: Phaser.GameObjects.Arc;
+    private isAttacking: boolean = false;
+    private myCurrentWeaponType: number = 1;
     private readonly SEND_RATE = 100;
 
     preload(): void {
@@ -250,11 +253,52 @@ export class MainScene extends Phaser.Scene {
         }
     }
 
+    private handleAttack() {
+        if (!this.room || !this.playerEntities[this.room.sessionId]) return;
+
+        const myEntity = this.playerEntities[this.room.sessionId];
+        
+        // Evitar spam si ya está atacando (opcional, Phaser lo maneja con isPlaying)
+        if (myEntity.sprite.anims.currentAnim?.key.includes('attack') && myEntity.sprite.anims.isPlaying) {
+            return;
+        }
+
+        // 1. Notificar al servidor
+        this.room.send("attack", { type: this.myCurrentWeaponType });
+
+        // 2. Lanzar animación localmente de inmediato
+        // Usamos dx=0, dy=0 para que mantenga la dirección actual (currentDir)
+        this.updatePlayerAnimation(myEntity, 0, 0, this.myCurrentWeaponType);
+    }
+
     private setupJoystick() {
         const x = 120;
+        const margin = 120;
         const y = window.innerHeight - 120;
+        const xAttack = window.innerWidth - margin;
+
         this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.2).setScrollFactor(0).setDepth(1000);
         this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(1001);
+
+        // --- BOTÓN DE ATAQUE (Derecha) ---
+        this.attackButton = this.add.circle(xAttack, y, 50, 0xff0000, 0.3)
+            .setScrollFactor(0).setDepth(1000)
+            .setInteractive();
+
+        // Añadimos un icono o texto simple al botón
+        this.add.text(xAttack, y, 'ATK', { fontSize: '20px', color: '#fff' })
+            .setOrigin(0.5).setScrollFactor(0).setDepth(1001);
+
+        // Evento de click/touch en el botón
+        this.attackButton.on('pointerdown', () => {
+            this.handleAttack();
+            // Feedback visual al presionar
+            this.attackButton?.setFillStyle(0xff0000, 0.6);
+        });
+
+        this.attackButton.on('pointerup', () => {
+            this.attackButton?.setFillStyle(0xff0000, 0.3);
+        });
 
         this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
             if (Phaser.Math.Distance.Between(p.x, p.y, x, y) < 80) this.isDragging = true;
@@ -356,7 +400,7 @@ export class MainScene extends Phaser.Scene {
             // Pasamos la entidad completa para que la animación sepa el ID
             this.updatePlayerAnimation(myEntity, dx, dy, attackType);
 
-            myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 32);
+            myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 40);
 
             this.moveTimer += delta;
             if (this.moveTimer >= this.SEND_RATE) {
