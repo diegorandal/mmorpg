@@ -272,6 +272,8 @@ export class MainScene extends Phaser.Scene {
         this.updatePlayerAnimation(myEntity, 0, 0, this.myCurrentWeaponType || 1);
     }
 
+    private joystickPointer: Phaser.Input.Pointer | null = null; // Añade esta propiedad a tu clase
+
     private setupJoystick() {
         const x = 120;
         const margin = 120;
@@ -281,17 +283,15 @@ export class MainScene extends Phaser.Scene {
         this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.2).setScrollFactor(0).setDepth(1000);
         this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(1001);
 
-        // --- BOTÓN DE ATAQUE (Derecha) ---
+        // --- BOTÓN DE ATAQUE ---
         this.attackButton = this.add.circle(xAttack, y, 50, 0xff0000, 0.3)
             .setScrollFactor(0).setDepth(1000)
             .setInteractive();
 
-        // Añadimos un icono o texto simple al botón
         this.add.text(xAttack, y, 'ATK', { fontSize: '20px', color: '#fff' })
             .setOrigin(0.5).setScrollFactor(0).setDepth(1001);
 
-        // Usamos pointerdown para que detecte cualquier dedo (el 2do o 3ro)
-        this.attackButton.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+        this.attackButton.on('pointerdown', () => {
             this.handleAttack();
             this.attackButton?.setFillStyle(0xff0000, 0.6);
         });
@@ -300,21 +300,40 @@ export class MainScene extends Phaser.Scene {
             this.attackButton?.setFillStyle(0xff0000, 0.3);
         });
 
+        // --- LÓGICA DE MULTITOUCH PARA JOYSTICK ---
         this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
-            if (Phaser.Math.Distance.Between(p.x, p.y, x, y) < 80) this.isDragging = true;
+            // Si el toque es en la derecha, ignoramos (es para el botón de ataque)
+            if (p.x > window.innerWidth / 2) return;
+
+            if (Phaser.Math.Distance.Between(p.x, p.y, x, y) < 80) {
+                this.isDragging = true;
+                this.joystickPointer = p; // <--- Guardamos qué dedo mueve el joystick
+            }
         });
 
         this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
-            if (!this.isDragging || !this.joystickBase || !this.joystickThumb) return;
+            // Solo movemos el joystick si el puntero que lo mueve es el mismo que empezó
+            if (!this.isDragging || this.joystickPointer?.id !== p.id) return;
+
             const angle = Phaser.Math.Angle.Between(x, y, p.x, p.y);
             const dist = Math.min(Phaser.Math.Distance.Between(x, y, p.x, p.y), 50);
-            this.joystickThumb.x = x + Math.cos(angle) * dist;
-            this.joystickThumb.y = y + Math.sin(angle) * dist;
+
+            if (this.joystickThumb) {
+                this.joystickThumb.x = x + Math.cos(angle) * dist;
+                this.joystickThumb.y = y + Math.sin(angle) * dist;
+            }
         });
 
-        this.input.on('pointerup', () => {
-            this.isDragging = false;
-            if (this.joystickThumb) { this.joystickThumb.x = x; this.joystickThumb.y = y; }
+        this.input.on('pointerup', (p: Phaser.Input.Pointer) => {
+            // Solo soltamos el joystick si el dedo que se levanta es el del joystick
+            if (this.joystickPointer?.id === p.id) {
+                this.isDragging = false;
+                this.joystickPointer = null;
+                if (this.joystickThumb) {
+                    this.joystickThumb.x = x;
+                    this.joystickThumb.y = y;
+                }
+            }
         });
     }
 

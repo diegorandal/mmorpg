@@ -9,6 +9,9 @@ export const getGameConfig = (containerId: string): Phaser.Types.Core.GameConfig
         width: '100%',
         height: '100%'
     },
+    input: {
+        activePointers: 3 // Permite hasta 3 dedos a la vez
+    },
     pixelArt: true, 
     antialias: false,
     parent: containerId,
