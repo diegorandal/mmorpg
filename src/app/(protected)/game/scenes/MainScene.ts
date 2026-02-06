@@ -134,36 +134,40 @@ export class MainScene extends Phaser.Scene {
         
         // 2. Creamos animaciones específicas para cada personaje
         const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
-        const actions = {
-            'idle': [0, 1],
-            'walk': [2, 3, 4],
-            'sword-idle': [5, 6],
-            'sword-attack': [7, 8],
-            'bow-attack': [9, 10],
-            'bow-idle': [11, 12],
-            'wand-idle': [13, 14],
-            'wand-attack': [15],
-            'spell-idle': [16, 17],
-            'spell-attack': [18],
-            'hurt': [19, 20, 21],
-            'death': [22, 23]
+        const actionsConfig = {
+            'idle':         { frames: [0, 1],    rate: 4,  repeat: -1 }, // Lenta (4 fps)
+            'walk':         { frames: [2, 3, 4], rate: 10, repeat: -1 }, // Normal (10 fps)
+            'sword-idle':   { frames: [5, 6],    rate: 4,  repeat: -1 },
+            'sword-attack': { frames: [7, 8],    rate: 10, repeat: 0  }, // Rápida (15 fps)
+            'bow-attack':   { frames: [9, 10],   rate: 10, repeat: 0  },
+            'bow-idle':     { frames: [11, 12],  rate: 4,  repeat: -1 },
+            'wand-idle':    { frames: [13, 14],  rate: 4,  repeat: -1 },
+            'wand-attack':  { frames: [15],      rate: 5, repeat: 0  },
+            'spell-idle':   { frames: [16, 17],  rate: 4,  repeat: -1 },
+            'spell-attack': { frames: [18],      rate: 5, repeat: 0  },
+            'hurt':         { frames: [19, 20, 21], rate: 12, repeat: 0  },
+            'death':        { frames: [22, 23],  rate: 6,  repeat: 0  }
         };
+
         for (let i = 1; i <= 10; i++) {
+            const charKey = `char_${i}`;
+
             directions.forEach((dir, row) => {
-                Object.entries(actions).forEach(([actionName, frames]) => {
+                Object.entries(actionsConfig).forEach(([actionName, config]) => {
+                    
                     this.anims.create({
                         key: `${actionName}-${dir}-${i}`,
-                        frames: this.anims.generateFrameNumbers(`char_${i}`, {
-                            // Calculamos el frame real: (fila * total_columnas) + columna_animacion
-                            frames: frames.map(f => (row * 24) + f)
+                        frames: this.anims.generateFrameNumbers(charKey, {
+                            // Mapeo: (fila * columnas_totales) + columna_actual
+                            // Como tu sprite tiene 24 columnas, multiplicamos por 24
+                            frames: config.frames.map(f => (row * 24) + f)
                         }),
-                        frameRate: actionName.includes('attack') ? 15 : 8,
-                        repeat: actionName.includes('attack') ? 0 : -1 // Ataques no repiten
+                        frameRate: config.rate,      // <--- Aquí aplicas la duración distinta
+                        repeat: config.repeat        // <--- -1 para bucle, 0 para una sola vez
                     });
                 });
             });
         }
-
 
         this.room.state.players.forEach((player, sessionId) => {
             this.addPlayer(player, sessionId);
@@ -276,20 +280,20 @@ export class MainScene extends Phaser.Scene {
         const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
 
         sprite.setScale(3); 
-
         sprite.setDepth(2); 
+
         const hitboxW = 8;
         const hitboxH = 8;
 
-        const offsetX = (16 - hitboxW) / 2; // Centrado automático
-        const offsetY = 24; // Empujamos el hitbox hacia la base del sprite
+        const offsetX = (32 - hitboxW) / 2; // Centrado automático
+        const offsetY = 16; // Empujamos el hitbox hacia la base del sprite
 
         sprite.body?.setSize(hitboxW, hitboxH);
         sprite.body?.setOffset(offsetX, offsetY);
 
         if (this.collisionLayer) this.physics.add.collider(sprite, this.collisionLayer);
    
-        const label = this.add.text(data.x, data.y - 32, data.name, {
+        const label = this.add.text(data.x, data.y - 40, data.name, {
             fontSize: '14px', backgroundColor: 'rgba(96, 96, 96, 0.24)'
         }).setOrigin(0.5);
         
