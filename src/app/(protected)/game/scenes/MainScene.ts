@@ -192,15 +192,23 @@ export class MainScene extends Phaser.Scene {
     
     // Nueva función para obtener la dirección según dx y dy
     private getDirectionName(dx: number, dy: number): string {
-        if (dx > 0 && dy > 0) return 'down-right';
-        if (dx > 0 && dy < 0) return 'up-right';
-        if (dx < 0 && dy > 0) return 'down-left';
-        if (dx < 0 && dy < 0) return 'up-left';
-        if (dx > 0) return 'right';
-        if (dx < 0) return 'left';
-        if (dy > 0) return 'down';
-        if (dy < 0) return 'up';
-        return '';
+        if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) return '';
+
+        // Calculamos el ángulo en radianes y lo pasamos a grados (0 a 360)
+        let angle = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(0, 0, dx, dy));
+        if (angle < 0) angle += 360;
+        // Dividimos el círculo en 8 sectores de 45 grados cada uno.
+        // Desplazamos 22.5 grados para que las direcciones principales 
+        // (Arriba, Abajo, etc.) queden en el centro de su porción.
+        if (angle >= 337.5 || angle < 22.5)   return 'right';
+        if (angle >= 22.5  && angle < 67.5)   return 'down-right';
+        if (angle >= 67.5  && angle < 112.5)  return 'down';
+        if (angle >= 112.5 && angle < 157.5)  return 'down-left';
+        if (angle >= 157.5 && angle < 202.5)  return 'left';
+        if (angle >= 202.5 && angle < 247.5)  return 'up-left';
+        if (angle >= 247.5 && angle < 292.5)  return 'up';
+        if (angle >= 292.5 && angle < 337.5)  return 'up-right';
+        return 'down'; // Por defecto
     }
 
     // Nueva función de gestión de animaciones
@@ -267,14 +275,14 @@ export class MainScene extends Phaser.Scene {
         const charId = data.character || 1;
         const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
 
-        sprite.setScale(2); 
+        sprite.setScale(3); 
 
         sprite.setDepth(2); 
         const hitboxW = 8;
         const hitboxH = 8;
 
         const offsetX = (16 - hitboxW) / 2; // Centrado automático
-        const offsetY = 16; // Empujamos el hitbox hacia la base del sprite
+        const offsetY = 24; // Empujamos el hitbox hacia la base del sprite
 
         sprite.body?.setSize(hitboxW, hitboxH);
         sprite.body?.setOffset(offsetX, offsetY);
