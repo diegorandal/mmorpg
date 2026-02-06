@@ -373,14 +373,17 @@ export class MainScene extends Phaser.Scene {
         if (!this.room) return;
         const myId = this.room.sessionId;
         const myEntity = this.playerEntities[myId];
-        const attackType = myEntity.attack || 0;
         if (!myEntity) return;
 
-        let moved = false;
+        // Obtenemos el tipo de ataque directamente del estado del servidor para este frame
+        const attackType = this.room.state.players.get(myId)?.attack || 0;
+
         let dx = 0;
         let dy = 0;
+        let moved = false;
         const speed = 4;
 
+        // Lógica de entrada (Joystick o Teclado)
         if (this.isDragging && this.joystickThumb && this.joystickBase) {
             dx = (this.joystickThumb.x - this.joystickBase.x) / 50;
             dy = (this.joystickThumb.y - this.joystickBase.y) / 50;
@@ -393,36 +396,41 @@ export class MainScene extends Phaser.Scene {
             moved = dx !== 0 || dy !== 0;
         }
 
-        if (moved || attackType > 0 || true) {
-            
-            myEntity.sprite.body.setVelocity(dx * speed * 60, dy * speed * 60);
+        // 1. LA FÍSICA NO SE DETIENE: El personaje se mueve aunque ataque
+        myEntity.sprite.body.setVelocity(dx * speed * 60, dy * speed * 60);
 
-            // Pasamos la entidad completa para que la animación sepa el ID
-            this.updatePlayerAnimation(myEntity, dx, dy, attackType);
+        // 2. LA ANIMACIÓN DECIDE QUÉ MOSTRAR:
+        // Siempre llamamos a updatePlayerAnimation, ella decidirá si el ataque bloquea al walk
+        this.updatePlayerAnimation(myEntity, dx, dy, attackType);
 
-            myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 40);
+        myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 55);
 
-            this.moveTimer += delta;
-            if (this.moveTimer >= this.SEND_RATE) {
-                this.room.send("move", { x: Math.floor(myEntity.sprite.x), y: Math.floor(myEntity.sprite.y) });
-                this.moveTimer = 0;
-            }
+        // Envío de posición al servidor
+        this.moveTimer += delta;
+        if (this.moveTimer >= this.SEND_RATE) {
+            this.room.send("move", { x: Math.floor(myEntity.sprite.x), y: Math.floor(myEntity.sprite.y) });
+            this.moveTimer = 0;
         }
 
+        // --- OTROS JUGADORES ---
         for (const id in this.playerEntities) {
             if (id === myId) continue;
             const entity = this.playerEntities[id];
+            
+            // Obtenemos el ataque de los otros desde su estado en Colyseus
+            const remoteAttack = this.room.state.players.get(id)?.attack || 0;
             const diffX = entity.serverX - entity.sprite.x;
             const diffY = entity.serverY - entity.sprite.y;
 
+            // Actualizamos su animación (esta función ya debe manejar el bloqueo de ataque)
+            this.updatePlayerAnimation(entity, diffX, diffY, remoteAttack);
+
             if (Math.abs(diffX) > 1 || Math.abs(diffY) > 1) {
-                this.updatePlayerAnimation(entity, diffX, diffY, entity.attack || 0);
                 entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.15);
                 entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.15);
-            } else {
-                entity.sprite.anims.stop();
             }
-            entity.label.setPosition(entity.sprite.x, entity.sprite.y - 45);
+            entity.label.setPosition(entity.sprite.x, entity.sprite.y - 55);
         }
     }
+
 }
