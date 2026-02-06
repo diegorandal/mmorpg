@@ -290,10 +290,9 @@ export class MainScene extends Phaser.Scene {
         this.add.text(xAttack, y, 'ATK', { fontSize: '20px', color: '#fff' })
             .setOrigin(0.5).setScrollFactor(0).setDepth(1001);
 
-        // Evento de click/touch en el botón
-        this.attackButton.on('pointerdown', () => {
+        // Usamos pointerdown para que detecte cualquier dedo (el 2do o 3ro)
+        this.attackButton.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
             this.handleAttack();
-            // Feedback visual al presionar
             this.attackButton?.setFillStyle(0xff0000, 0.6);
         });
 
