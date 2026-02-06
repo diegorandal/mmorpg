@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { Room } from '@colyseus/sdk';
 import type { MyRoomState } from '@/app/(protected)/home/PlayerState';
+import { DirectorChair } from 'iconoir-react';
 
 export class MainScene extends Phaser.Scene {
     private room!: Room<MyRoomState>;
@@ -258,15 +259,13 @@ export class MainScene extends Phaser.Scene {
 
         const myEntity = this.playerEntities[this.room.sessionId];
         
-        // Evitar spam si ya está atacando (opcional, Phaser lo maneja con isPlaying)
-        /*
-        if (myEntity.sprite.anims.currentAnim?.key.includes('attack') && myEntity.sprite.anims.isPlaying) {
-            return;
-        }
-        */
-
-        // 1. Notificar al servidor
-        this.room.send("attack", { type: this.myCurrentWeaponType });
+        // ENVÍO AL SERVIDOR
+        this.room.send("attack", {
+            x: Math.floor(myEntity.sprite.x),
+            y: Math.floor(myEntity.sprite.y),
+            attack: this.myCurrentWeaponType, // 1, 2, 3 o 4
+            direction: myEntity.currentDir    // Hacia dónde mira al golpear
+        });
 
         // 2. Lanzar animación localmente de inmediato
         // Usamos dx=0, dy=0 para que mantenga la dirección actual (currentDir)
@@ -410,7 +409,11 @@ export class MainScene extends Phaser.Scene {
         // Envío de posición al servidor
         this.moveTimer += delta;
         if (this.moveTimer >= this.SEND_RATE) {
-            this.room.send("move", { x: Math.floor(myEntity.sprite.x), y: Math.floor(myEntity.sprite.y) });
+            this.room.send("move", {
+                x: Math.floor(myEntity.sprite.x), 
+                y: Math.floor(myEntity.sprite.y),
+                direction: myEntity.currentDir || 'down',
+            });
             this.moveTimer = 0;
         }
 
