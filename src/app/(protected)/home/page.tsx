@@ -30,11 +30,9 @@ export default function Home() {
       setError('');
       const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
 
-      // Usamos el playerName como usuario y una pass genérica o vacía 
-      // ya que la autenticación ahora es por sesión de NextAuth
       const options = {
         username: playerName,
-        password: "session_auth",
+        password: playerName,
         character: selectedCharacter
       };
 
@@ -73,11 +71,9 @@ export default function Home() {
         justifyContent: 'center', minHeight: '100vh', background: '#1a1a1a', color: 'white',
         fontFamily: 'sans-serif', padding: '20px'
       }}>
-        <h2 style={{ fontSize: '2.5rem', marginBottom: '0.5rem', textAlign: 'center' }}>
+        <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', textAlign: 'center' }}>
           ¡Bienvenido, {playerName}!
         </h2>
-        <p style={{ marginBottom: '2rem', color: '#aaa' }}>Selecciona tu personaje para comenzar</p>
-
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
@@ -85,7 +81,7 @@ export default function Home() {
           width: '100%',
           maxWidth: '600px',
           background: '#2a2a2a',
-          padding: '20px',
+          padding: '12px',
           borderRadius: '12px',
           maxHeight: '60vh',
           overflowY: 'auto'
@@ -96,23 +92,21 @@ export default function Home() {
               onClick={() => setSelectedCharacter(id)}
               style={{
                 cursor: 'pointer',
-                padding: '10px',
-                borderRadius: '10px',
-                border: selectedCharacter === id ? '4px solid #4CAF50' : '4px solid transparent',
+                padding: '4px',
+                borderRadius: '4px',
+                border: selectedCharacter === id ? '2px solid #4CAF50' : '4px solid transparent',
                 backgroundColor: selectedCharacter === id ? '#333' : 'transparent',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 transition: 'transform 0.2s',
               }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
               <img
                 src={`https://randalrpg.onepixperday.xyz/char${id}.png`}
                 alt={`Personaje ${id}`}
                 style={{
-                  width: '96px', // 32px * 3
+                  width: '96px',
                   height: '96px',
                   imageRendering: 'pixelated',
                   objectFit: 'contain'
