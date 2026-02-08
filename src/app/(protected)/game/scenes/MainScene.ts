@@ -138,35 +138,31 @@ export class MainScene extends Phaser.Scene {
         // 2. Creamos animaciones específicas para cada personaje
         const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
         const actionsConfig = {
-            'idle':         { frames: [0, 1],    rate: 4,  repeat: -1 }, // Lenta (4 fps)
-            'walk':         { frames: [2, 3, 4], rate: 10, repeat: -1 }, // Normal (10 fps)
-            'sword-idle':   { frames: [5, 6],    rate: 4,  repeat: -1 },
-            'sword-attack': { frames: [7, 8],    rate: 10, repeat: 0  }, // Rápida (15 fps)
-            'bow-attack':   { frames: [9, 10],   rate: 10, repeat: 0  },
-            'bow-idle':     { frames: [11, 12],  rate: 4,  repeat: -1 },
-            'wand-idle':    { frames: [13, 14],  rate: 4,  repeat: -1 },
-            'wand-attack':  { frames: [15],      rate: 5, repeat: 0  },
-            'spell-idle':   { frames: [16, 17],  rate: 4,  repeat: -1 },
-            'spell-attack': { frames: [18],      rate: 5, repeat: 0  },
+            'idle':         { frames: [0, 1],       rate: 4,  repeat: -1 }, 
+            'sword-idle':   { frames: [5, 6],       rate: 4, repeat: -1 },
+            'bow-idle':     { frames: [11, 12],     rate: 4, repeat: -1 },
+            'wand-idle':    { frames: [13, 14],     rate: 4, repeat: -1 },
+            'spell-idle':   { frames: [16, 17],     rate: 4, repeat: -1 },
+            'walk':         { frames: [2, 3, 4],    rate: 10, repeat: -1 }, 
+            'sword-attack': { frames: [7, 8],       rate: 10, repeat: 0  }, 
+            'bow-attack':   { frames: [9, 10],      rate: 10, repeat: 0  },
+            'wand-attack':  { frames: [15],         rate: 5,  repeat: 0  },
+            'spell-attack': { frames: [18],         rate: 5,  repeat: 0  },
             'hurt':         { frames: [19, 20, 21], rate: 12, repeat: 0  },
-            'death':        { frames: [22, 23],  rate: 6,  repeat: 0  }
+            'death':        { frames: [22, 23],     rate: 6,  repeat: 0  }
         };
 
         for (let i = 1; i <= 18; i++) {
             const charKey = `char_${i}`;
-
             directions.forEach((dir, row) => {
                 Object.entries(actionsConfig).forEach(([actionName, config]) => {
-                    
                     this.anims.create({
                         key: `${actionName}-${dir}-${i}`,
                         frames: this.anims.generateFrameNumbers(charKey, {
-                            // Mapeo: (fila * columnas_totales) + columna_actual
-                            // Como tu sprite tiene 24 columnas, multiplicamos por 24
                             frames: config.frames.map(f => (row * 24) + f)
                         }),
-                        frameRate: config.rate,      // <--- Aquí aplicas la duración distinta
-                        repeat: config.repeat        // <--- -1 para bucle, 0 para una sola vez
+                        frameRate: config.rate,
+                        repeat: config.repeat
                     });
                 });
             });
@@ -200,7 +196,6 @@ export class MainScene extends Phaser.Scene {
     // Nueva función para obtener la dirección según dx y dy
     private getDirectionName(dx: number, dy: number): string {
         if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) return '';
-
         // Calculamos el ángulo en radianes y lo pasamos a grados (0 a 360)
         let angle = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(0, 0, dx, dy));
         if (angle < 0) angle += 360;
