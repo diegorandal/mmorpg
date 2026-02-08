@@ -68,10 +68,10 @@ export default function Home() {
     return (
       <div style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', minHeight: '100vh', background: '#1a1a1a', color: 'white',
+        justifyContent: 'flex-start', minHeight: '100vh', background: '#1a1a1a', color: 'white',
         fontFamily: 'sans-serif', padding: '20px'
       }}>
-        <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', textAlign: 'center' }}>
+        <h2 style={{ fontSize: '1rem', marginBottom: '0.5rem', textAlign: 'center' }}>
           ¡Bienvenido, {playerName}!
         </h2>
         <div style={{
