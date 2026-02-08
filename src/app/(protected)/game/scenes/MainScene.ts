@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 import { Room } from '@colyseus/sdk';
 import type { MyRoomState } from '@/app/(protected)/home/PlayerState';
-import { DirectorChair } from 'iconoir-react';
 
 export class MainScene extends Phaser.Scene {
     private room!: Room<MyRoomState>;
@@ -67,7 +66,7 @@ export class MainScene extends Phaser.Scene {
         // ?v=${version} << agregar para evitar cache --- IGNORE ---
         this.load.crossOrigin = 'anonymous';
         // Dentro de preload()
-        for (let i = 1; i <= 10; i++) {
+        for (let i = 1; i <= 18; i++) {
             this.load.spritesheet(`char_${i}`, `${BASE_URL}/npc${i}.png?v=${version}`, {
                 frameWidth: 32, // Ancho de un frame
                 frameHeight: 32 // Alto de un frame
