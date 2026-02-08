@@ -152,7 +152,7 @@ export class MainScene extends Phaser.Scene {
             'death':        { frames: [22, 23],  rate: 6,  repeat: 0  }
         };
 
-        for (let i = 1; i <= 10; i++) {
+        for (let i = 1; i <= 18; i++) {
             const charKey = `char_${i}`;
 
             directions.forEach((dir, row) => {
