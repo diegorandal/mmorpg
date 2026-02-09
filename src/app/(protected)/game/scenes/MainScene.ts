@@ -234,23 +234,17 @@ export class MainScene extends Phaser.Scene {
         const weaponType = entity.weapon || 0;
         const weaponMap: any = { 0: '', 1: 'sword-', 2: 'bow-', 3: 'wand-', 4: 'spell-' };
         const weaponPrefix = weaponMap[weaponType] || '';
+        const attackMap: any = {1: 'sword-attack', 2: 'bow-attack', 3: 'wand-attack', 4: 'spell-attack'};
 
         // 4. Determinar la acción
         let action = '';
 
         // Si el servidor dice que estamos atacando (entity.attack > 0)
         if (entity.attack && entity.attack > 0) {
-            const attackMap: any = {
-                1: 'sword-attack',
-                2: 'bow-attack',
-                3: 'wand-attack',
-                4: 'spell-attack'
-            };
             action = attackMap[entity.attack];
         } else {
-            // Si no hay ataque, decidimos entre walk e idle con el prefijo del arma
             const isMoving = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
-            action = isMoving ? `${weaponPrefix}walk` : `${weaponPrefix}idle`;
+            action = isMoving ? 'walk' : `${weaponPrefix}idle`;
         }
 
         // 5. Ejecutar
