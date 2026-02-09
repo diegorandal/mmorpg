@@ -233,7 +233,7 @@ export class MainScene extends Phaser.Scene {
         if (attackType > 0) {
             const attackMap: any = { 1: 'sword-attack', 2: 'bow-attack', 3: 'wand-attack', 4: 'spell-attack' };
             action = attackMap[attackType];
-        } else if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1) {
+        } else if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
             action = 'walk';
         } else {
             // Idle dinámico según el arma equipada (opcional, si quieres que el idle cambie)
