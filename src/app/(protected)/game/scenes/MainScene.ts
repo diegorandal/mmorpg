@@ -190,7 +190,6 @@ export class MainScene extends Phaser.Scene {
             fontSize: '18px',
             backgroundColor: 'rgba(96, 96, 96, 0.24)',
             padding: { x: 10, y: 5 },
-            color: '#000000'
         }).setScrollFactor(0).setDepth(2000);
         
         // fontSize: '14px', backgroundColor: 'rgba(96, 96, 96, 0.24)'
