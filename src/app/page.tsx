@@ -7,6 +7,22 @@ export default function Home() {
   const { status } = useSession();
   const router = useRouter();
 
+  router.push('/home');
+  return null;
+
+}
+
+/*
+
+'use client';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { walletAuth } from '@/auth/wallet';
+
+export default function Home() {
+  const { status } = useSession();
+  const router = useRouter();
+
   if (status === 'loading') {
     return (
       <main className="flex items-center justify-center min-h-screen">
@@ -30,3 +46,5 @@ export default function Home() {
   }
   return null;
 }
+
+*/
