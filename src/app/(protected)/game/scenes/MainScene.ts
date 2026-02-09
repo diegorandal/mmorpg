@@ -415,6 +415,7 @@ export class MainScene extends Phaser.Scene {
         const entity = this.playerEntities[sessionId];
         if (!entity) return;
         entity.hp = data.hp;
+        entity.weapon = data.weapon;
         if (data.name) entity.label.setText(data.name);
         if (sessionId !== this.room.sessionId) {
             entity.serverX = data.x;
