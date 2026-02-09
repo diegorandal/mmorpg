@@ -260,17 +260,45 @@ export class MainScene extends Phaser.Scene {
 
         const myEntity = this.playerEntities[this.room.sessionId];
         
+        // Configuración del área de impacto
+        const distanceOffset = 32;
+        const attackRadius = 32;
+
+        // Calculamos el centro del ataque usando el vector lookDir
+        const attackX = myEntity.sprite.x + (myEntity.lookDir.x * distanceOffset);
+        const attackY = myEntity.sprite.y + (myEntity.lookDir.y * distanceOffset);
+        const targets: string[] = [];
+        
+        for (const id in this.playerEntities) {
+            if (id === this.room.sessionId) continue;
+
+            const enemy = this.playerEntities[id];
+            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+
+            if (dist <= attackRadius) {
+                targets.push(id);
+            }
+        }
+
         // ENVÍO AL SERVIDOR
+        /*
         this.room.send("attack", {
             x: Math.floor(myEntity.sprite.x),
             y: Math.floor(myEntity.sprite.y),
             attack: this.myCurrentWeaponType, // 1, 2, 3 o 4
             direction: myEntity.currentDir    // Hacia dónde mira al golpear
         });
+        */
+        console.log(`Atacando en (${attackX.toFixed(2)}, ${attackY.toFixed(2)}) con arma ${this.myCurrentWeaponType} hacia ${myEntity.currentDir}. Impactando a:`, targets);
 
         // 2. Lanzar animación localmente de inmediato
         // Usamos dx=0, dy=0 para que mantenga la dirección actual (currentDir)
         this.updatePlayerAnimation(myEntity, 0, 0);
+
+        // debug: mostrar el área de impacto
+        const circle = this.add.circle(attackX, attackY, attackRadius, 0xff0000, 0.4);
+        this.time.delayedCall(100, () => circle.destroy());
+
     }
 
     private joystickPointer: Phaser.Input.Pointer | null = null; // Añade esta propiedad a tu clase
@@ -402,7 +430,7 @@ export class MainScene extends Phaser.Scene {
         label.setDepth(2);
 
         // 4. Guardamos el characterId para saber qué animación llamar después
-        this.playerEntities[sessionId] = { sprite, label, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false};
+        this.playerEntities[sessionId] = { sprite, label, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, lookDir: { x: 0, y: 1 }};
         if (sessionId === this.room.sessionId) this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
         
     }
@@ -467,6 +495,13 @@ export class MainScene extends Phaser.Scene {
 
         // 1. LA FÍSICA NO SE DETIENE: El personaje se mueve aunque ataque
         myEntity.sprite.body.setVelocity(dx * speed * 60, dy * speed * 60);
+
+        if (moved) {
+            // Normalizamos el vector para tener una dirección pura
+            const len = Math.sqrt(dx * dx + dy * dy);
+            myEntity.lookDir.x = dx / len;
+            myEntity.lookDir.y = dy / len;
+        }
 
         // 2. LA ANIMACIÓN DECIDE QUÉ MOSTRAR:
         // Siempre llamamos a updatePlayerAnimation, ella decidirá si el ataque bloquea al walk
