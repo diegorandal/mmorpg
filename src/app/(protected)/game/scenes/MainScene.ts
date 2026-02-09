@@ -15,6 +15,7 @@ export class MainScene extends Phaser.Scene {
     private isAttacking: boolean = false;
     private myCurrentWeaponType: number = 1;
     private readonly SEND_RATE = 100;
+    private hpText?: Phaser.GameObjects.Text;
 
     preload(): void {
 
@@ -82,13 +83,7 @@ export class MainScene extends Phaser.Scene {
         
         // configuramos el mapa
         const data = this.cache.json.get('mapData');
-
-        const map = this.make.tilemap({
-            tileWidth: data.tileSize,
-            tileHeight: data.tileSize,
-            width: data.mapWidth,
-            height: data.mapHeight
-        });
+        const map = this.make.tilemap({tileWidth: data.tileSize, tileHeight: data.tileSize, width: data.mapWidth, height: data.mapHeight});
         const tileset = map.addTilesetImage('tileset-image', 'tileset-image');
 
         // 5. Recorrer las capas del JSON e inyectarlas en Phaser
@@ -189,6 +184,16 @@ export class MainScene extends Phaser.Scene {
                 }
             }
         });
+
+        // Etiqueta de HP fija en la esquina superior izquierda
+        this.hpText = this.add.text(20, 20, `❤ ${this.room.state.players.get(this.room.sessionId)?.hp || 0}`, {
+            fontSize: '18px',
+            backgroundColor: 'rgba(96, 96, 96, 0.24)',
+            padding: { x: 10, y: 5 },
+            color: '#000000'
+        }).setScrollFactor(0).setDepth(2000);
+        
+        // fontSize: '14px', backgroundColor: 'rgba(96, 96, 96, 0.24)'
 
         this.setupJoystick();
     }
@@ -387,6 +392,9 @@ export class MainScene extends Phaser.Scene {
         const myId = this.room.sessionId;
         const myEntity = this.playerEntities[myId];
         if (!myEntity) return;
+
+        // Actualizar el valor numérico del HP en la UI
+        if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
 
         // Obtenemos el tipo de ataque directamente del estado del servidor para este frame
         const attackType = this.room.state.players.get(myId)?.attack || 0;
