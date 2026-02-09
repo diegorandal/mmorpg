@@ -293,6 +293,7 @@ export class MainScene extends Phaser.Scene {
 
         // 2. Lanzar animación localmente de inmediato
         // Usamos dx=0, dy=0 para que mantenga la dirección actual (currentDir)
+        myEntity.attack = this.myCurrentWeaponType; // Actualizamos el estado local para que updatePlayerAnimation sepa qué animación de ataque usar    
         this.updatePlayerAnimation(myEntity, 0, 0);
 
         // debug: mostrar el área de impacto
