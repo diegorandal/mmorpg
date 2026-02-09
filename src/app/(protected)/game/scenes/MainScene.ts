@@ -233,7 +233,7 @@ export class MainScene extends Phaser.Scene {
         if (attackType > 0) {
             const attackMap: any = { 1: 'sword-attack', 2: 'bow-attack', 3: 'wand-attack', 4: 'spell-attack' };
             action = attackMap[attackType];
-        } else if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+        } else if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1) {
             action = 'walk';
         } else {
             // Idle dinámico según el arma equipada (opcional, si quieres que el idle cambie)
@@ -357,7 +357,7 @@ export class MainScene extends Phaser.Scene {
         label.setDepth(2);
 
         // 4. Guardamos el characterId para saber qué animación llamar después
-        this.playerEntities[sessionId] = {sprite, label, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp};
+        this.playerEntities[sessionId] = { sprite, label, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false};
         if (sessionId === this.room.sessionId) this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
         
     }
@@ -432,20 +432,37 @@ export class MainScene extends Phaser.Scene {
         // --- OTROS JUGADORES ---
         for (const id in this.playerEntities) {
             if (id === myId) continue;
+
             const entity = this.playerEntities[id];
-            
-            // Obtenemos el ataque de los otros desde su estado en Colyseus
+
             const remoteAttack = this.room.state.players.get(id)?.attack || 0;
+
             const diffX = entity.serverX - entity.sprite.x;
             const diffY = entity.serverY - entity.sprite.y;
 
-            // Actualizamos su animación (esta función ya debe manejar el bloqueo de ataque)
-            this.updatePlayerAnimation(entity, diffX, diffY, remoteAttack);
+            const STOP_EPSILON = 1;
 
-            if (Math.abs(diffX) > 1 || Math.abs(diffY) > 1) {
+            entity.isMoving =
+                Math.abs(diffX) > STOP_EPSILON ||
+                Math.abs(diffY) > STOP_EPSILON;
+
+            // Animación desacoplada de la interpolación
+            this.updatePlayerAnimation(
+                entity,
+                entity.isMoving ? diffX : 0,
+                entity.isMoving ? diffY : 0,
+                remoteAttack
+            );
+
+            if (entity.isMoving) {
                 entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.15);
                 entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.15);
+            } else {
+                // Clavamos posición final para evitar drift infinito
+                entity.sprite.x = entity.serverX;
+                entity.sprite.y = entity.serverY;
             }
+
             entity.label.setPosition(entity.sprite.x, entity.sprite.y - 55);
         }
     }
