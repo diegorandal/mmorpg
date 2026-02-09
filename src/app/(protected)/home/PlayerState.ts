@@ -10,6 +10,7 @@ export class Player extends Schema {
     @type("number") character: number = 1;
     @type("number") attack: number = 0;
     @type("string") direction: string = "down";
+    @type("number") weapon: number = 0;
 }
 
 export class MyRoomState extends Schema {

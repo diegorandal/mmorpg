@@ -191,8 +191,6 @@ export class MainScene extends Phaser.Scene {
             backgroundColor: 'rgba(96, 96, 96, 0.24)',
             padding: { x: 10, y: 5 },
         }).setScrollFactor(0).setDepth(2000);
-        
-        // fontSize: '14px', backgroundColor: 'rgba(96, 96, 96, 0.24)'
 
         this.setupJoystick();
     }
@@ -218,34 +216,43 @@ export class MainScene extends Phaser.Scene {
     }
 
     // Nueva función de gestión de animaciones
-    private updatePlayerAnimation(entity: any, dx: number, dy: number, attackType: number) {
+    private updatePlayerAnimation(entity: any, dx: number, dy: number) {
         const id = entity.characterId;
         const sprite = entity.sprite;
 
-        // Si hay una animación de ataque reproduciéndose, no hacemos nada (prioridad)
-        if (sprite.anims.currentAnim && sprite.anims.currentAnim.key.includes('attack') && sprite.anims.isPlaying) {
+        // 1. Prioridad absoluta: Si la animación de ataque sigue activa, no interrumpir
+        if (sprite.anims.currentAnim?.key.includes('attack') && sprite.anims.isPlaying) {
             return;
         }
 
-        // Actualizar dirección actual si hay movimiento
+        // 2. Actualizar dirección
         const newDir = this.getDirectionName(dx, dy);
         if (newDir) entity.currentDir = newDir;
         const dir = entity.currentDir || 'down';
 
-        // Determinar acción
-        let action = 'idle';
-        if (attackType > 0) {
-            const attackMap: any = { 1: 'sword-attack', 2: 'bow-attack', 3: 'wand-attack', 4: 'spell-attack' };
-            action = attackMap[attackType];
-        } else if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1) {
-            action = 'walk';
+        // 3. Lógica de prefijos según el arma (entity.weapon)
+        const weaponMap: any = { 0: '', 1: 'sword-', 2: 'bow-', 3: 'wand-', 4: 'spell-' };
+        const weaponPrefix = weaponMap[entity.weapon || 0] || '';
+
+        // 4. Determinar la acción
+        let action = '';
+
+        // Si el servidor dice que estamos atacando (entity.attack > 0)
+        if (entity.attack && entity.attack > 0) {
+            const attackMap: any = {
+                1: 'sword-attack',
+                2: 'bow-attack',
+                3: 'wand-attack',
+                4: 'spell-attack'
+            };
+            action = attackMap[entity.attack];
         } else {
-            // Idle dinámico según el arma equipada (opcional, si quieres que el idle cambie)
-            const idleMap: any = { 0: 'idle', 1: 'sword-idle', 2: 'bow-idle', 3: 'wand-idle', 4: 'spell-idle' };
-            // Si tienes el tipo de arma actual en el estado del jugador, úsalo aquí
-            action = idleMap[0];
+            // Si no hay ataque, decidimos entre walk e idle con el prefijo del arma
+            const isWalking = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
+            action = isWalking ? `${weaponPrefix}walk` : `${weaponPrefix}idle`;
         }
 
+        // 5. Ejecutar
         const animKey = `${action}-${dir}-${id}`;
         if (sprite.anims.currentAnim?.key !== animKey) {
             sprite.anims.play(animKey, true);
@@ -267,7 +274,7 @@ export class MainScene extends Phaser.Scene {
 
         // 2. Lanzar animación localmente de inmediato
         // Usamos dx=0, dy=0 para que mantenga la dirección actual (currentDir)
-        this.updatePlayerAnimation(myEntity, 0, 0, this.myCurrentWeaponType || 1);
+        this.updatePlayerAnimation(myEntity, 0, 0);
     }
 
     private joystickPointer: Phaser.Input.Pointer | null = null; // Añade esta propiedad a tu clase
@@ -293,9 +300,47 @@ export class MainScene extends Phaser.Scene {
             this.handleAttack();
             this.attackButton?.setFillStyle(0xff0000, 0.6);
         });
-
         this.attackButton.on('pointerup', () => {
             this.attackButton?.setFillStyle(0xff0000, 0.3);
+        });
+
+
+        // --- BOTÓN DE CAMBIO DE ARMA ---
+        const xWeapon = window.innerWidth - 70; // Un poco más a la derecha que el de ataque
+        const yWeapon = window.innerHeight - 220; // Por encima del botón de ataque
+
+        const weaponButton = this.add.circle(xWeapon, yWeapon, 35, 0x00ff00, 0.3)
+            .setScrollFactor(0)
+            .setDepth(1000)
+            .setInteractive();
+
+        const weaponLabel = this.add.text(xWeapon, yWeapon, 'NONE', {
+            fontSize: '16px',
+            color: '#fff',
+            fontStyle: 'bold'
+        })
+            .setOrigin(0.5)
+            .setScrollFactor(0)
+            .setDepth(1001);
+
+        weaponButton.on('pointerdown', () => {
+            // 1. Ciclar el valor localmente (0 -> 1 -> 2 -> 3 -> 4 -> 0)
+            this.myCurrentWeaponType = (this.myCurrentWeaponType + 1) % 5;
+
+            // 2. Actualizar el texto del botón
+            const names = ['NONE', 'SWORD', 'BOW', 'WAND', 'SPELL'];
+            weaponLabel.setText(names[this.myCurrentWeaponType]);
+
+            // 3. ENVIAR AL SERVIDOR para que todos vean el cambio
+            // Asegúrate de tener un mensaje "changeWeapon" en tu servidor
+            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
+
+            // Feedback visual al tocar
+            weaponButton.setFillStyle(0x00ff00, 0.6);
+        });
+
+        weaponButton.on('pointerup', () => {
+            weaponButton.setFillStyle(0x00ff00, 0.3);
         });
 
         // --- LÓGICA DE MULTITOUCH PARA JOYSTICK ---
@@ -421,7 +466,7 @@ export class MainScene extends Phaser.Scene {
 
         // 2. LA ANIMACIÓN DECIDE QUÉ MOSTRAR:
         // Siempre llamamos a updatePlayerAnimation, ella decidirá si el ataque bloquea al walk
-        this.updatePlayerAnimation(myEntity, dx, dy, attackType);
+        this.updatePlayerAnimation(myEntity, dx, dy);
 
         myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 55);
 
@@ -458,7 +503,6 @@ export class MainScene extends Phaser.Scene {
                 entity,
                 entity.isMoving ? diffX : 0,
                 entity.isMoving ? diffY : 0,
-                remoteAttack
             );
 
             if (entity.isMoving) {
