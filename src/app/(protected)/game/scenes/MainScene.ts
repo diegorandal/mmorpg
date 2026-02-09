@@ -230,9 +230,10 @@ export class MainScene extends Phaser.Scene {
         if (newDir) entity.currentDir = newDir;
         const dir = entity.currentDir || 'down';
 
-        // 3. Lógica de prefijos según el arma (entity.weapon)
+        // 3. Arma (Aseguramos que weapon tenga un valor por defecto)
+        const weaponType = entity.weapon || 0;
         const weaponMap: any = { 0: '', 1: 'sword-', 2: 'bow-', 3: 'wand-', 4: 'spell-' };
-        const weaponPrefix = weaponMap[entity.weapon || 0] || '';
+        const weaponPrefix = weaponMap[weaponType] || '';
 
         // 4. Determinar la acción
         let action = '';
@@ -248,12 +249,13 @@ export class MainScene extends Phaser.Scene {
             action = attackMap[entity.attack];
         } else {
             // Si no hay ataque, decidimos entre walk e idle con el prefijo del arma
-            const isWalking = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
-            action = isWalking ? `${weaponPrefix}walk` : `${weaponPrefix}idle`;
+            const isMoving = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
+            action = isMoving ? `${weaponPrefix}walk` : `${weaponPrefix}idle`;
         }
 
         // 5. Ejecutar
         const animKey = `${action}-${dir}-${id}`;
+
         if (sprite.anims.currentAnim?.key !== animKey) {
             sprite.anims.play(animKey, true);
         }
@@ -438,6 +440,13 @@ export class MainScene extends Phaser.Scene {
         const myEntity = this.playerEntities[myId];
         if (!myEntity) return;
 
+        const myState = this.room.state.players.get(myId);
+        if (myState) {
+            myEntity.weapon = myState.weapon;
+            myEntity.attack = myState.attack;
+            myEntity.hp = myState.hp;
+        }
+
         // Actualizar el valor numérico del HP en la UI
         if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
 
@@ -484,11 +493,16 @@ export class MainScene extends Phaser.Scene {
 
         // --- OTROS JUGADORES ---
         for (const id in this.playerEntities) {
-            if (id === myId) continue;
 
+            if (id === myId) continue;
+            
             const entity = this.playerEntities[id];
 
-            const remoteAttack = this.room.state.players.get(id)?.attack || 0;
+            const pData = this.room.state.players.get(id);
+            if (pData) {
+                entity.weapon = pData.weapon; // <--- Importante
+                entity.attack = pData.attack; // <--- Importante
+            }
 
             const diffX = entity.serverX - entity.sprite.x;
             const diffY = entity.serverY - entity.sprite.y;
