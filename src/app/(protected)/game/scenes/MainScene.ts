@@ -12,6 +12,8 @@ export class MainScene extends Phaser.Scene {
     private attackText?: Phaser.GameObjects.Text;
     private weaponButton?: Phaser.GameObjects.Arc;
     private weaponLabel?: Phaser.GameObjects.Text;
+    private deathOverlay?: Phaser.GameObjects.Rectangle;
+    private deathButton?: Phaser.GameObjects.Text;
     private spaceKey!: Phaser.Input.Keyboard.Key;
     private isDragging: boolean = false;
     private moveTimer: number = 0;
@@ -337,6 +339,7 @@ export class MainScene extends Phaser.Scene {
         // Si soy yo → deshabilitar controles
         if (sessionId === this.room.sessionId) {
             this.disableControls();
+            this.showDeathScreen();
         }
     }
 
@@ -349,6 +352,8 @@ export class MainScene extends Phaser.Scene {
         this.weaponButton?.setVisible(false);
         this.weaponLabel?.setVisible(false);
         this.input.keyboard?.removeAllKeys(true);
+
+
     }
 
     private handleAttack() {
@@ -760,5 +765,53 @@ export class MainScene extends Phaser.Scene {
             entity.label.setPosition(entity.sprite.x, entity.sprite.y - 55);
         }
     }
+    private showDeathScreen() {
+        const { width, height } = this.scale;
 
+        // 🕶 overlay oscuro
+        this.deathOverlay = this.add.rectangle(
+            width / 2,
+            height / 2,
+            width,
+            height,
+            0x000000,
+            0.6
+        )
+            .setScrollFactor(0)
+            .setDepth(9998);
+
+        this.deathButton = this.add.text(
+            width / 2,
+            height / 2,
+            'VOLVER',
+            {
+                fontSize: '32px',
+                color: '#ffffff',
+                backgroundColor: '#222222',
+                padding: { x: 24, y: 14 },
+            }
+        )
+            .setOrigin(0.5)
+            .setScrollFactor(0)
+            .setDepth(9999)
+            .setInteractive({ useHandCursor: true });
+
+        // hover feedback
+        this.deathButton.on('pointerover', () => {
+            this.deathButton?.setStyle({ backgroundColor: '#444444' });
+        });
+
+        this.deathButton.on('pointerout', () => {
+            this.deathButton?.setStyle({ backgroundColor: '#222222' });
+        });
+
+        // click → salir del juego
+        this.deathButton.on('pointerdown', () => {
+            window.dispatchEvent(new Event('exit-game'));
+        });
+    }
+
+    private exitGame() {
+        window.dispatchEvent(new Event('exit-game'));
+    }
 }
