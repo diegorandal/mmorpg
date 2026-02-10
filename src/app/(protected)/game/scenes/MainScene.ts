@@ -171,6 +171,7 @@ export class MainScene extends Phaser.Scene {
 
         // 1. Escuchar eventos de ataque desde el servidor
         this.room.onMessage("playerAttack", (msg) => {
+            if (msg.sessionId === this.room.sessionId) return;
             const entity = this.playerEntities[msg.sessionId];
             if (!entity || entity.isDead) return;
             this.playAttackOnce(entity, msg);
@@ -437,11 +438,6 @@ export class MainScene extends Phaser.Scene {
                 attackY = startY + myEntity.lookDir.y * arrowRange;
             }
 
-            // EFECTO VISUAL: Línea de trayectoria rápida
-            const arrow = this.add.image(startX, startY, 'arrow').setOrigin(0.5, 0.5).setDepth(myEntity.sprite.depth + 10).setScale(3);
-            arrow.rotation = Phaser.Math.Angle.Between(startX, startY, attackX, attackY);
-            this.tweens.add({targets: arrow, x: attackX, y: attackY, duration: 50, ease: 'Linear', onComplete: () => arrow.destroy()});
-
         }
 
         // WAND ATTACK 1
@@ -460,10 +456,6 @@ export class MainScene extends Phaser.Scene {
                 const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
                 if (dist <= attackRadius) { targets.push(id); }
             }
-            
-            // Feedback visual opcional: Un círculo de luz rápido
-            const magicCircle = this.add.circle(attackX, attackY, 10, 0x00ffff, 0.5); // Empieza en radio 10
-            this.tweens.add({targets: magicCircle, radius: attackRadius, alpha: 0, duration: 150, ease: 'Cubic.out', onComplete: () => magicCircle.destroy()});
 
         }
 
@@ -481,17 +473,16 @@ export class MainScene extends Phaser.Scene {
                 if (dist <= attackRadius) targets.push(id);
             }
 
-            const aura = this.add.circle(attackX, attackY, 5, 0xbf40bf, 0.6).setBlendMode(Phaser.BlendModes.ADD);
-            this.tweens.add({targets: aura, radius: attackRadius, alpha: 0, duration: 500, ease: 'Cubic.out', onComplete: () => aura.destroy()});
-
         }
-
 
         // ENVÍO AL SERVIDOR
         this.room.send("attack", {weaponType: this.myCurrentWeaponType, attackNumber: attack, position: { x: Math.floor(attackX), y: Math.floor(attackY) }, direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y }, targets: targets });
 
-        // 2. Lanzar animación localmente de inmediato
-        this.updatePlayerAnimation(myEntity, 0, 0);
+        this.playAttackOnce(myEntity, {
+            weaponType: this.myCurrentWeaponType,
+            attackNumber: attack,
+            position: { x: myEntity.sprite.x, y: myEntity.sprite.y }
+        });
 
     }
 
