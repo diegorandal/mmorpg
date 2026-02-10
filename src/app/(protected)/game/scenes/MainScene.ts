@@ -9,6 +9,7 @@ export class MainScene extends Phaser.Scene {
     private collisionLayer?: Phaser.Tilemaps.TilemapLayer;
     private joystickBase?: Phaser.GameObjects.Arc;
     private joystickThumb?: Phaser.GameObjects.Arc;
+    private attackText?: Phaser.GameObjects.Text;
     private spaceKey!: Phaser.Input.Keyboard.Key;
     private isDragging: boolean = false;
     private moveTimer: number = 0;
@@ -200,7 +201,7 @@ export class MainScene extends Phaser.Scene {
             fontSize: '18px',
             backgroundColor: 'rgba(96, 96, 96, 0.24)',
             padding: { x: 10, y: 5 },
-        }).setScrollFactor(0).setDepth(2000);
+        }).setScrollFactor(0).setDepth(10000);
 
         this.setupJoystick();
     }
@@ -343,6 +344,7 @@ export class MainScene extends Phaser.Scene {
     private disableControls() {
         this.isDragging = false;
         this.joystickBase?.setVisible(false);
+        this.attackText?.setVisible(false);
         this.joystickThumb?.setVisible(false);
         this.attackButton?.setVisible(false);
         this.input.keyboard?.removeAllKeys(true);
@@ -489,13 +491,12 @@ export class MainScene extends Phaser.Scene {
     private joystickPointer: Phaser.Input.Pointer | null = null; // Añade esta propiedad a tu clase
 
     private setupJoystick() {
+
         const x = 120;
         const margin = 120;
         const y = window.innerHeight - 120;
         const xAttack = window.innerWidth - margin;
         
-        // En el create() o setupJoystick()
-        // En el create() o setupJoystick()
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.2).setScrollFactor(0).setDepth(10000);
         this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(10001);
@@ -505,9 +506,7 @@ export class MainScene extends Phaser.Scene {
             .setScrollFactor(0).setDepth(10000)
             .setInteractive();
 
-
-        this.add.text(xAttack, y, 'ATK', { fontSize: '20px', color: '#fff' })
-            .setOrigin(0.5).setScrollFactor(0).setDepth(10001);
+        this.attackText = this.add.text(xAttack, y, 'ATK', {fontSize: '20px', color: '#fff'}).setOrigin(0.5).setScrollFactor(0).setDepth(10001);
 
         this.attackButton.on('pointerdown', () => {
             this.handleAttack();
