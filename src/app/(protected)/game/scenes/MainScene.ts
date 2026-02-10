@@ -337,15 +337,6 @@ export class MainScene extends Phaser.Scene {
             .setScrollFactor(0).setDepth(1000)
             .setInteractive();
 
-        // tecla space
-        if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-            this.handleAttack();
-            // Opcional: Feedback visual en el botón de la pantalla
-            this.attackButton?.setFillStyle(0xff0000, 0.6);
-            this.time.delayedCall(100, () => {
-                this.attackButton?.setFillStyle(0xff0000, 0.3);
-            });
-        }
 
         this.add.text(xAttack, y, 'ATK', { fontSize: '20px', color: '#fff' })
             .setOrigin(0.5).setScrollFactor(0).setDepth(1001);
@@ -500,9 +491,25 @@ export class MainScene extends Phaser.Scene {
 
         const myState = this.room.state.players.get(myId);
         if (myState) {
+            // --- EFECTO DE DAÑO PARA JUGADOR LOCAL ---
+            if (myState.hp < myEntity.hp) {
+                this.showDamageText(myEntity.sprite.x, myEntity.sprite.y, myEntity.hp - myState.hp);
+            }
             myEntity.weapon = myState.weapon;
             myEntity.attack = myState.attack;
             myEntity.hp = myState.hp;
+
+        }
+
+        // --- ATAQUE POR TECLADO (ESTO VA AQUÍ) ---
+        if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+            this.handleAttack();
+
+            // Feedback visual en el botón de la UI
+            this.attackButton?.setFillStyle(0xff0000, 0.6);
+            this.time.delayedCall(100, () => {
+                this.attackButton?.setFillStyle(0xff0000, 0.3);
+            });
         }
 
         // Actualizar el valor numérico del HP en la UI
