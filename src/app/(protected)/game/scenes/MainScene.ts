@@ -282,6 +282,8 @@ export class MainScene extends Phaser.Scene {
         if (!this.room || !this.playerEntities[this.room.sessionId]) return;
         const myEntity = this.playerEntities[this.room.sessionId];
 
+        myEntity.attack = 1; // hardcodeamos por ahora
+
         if (this.myCurrentWeaponType === 0) return;
 
         const targets: string[] = [];
@@ -372,7 +374,6 @@ export class MainScene extends Phaser.Scene {
         this.room.send("attack", {weaponType: this.myCurrentWeaponType, attackNumber: attackNumber, position: { x: Math.floor(attackX), y: Math.floor(attackY) }, direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y }, targets: targets });
 
         // 2. Lanzar animación localmente de inmediato
-        myEntity.attack = this.myCurrentWeaponType; 
         this.updatePlayerAnimation(myEntity, 0, 0);
 
     }
