@@ -259,7 +259,8 @@ export class MainScene extends Phaser.Scene {
         if (!this.room || !this.playerEntities[this.room.sessionId]) return;
         const myEntity = this.playerEntities[this.room.sessionId];
 
-        if (myEntity.attack && myEntity.attack == 1) {
+        console.log("Atacando con arma tipo:", this.myCurrentWeaponType);
+        if (myEntity.myCurrentWeaponType == 1) {
 
             // Configuración del área de impacto
             const distanceOffset = 32;
