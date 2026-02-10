@@ -145,8 +145,8 @@ export class MainScene extends Phaser.Scene {
             'bow-attack':   { frames: [9, 10],      rate: 10, repeat: 0  },
             'wand-attack':  { frames: [15],         rate: 5,  repeat: 0  },
             'spell-attack': { frames: [18],         rate: 5,  repeat: 0  },
-            'hurt':         { frames: [19, 20, 21], rate: 12, repeat: 0  },
-            'death':        { frames: [22, 23],     rate: 6,  repeat: 0  }
+            'hurt':         { frames: [19, 20, 21], rate: 20, repeat: 0  },
+            'death':        { frames: [22, 23],     rate: 4,  repeat: 0  }
         };
 
         for (let i = 1; i <= 18; i++) {
@@ -243,6 +243,8 @@ export class MainScene extends Phaser.Scene {
     private updatePlayerAnimation(entity: any, dx: number, dy: number) {
         const id = entity.characterId;
         const sprite = entity.sprite;
+        
+        if (entity.isDead) return;
 
         // 1. Prioridad absoluta: Si la animación de ataque sigue activa, no interrumpir
         if (sprite.anims.currentAnim?.key.includes('attack') && sprite.anims.isPlaying) {
@@ -283,6 +285,15 @@ export class MainScene extends Phaser.Scene {
                 const magicCircle = this.add.circle(attackX, attackY, 10, 0x00ffff, 0.5); // Empieza en radio 10
                 this.tweens.add({ targets: magicCircle, radius: attackRadius, alpha: 0, duration: 150, ease: 'Cubic.out', onComplete: () => magicCircle.destroy() });
             }
+
+            if (entity.weapon === 3) { // FX
+                const attackRadius = 100;   // Radio del área de impacto
+                const attackX = entity.sprite.x;
+                const attackY = entity.sprite.y;
+                const aura = this.add.circle(attackX, attackY, 5, 0xbf40bf, 0.6).setBlendMode(Phaser.BlendModes.ADD);
+                this.tweens.add({ targets: aura, radius: attackRadius, alpha: 0, duration: 500, ease: 'Cubic.out', onComplete: () => aura.destroy() });
+            }
+
         } else {
             const isMoving = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
             action = isMoving ? 'walk' : `${weaponPrefix}idle`;
@@ -293,6 +304,36 @@ export class MainScene extends Phaser.Scene {
 
         if (sprite.anims.currentAnim?.key !== animKey) sprite.anims.play(animKey, true);
 
+    }
+
+    private handleDeath(entity: any, sessionId: string) {
+        if (entity.isDead) return;
+
+        entity.isDead = true;
+
+        const dir = entity.currentDir || 'down';
+        const animKey = `death-${dir}-${entity.characterId}`;
+
+        entity.sprite.setVelocity(0, 0);
+        entity.sprite.anims.play(animKey, true);
+
+        // Opcional: que no colisione más
+        entity.sprite.body.enable = false;
+
+        // Si soy yo → deshabilitar controles
+        if (sessionId === this.room.sessionId) {
+            this.disableControls();
+        }
+    }
+
+    private disableControls() {
+        this.isDragging = false;
+
+        this.joystickBase?.setVisible(false);
+        this.joystickThumb?.setVisible(false);
+        this.attackButton?.setVisible(false);
+
+        this.input.keyboard?.removeAllKeys(true);
     }
 
     private handleAttack() {
@@ -576,7 +617,7 @@ export class MainScene extends Phaser.Scene {
         label.setDepth(2);
 
         // 4. Guardamos el characterId para saber qué animación llamar después
-        this.playerEntities[sessionId] = { sprite, label, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, lookDir: { x: 0, y: 1 }};
+        this.playerEntities[sessionId] = { sprite, label, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
         if (sessionId === this.room.sessionId) this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
         
     }
@@ -588,9 +629,15 @@ export class MainScene extends Phaser.Scene {
         // --- DETECCIÓN DE DAÑO ---
         if (data.hp !== undefined && data.hp < entity.hp) {
             const damageTaken = entity.hp - data.hp;
-            // Lanzamos el efecto en la posición actual del sprite
             this.showDamageText(entity.sprite.x, entity.sprite.y, damageTaken);
+
         }
+
+        // --- DETECCIÓN DE MUERTE ---
+        if (data.hp !== undefined && data.hp <= 0 && entity.hp > 0) {
+            this.handleDeath(entity, sessionId);
+        }
+
         entity.hp = data.hp;
         entity.weapon = data.weapon;
         entity.lookDir.x = data.lookx;
@@ -621,6 +668,9 @@ export class MainScene extends Phaser.Scene {
         const myState = this.room.state.players.get(myId);
         if (myState) {
             if (myState.hp < myEntity.hp) this.showDamageText(myEntity.sprite.x, myEntity.sprite.y, myEntity.hp - myState.hp);
+            if (myState.hp <= 0 && myEntity.hp > 0) {
+                this.handleDeath(myEntity, myId);
+            }
             myEntity.weapon = myState.weapon;
             myEntity.attack = myState.attack;
             myEntity.hp = myState.hp;
