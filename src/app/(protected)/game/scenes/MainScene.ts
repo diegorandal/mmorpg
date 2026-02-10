@@ -370,8 +370,9 @@ export class MainScene extends Phaser.Scene {
 
             // EFECTO VISUAL: Línea de trayectoria rápida
             const arrow = this.add.image(startX, startY, 'arrow').setOrigin(0.5, 0.5).setDepth(myEntity.sprite.depth + 10);
+            arrow.setScale(3);
             arrow.rotation = Phaser.Math.Angle.Between(startX, startY, attackX, attackY);
-            this.tweens.add({targets: arrow, x: attackX, y: attackY, duration: 600, ease: 'Linear', onComplete: () => arrow.destroy()});
+            this.tweens.add({targets: arrow, x: attackX, y: attackY, duration: 50, ease: 'Linear', onComplete: () => arrow.destroy()});
 
         }
 
