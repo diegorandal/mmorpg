@@ -15,6 +15,10 @@ export class MainScene extends Phaser.Scene {
     private deathOverlay?: Phaser.GameObjects.Rectangle;
     private deathButton?: Phaser.GameObjects.Text;
     private spaceKey!: Phaser.Input.Keyboard.Key;
+    private key1Key!: Phaser.Input.Keyboard.Key;
+    private key2Key!: Phaser.Input.Keyboard.Key;
+    private key3Key!: Phaser.Input.Keyboard.Key;
+    private key4Key!: Phaser.Input.Keyboard.Key;
     private isDragging: boolean = false;
     private moveTimer: number = 0;
     private attackButton?: Phaser.GameObjects.Arc;
@@ -504,6 +508,10 @@ export class MainScene extends Phaser.Scene {
         const xAttack = window.innerWidth - margin;
         
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        this.key1Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
+        this.key2Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
+        this.key3Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
+        this.key4Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
         this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.2).setScrollFactor(0).setDepth(10000);
         this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(10001);
         
@@ -678,6 +686,27 @@ export class MainScene extends Phaser.Scene {
             this.attackButton?.setFillStyle(0xff0000, 0.6);
             this.time.delayedCall(100, () => {this.attackButton?.setFillStyle(0xff0000, 0.3);});
         }
+        if (Phaser.Input.Keyboard.JustDown(this.key1Key)) {
+            this.myCurrentWeaponType = 1;
+            this.weaponLabel?.setText('SWORD');
+            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.key2Key)) {
+            this.myCurrentWeaponType = 2;
+            this.weaponLabel?.setText('BOW');
+            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.key3Key)) {
+            this.myCurrentWeaponType = 3;
+            this.weaponLabel?.setText('WAND');
+            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.key4Key)) {
+            this.myCurrentWeaponType = 4;
+            this.weaponLabel?.setText('SPELL');
+            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
+        }
+
 
         // Actualizar el valor numérico del HP en la UI
         if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
