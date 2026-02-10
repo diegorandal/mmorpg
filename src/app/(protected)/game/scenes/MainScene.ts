@@ -307,14 +307,29 @@ export class MainScene extends Phaser.Scene {
         const margin = 120;
         const y = window.innerHeight - 120;
         const xAttack = window.innerWidth - margin;
-
+        
+        // En el create() o setupJoystick()
+        const spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.2).setScrollFactor(0).setDepth(1000);
         this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(1001);
+        
+
 
         // --- BOTÓN DE ATAQUE ---
         this.attackButton = this.add.circle(xAttack, y, 50, 0xff0000, 0.3)
             .setScrollFactor(0).setDepth(1000)
             .setInteractive();
+
+        // tecla space
+        if (Phaser.Input.Keyboard.JustDown(spaceKey)) {
+            this.handleAttack();
+
+            // Opcional: Feedback visual en el botón de la pantalla
+            this.attackButton?.setFillStyle(0xff0000, 0.6);
+            this.time.delayedCall(100, () => {
+                this.attackButton?.setFillStyle(0xff0000, 0.3);
+            });
+        }
 
         this.add.text(xAttack, y, 'ATK', { fontSize: '20px', color: '#fff' })
             .setOrigin(0.5).setScrollFactor(0).setDepth(1001);
