@@ -44,6 +44,18 @@ export default function Home() {
   };
 
   useEffect(() => {
+    const handleExitGame = () => {
+      if (room) {
+        room.leave();
+      }
+      setRoom(null);
+    };
+
+    window.addEventListener('exit-game', handleExitGame);
+    return () => window.removeEventListener('exit-game', handleExitGame);
+  }, [room]);
+
+  useEffect(() => {
     if (!room) return;
     let game: Phaser.Game | null = null;
 

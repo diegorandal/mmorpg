@@ -687,24 +687,24 @@ export class MainScene extends Phaser.Scene {
             this.time.delayedCall(100, () => {this.attackButton?.setFillStyle(0xff0000, 0.3);});
         }
         if (Phaser.Input.Keyboard.JustDown(this.key1Key)) {
-            this.myCurrentWeaponType = 1;
-            this.weaponLabel?.setText('SWORD');
-            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
+            myEntity.myCurrentWeaponType = 1;
+            myEntity.weaponLabel?.setText('SWORD');
+            this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
         }
         if (Phaser.Input.Keyboard.JustDown(this.key2Key)) {
-            this.myCurrentWeaponType = 2;
-            this.weaponLabel?.setText('BOW');
-            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
+            myEntity.myCurrentWeaponType = 2;
+            myEntity.weaponLabel?.setText('BOW');
+            this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
         }
         if (Phaser.Input.Keyboard.JustDown(this.key3Key)) {
-            this.myCurrentWeaponType = 3;
-            this.weaponLabel?.setText('WAND');
-            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
+            myEntity.myCurrentWeaponType = 3;
+            myEntity.weaponLabel?.setText('WAND');
+            this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
         }
         if (Phaser.Input.Keyboard.JustDown(this.key4Key)) {
-            this.myCurrentWeaponType = 4;
-            this.weaponLabel?.setText('SPELL');
-            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
+            myEntity.myCurrentWeaponType = 4;
+            myEntity.weaponLabel?.setText('SPELL');
+            this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
         }
 
 
@@ -840,7 +840,4 @@ export class MainScene extends Phaser.Scene {
         });
     }
 
-    private exitGame() {
-        window.dispatchEvent(new Event('exit-game'));
-    }
 }
