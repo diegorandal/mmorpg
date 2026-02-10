@@ -259,47 +259,44 @@ export class MainScene extends Phaser.Scene {
         if (!this.room || !this.playerEntities[this.room.sessionId]) return;
         const myEntity = this.playerEntities[this.room.sessionId];
 
-        console.log("Atacando con arma tipo:", this.myCurrentWeaponType);
-        if (myEntity.myCurrentWeaponType == 1) {
 
-            // Configuración del área de impacto
-            const distanceOffset = 32;
-            const attackRadius = 32;
+        // Configuración del área de impacto
+        const distanceOffset = 32;
+        const attackRadius = 32;
 
-            // Calculamos el centro del ataque usando el vector lookDir
-            const attackX = myEntity.sprite.x + (myEntity.lookDir.x * distanceOffset);
-            const attackY = myEntity.sprite.y + (myEntity.lookDir.y * distanceOffset);
-            const targets: string[] = [];
-            
-            for (const id in this.playerEntities) {
-                if (id === this.room.sessionId) continue;
+        // Calculamos el centro del ataque usando el vector lookDir
+        const attackX = myEntity.sprite.x + (myEntity.lookDir.x * distanceOffset);
+        const attackY = myEntity.sprite.y + (myEntity.lookDir.y * distanceOffset);
+        const targets: string[] = [];
+        
+        for (const id in this.playerEntities) {
+            if (id === this.room.sessionId) continue;
 
-                const enemy = this.playerEntities[id];
-                const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+            const enemy = this.playerEntities[id];
+            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
 
-                if (dist <= attackRadius) {
-                    targets.push(id);
-                }
+            if (dist <= attackRadius) {
+                targets.push(id);
             }
-
-            // ENVÍO AL SERVIDOR
-            this.room.send("attack", {
-                weaponType: this.myCurrentWeaponType,
-                attackNumber: 1,
-                position: { x: Math.floor(attackX), y: Math.floor(attackY) },
-                direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y },
-                targets: targets
-            });
-
-            // 2. Lanzar animación localmente de inmediato
-            myEntity.attack = this.myCurrentWeaponType; 
-            this.updatePlayerAnimation(myEntity, 0, 0);
-
-            // debug: mostrar el área de impacto
-            const circle = this.add.circle(attackX, attackY, attackRadius, 0xff0000, 0.2);
-            this.time.delayedCall(50, () => circle.destroy());
-
         }
+
+        // ENVÍO AL SERVIDOR
+        this.room.send("attack", {
+            weaponType: this.myCurrentWeaponType,
+            attackNumber: 1,
+            position: { x: Math.floor(attackX), y: Math.floor(attackY) },
+            direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y },
+            targets: targets
+        });
+
+        // 2. Lanzar animación localmente de inmediato
+        myEntity.attack = this.myCurrentWeaponType; 
+        this.updatePlayerAnimation(myEntity, 0, 0);
+
+        // debug: mostrar el área de impacto
+        const circle = this.add.circle(attackX, attackY, attackRadius, 0xff0000, 0.2);
+        this.time.delayedCall(50, () => circle.destroy());
+
 
     }
 
