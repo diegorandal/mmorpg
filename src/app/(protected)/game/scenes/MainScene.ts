@@ -415,6 +415,26 @@ export class MainScene extends Phaser.Scene {
 
         }
 
+        // SPELL ATTACK 1
+        if (this.myCurrentWeaponType === 4 && myEntity.attack === 1) {
+            
+            attackRadius = 100; // Radio amplio alrededor del jugador
+            attackX = myEntity.sprite.x;
+            attackY = myEntity.sprite.y;
+
+            for (const id in this.playerEntities) {
+                if (id === this.room.sessionId) continue;
+                const enemy = this.playerEntities[id];
+                const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+                if (dist <= attackRadius) targets.push(id);
+            }
+
+            const aura = this.add.circle(attackX, attackY, 5, 0xbf40bf, 0.6).setBlendMode(Phaser.BlendModes.ADD);
+            this.tweens.add({targets: aura, radius: attackRadius, alpha: 0, duration: 300, ease: 'Cubic.out', onComplete: () => aura.destroy()});
+            
+        }
+
+
         // ENVÍO AL SERVIDOR
         this.room.send("attack", { weaponType: this.myCurrentWeaponType, attackNumber: myEntity.attack, position: { x: Math.floor(attackX), y: Math.floor(attackY) }, direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y }, targets: targets });
 
