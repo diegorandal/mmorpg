@@ -267,7 +267,7 @@ export class MainScene extends Phaser.Scene {
         if (entity.attack && entity.attack > 0) {
             action = `${weaponPrefix}attack`;
 
-            if(entity.weapon === 2) { // Si es arco, lanzamos el efecto visual de la flecha
+            if(entity.weapon === 2) { // FX
                 const attackX = entity.sprite.x + entity.lookDir.x * 300;
                 const attackY = entity.sprite.y + entity.lookDir.y * 300;
                 const arrow = this.add.image(entity.sprite.x, entity.sprite.y, 'arrow').setOrigin(0.5, 0.5).setDepth(entity.sprite.depth + 10).setScale(3);
@@ -275,6 +275,14 @@ export class MainScene extends Phaser.Scene {
                 this.tweens.add({ targets: arrow, x: attackX, y: attackY, duration: 50, ease: 'Linear', onComplete: () => arrow.destroy() });
             }
 
+            if (entity.weapon === 3) { // FX
+                const distanceOffset = 64; // Distancia desde el jugador hacia adelante
+                const attackRadius = 80;   // Radio del área de impacto
+                const attackX = entity.sprite.x + (entity.lookDir.x * distanceOffset);
+                const attackY = entity.sprite.y + (entity.lookDir.y * distanceOffset);
+                const magicCircle = this.add.circle(attackX, attackY, 10, 0x00ffff, 0.5); // Empieza en radio 10
+                this.tweens.add({ targets: magicCircle, radius: attackRadius, alpha: 0, duration: 150, ease: 'Cubic.out', onComplete: () => magicCircle.destroy() });
+            }
         } else {
             const isMoving = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
             action = isMoving ? 'walk' : `${weaponPrefix}idle`;
@@ -403,8 +411,8 @@ export class MainScene extends Phaser.Scene {
             
             // Feedback visual opcional: Un círculo de luz rápido
             const magicCircle = this.add.circle(attackX, attackY, 10, 0x00ffff, 0.5); // Empieza en radio 10
-            this.tweens.add({targets: magicCircle, radius: attackRadius, alpha: 0, duration: 100, ease: 'Cubic.out', onComplete: () => magicCircle.destroy()});
-            
+            this.tweens.add({targets: magicCircle, radius: attackRadius, alpha: 0, duration: 150, ease: 'Cubic.out', onComplete: () => magicCircle.destroy()});
+
         }
 
         // ENVÍO AL SERVIDOR
