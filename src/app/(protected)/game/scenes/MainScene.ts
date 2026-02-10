@@ -366,12 +366,12 @@ export class MainScene extends Phaser.Scene {
 
             // EFECTO VISUAL: Línea de trayectoria rápida
             const graphics = this.add.graphics();
-            graphics.lineStyle(1, 0x969696, 0.5); // Grosor 1.5, Blanco, 80% Alpha
+            graphics.lineStyle(1.5, 0xffffff, 0.5); // Grosor 1.5, Blanco, 80% Alpha
             graphics.setDepth(myEntity.sprite.depth + 1); // Justo encima del jugador
             // Dibujamos desde el centro del arco hacia el punto de impacto
             graphics.lineBetween(startX, startY, attackX, attackY);
             // Desvanecimiento rápido (apenas perceptible)
-            this.tweens.add({targets: graphics, alpha: 0, duration: 25, onComplete: () => graphics.destroy()});
+            this.tweens.add({targets: graphics, alpha: 0, duration: 50, onComplete: () => graphics.destroy()});
 
         }
 
