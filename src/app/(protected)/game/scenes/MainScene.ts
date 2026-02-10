@@ -111,7 +111,7 @@ export class MainScene extends Phaser.Scene {
                     layer.setDepth(1);
                     break;
                 case "trees":
-                    layer.setDepth(10000); // Por encima de los jugadores
+                    layer.setDepth(4000); // Por encima de los jugadores
                     break;
                 case "Collisions":
                     layer.setDepth(4);
@@ -403,17 +403,17 @@ export class MainScene extends Phaser.Scene {
         // En el create() o setupJoystick()
         // En el create() o setupJoystick()
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.2).setScrollFactor(0).setDepth(1000);
-        this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(1001);
+        this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.2).setScrollFactor(0).setDepth(10000);
+        this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(10001);
         
         // --- BOTÓN DE ATAQUE ---
         this.attackButton = this.add.circle(xAttack, y, 50, 0xff0000, 0.3)
-            .setScrollFactor(0).setDepth(1000)
+            .setScrollFactor(0).setDepth(10000)
             .setInteractive();
 
 
         this.add.text(xAttack, y, 'ATK', { fontSize: '20px', color: '#fff' })
-            .setOrigin(0.5).setScrollFactor(0).setDepth(1001);
+            .setOrigin(0.5).setScrollFactor(0).setDepth(10001);
 
         this.attackButton.on('pointerdown', () => {
             this.handleAttack();
@@ -430,7 +430,7 @@ export class MainScene extends Phaser.Scene {
 
         const weaponButton = this.add.circle(xWeapon, yWeapon, 35, 0x00ff00, 0.3)
             .setScrollFactor(0)
-            .setDepth(1000)
+            .setDepth(10000)
             .setInteractive();
 
         const weaponLabel = this.add.text(xWeapon, yWeapon, 'NONE', {
@@ -440,7 +440,7 @@ export class MainScene extends Phaser.Scene {
         })
             .setOrigin(0.5)
             .setScrollFactor(0)
-            .setDepth(1001);
+            .setDepth(10001);
 
         weaponButton.on('pointerdown', () => {
             // 1. Ciclar el valor localmente (0 -> 1 -> 2 -> 3 -> 4 -> 0)
@@ -505,7 +505,7 @@ export class MainScene extends Phaser.Scene {
         const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
 
         sprite.setScale(3); 
-        sprite.setDepth(2); 
+        sprite.setDepth(sprite.y); 
 
         const hitboxW = 8;
         const hitboxH = 8;
