@@ -266,6 +266,15 @@ export class MainScene extends Phaser.Scene {
         // Si el servidor dice que estamos atacando (entity.attack > 0)
         if (entity.attack && entity.attack > 0) {
             action = `${weaponPrefix}attack`;
+
+            if(entity.weapon === 2) { // Si es arco, lanzamos el efecto visual de la flecha
+                const attackX = entity.sprite.x + entity.lookDir.x * 300;
+                const attackY = entity.sprite.y + entity.lookDir.y * 300;
+                const arrow = this.add.image(entity.sprite.x, entity.sprite.y, 'arrow').setOrigin(0.5, 0.5).setDepth(entity.sprite.depth + 10).setScale(3);
+                arrow.rotation = Phaser.Math.Angle.Between(entity.sprite.x, entity.sprite.y, attackX, attackY);
+                this.tweens.add({ targets: arrow, x: attackX, y: attackY, duration: 50, ease: 'Linear', onComplete: () => arrow.destroy() });
+            }
+
         } else {
             const isMoving = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
             action = isMoving ? 'walk' : `${weaponPrefix}idle`;
@@ -525,6 +534,7 @@ export class MainScene extends Phaser.Scene {
     private updatePlayer(data: any, sessionId: string) {
         const entity = this.playerEntities[sessionId];
         if (!entity) return;
+
         // --- DETECCIÓN DE DAÑO ---
         if (data.hp !== undefined && data.hp < entity.hp) {
             const damageTaken = entity.hp - data.hp;
