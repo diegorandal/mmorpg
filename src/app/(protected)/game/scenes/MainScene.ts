@@ -378,8 +378,7 @@ export class MainScene extends Phaser.Scene {
             }
 
             // EFECTO VISUAL: Línea de trayectoria rápida
-            const arrow = this.add.image(startX, startY, 'arrow').setOrigin(0.5, 0.5).setDepth(myEntity.sprite.depth + 10);
-            arrow.setScale(3);
+            const arrow = this.add.image(startX, startY, 'arrow').setOrigin(0.5, 0.5).setDepth(myEntity.sprite.depth + 10).setScale(3);
             arrow.rotation = Phaser.Math.Angle.Between(startX, startY, attackX, attackY);
             this.tweens.add({targets: arrow, x: attackX, y: attackY, duration: 50, ease: 'Linear', onComplete: () => arrow.destroy()});
 
@@ -618,8 +617,10 @@ export class MainScene extends Phaser.Scene {
         }
 
         // 2. LA ANIMACIÓN
-        this.updatePlayerAnimation(myEntity, dx, dy);
+        myEntity.sprite.setDepth(myEntity.sprite.y);
+        myEntity.label.setDepth(myEntity.sprite.y + 1);
 
+        this.updatePlayerAnimation(myEntity, dx, dy);
         myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 55);
 
         // Envío de posición al servidor
@@ -671,6 +672,8 @@ export class MainScene extends Phaser.Scene {
                 entity.sprite.x = entity.serverX;
                 entity.sprite.y = entity.serverY;
             }
+            entity.sprite.setDepth(entity.sprite.y);
+            entity.label.setDepth(entity.sprite.y + 1);
 
             entity.label.setPosition(entity.sprite.x, entity.sprite.y - 55);
         }
