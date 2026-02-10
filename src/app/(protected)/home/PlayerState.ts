@@ -5,10 +5,7 @@ export class Player extends Schema {
     @type("number") x: number = 0;
     @type("number") y: number = 0;
     @type("number") hp: number = 0;
-    @type("number") level: number = 0;
-    @type("string") lastMessage: string = "";
     @type("number") character: number = 1;
-    @type("number") attack: number = 0;
     @type("string") direction: string = "down";
     @type("number") weapon: number = 0;
     @type("number") lookx: number = 0;

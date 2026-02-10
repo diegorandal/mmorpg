@@ -169,6 +169,13 @@ export class MainScene extends Phaser.Scene {
             this.addPlayer(player, sessionId);
         });
 
+        // 1. Escuchar eventos de ataque desde el servidor
+        this.room.onMessage("playerAttack", (msg) => {
+            const entity = this.playerEntities[msg.sessionId];
+            if (!entity || entity.isDead) return;
+            this.playAttackOnce(entity, msg);
+        });
+
         // 2. Sincronización en Tiempo Real:
         this.room.onStateChange((state) => {
             // Detectar nuevos
@@ -269,30 +276,6 @@ export class MainScene extends Phaser.Scene {
         if (entity.attack && entity.attack > 0) {
             action = `${weaponPrefix}attack`;
 
-            if(entity.weapon === 2) { // FX
-                const attackX = entity.sprite.x + entity.lookDir.x * 300;
-                const attackY = entity.sprite.y + entity.lookDir.y * 300;
-                const arrow = this.add.image(entity.sprite.x, entity.sprite.y, 'arrow').setOrigin(0.5, 0.5).setDepth(entity.sprite.depth + 10).setScale(3);
-                arrow.rotation = Phaser.Math.Angle.Between(entity.sprite.x, entity.sprite.y, attackX, attackY);
-                this.tweens.add({ targets: arrow, x: attackX, y: attackY, duration: 50, ease: 'Linear', onComplete: () => arrow.destroy() });
-            }
-
-            if (entity.weapon === 3) { // FX
-                const distanceOffset = 64; // Distancia desde el jugador hacia adelante
-                const attackRadius = 80;   // Radio del área de impacto
-                const attackX = entity.sprite.x + (entity.lookDir.x * distanceOffset);
-                const attackY = entity.sprite.y + (entity.lookDir.y * distanceOffset);
-                const magicCircle = this.add.circle(attackX, attackY, 10, 0x00ffff, 0.5); // Empieza en radio 10
-                this.tweens.add({ targets: magicCircle, radius: attackRadius, alpha: 0, duration: 150, ease: 'Cubic.out', onComplete: () => magicCircle.destroy() });
-            }
-
-            if (entity.weapon === 3) { // FX
-                const attackRadius = 100;   // Radio del área de impacto
-                const attackX = entity.sprite.x;
-                const attackY = entity.sprite.y;
-                const aura = this.add.circle(attackX, attackY, 5, 0xbf40bf, 0.6).setBlendMode(Phaser.BlendModes.ADD);
-                this.tweens.add({ targets: aura, radius: attackRadius, alpha: 0, duration: 500, ease: 'Cubic.out', onComplete: () => aura.destroy() });
-            }
 
         } else {
             const isMoving = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
@@ -304,6 +287,43 @@ export class MainScene extends Phaser.Scene {
 
         if (sprite.anims.currentAnim?.key !== animKey) sprite.anims.play(animKey, true);
 
+    }
+
+    private playAttackOnce(entity: any, msg: any) {
+
+        const dir = entity.currentDir || 'down';
+        const weaponMap: any = {1: 'sword-attack', 2: 'bow-attack', 3: 'wand-attack', 4: 'spell-attack'};
+        const animKey = `${weaponMap[msg.weaponType]}-${dir}-${entity.characterId}`;
+        entity.sprite.anims.play(animKey, true);
+
+        entity.sprite.x = msg.position.x;
+        entity.sprite.y = msg.position.y;
+
+        // FX aquí (flecha, aura, círculo)
+        if (entity.weapon === 2) { // FX
+            const attackX = entity.sprite.x + entity.lookDir.x * 300;
+            const attackY = entity.sprite.y + entity.lookDir.y * 300;
+            const arrow = this.add.image(entity.sprite.x, entity.sprite.y, 'arrow').setOrigin(0.5, 0.5).setDepth(entity.sprite.depth + 10).setScale(3);
+            arrow.rotation = Phaser.Math.Angle.Between(entity.sprite.x, entity.sprite.y, attackX, attackY);
+            this.tweens.add({ targets: arrow, x: attackX, y: attackY, duration: 50, ease: 'Linear', onComplete: () => arrow.destroy() });
+        }
+
+        if (entity.weapon === 3) { // FX
+            const distanceOffset = 64; // Distancia desde el jugador hacia adelante
+            const attackRadius = 80;   // Radio del área de impacto
+            const attackX = entity.sprite.x + (entity.lookDir.x * distanceOffset);
+            const attackY = entity.sprite.y + (entity.lookDir.y * distanceOffset);
+            const magicCircle = this.add.circle(attackX, attackY, 10, 0x00ffff, 0.5); // Empieza en radio 10
+            this.tweens.add({ targets: magicCircle, radius: attackRadius, alpha: 0, duration: 150, ease: 'Cubic.out', onComplete: () => magicCircle.destroy() });
+        }
+
+        if (entity.weapon === 4) { // FX
+            const attackRadius = 100;   // Radio del área de impacto
+            const attackX = entity.sprite.x;
+            const attackY = entity.sprite.y;
+            const aura = this.add.circle(attackX, attackY, 5, 0xbf40bf, 0.6).setBlendMode(Phaser.BlendModes.ADD);
+            this.tweens.add({ targets: aura, radius: attackRadius, alpha: 0, duration: 500, ease: 'Cubic.out', onComplete: () => aura.destroy() });
+        }
     }
 
     private handleDeath(entity: any, sessionId: string) {
@@ -328,11 +348,9 @@ export class MainScene extends Phaser.Scene {
 
     private disableControls() {
         this.isDragging = false;
-
         this.joystickBase?.setVisible(false);
         this.joystickThumb?.setVisible(false);
         this.attackButton?.setVisible(false);
-
         this.input.keyboard?.removeAllKeys(true);
     }
 
@@ -352,7 +370,7 @@ export class MainScene extends Phaser.Scene {
         let distanceOffset = 0;
         let attackRadius = 0;
 
-        console.log ("Arma:", this.myCurrentWeaponType, "Ataque:", myEntity.attack);    
+        const attack = 1;
 
         // SWORD ATTACK 1
         if (this.myCurrentWeaponType === 1 && myEntity.attack === 1) {
@@ -477,7 +495,7 @@ export class MainScene extends Phaser.Scene {
 
 
         // ENVÍO AL SERVIDOR
-        this.room.send("attack", { weaponType: this.myCurrentWeaponType, attackNumber: myEntity.attack, position: { x: Math.floor(attackX), y: Math.floor(attackY) }, direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y }, targets: targets });
+        this.room.send("attack", {weaponType: this.myCurrentWeaponType, attackNumber: attack, position: { x: Math.floor(attackX), y: Math.floor(attackY) }, direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y }, targets: targets });
 
         // 2. Lanzar animación localmente de inmediato
         this.updatePlayerAnimation(myEntity, 0, 0);
@@ -672,7 +690,6 @@ export class MainScene extends Phaser.Scene {
                 this.handleDeath(myEntity, myId);
             }
             myEntity.weapon = myState.weapon;
-            myEntity.attack = myState.attack;
             myEntity.hp = myState.hp;
         }
 
@@ -687,7 +704,6 @@ export class MainScene extends Phaser.Scene {
         if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
 
         // Obtenemos el tipo de ataque directamente del estado del servidor para este frame
-        const attackType = this.room.state.players.get(myId)?.attack || 0;
 
         let dx = 0;
         let dy = 0;
@@ -743,21 +759,12 @@ export class MainScene extends Phaser.Scene {
             if (id === myId) continue;
             
             const entity = this.playerEntities[id];
-
             const pData = this.room.state.players.get(id);
-            if (pData) {
-                entity.weapon = pData.weapon;
-                entity.attack = pData.attack;
-            }
-
+            if (pData) entity.weapon = pData.weapon;
             const diffX = entity.serverX - entity.sprite.x;
             const diffY = entity.serverY - entity.sprite.y;
-
             const STOP_EPSILON = 1;
-
-            entity.isMoving =
-                Math.abs(diffX) > STOP_EPSILON ||
-                Math.abs(diffY) > STOP_EPSILON;
+            entity.isMoving = Math.abs(diffX) > STOP_EPSILON || Math.abs(diffY) > STOP_EPSILON;
 
             // Animación desacoplada de la interpolación
             this.updatePlayerAnimation(
