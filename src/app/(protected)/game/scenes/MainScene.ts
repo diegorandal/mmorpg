@@ -273,44 +273,103 @@ export class MainScene extends Phaser.Scene {
         // 5. Ejecutar
         const animKey = `${action}-${dir}-${id}`;
 
-        if (sprite.anims.currentAnim?.key !== animKey) {
-            sprite.anims.play(animKey, true);
-        }
+        if (sprite.anims.currentAnim?.key !== animKey) sprite.anims.play(animKey, true);
+
     }
 
     private handleAttack() {
+
         if (!this.room || !this.playerEntities[this.room.sessionId]) return;
         const myEntity = this.playerEntities[this.room.sessionId];
 
+        if (myEntity.myCurrentWeaponType === 0) return;
 
-        // Configuración del área de impacto
-        const distanceOffset = 32;
-        const attackRadius = 32;
-
-        // Calculamos el centro del ataque usando el vector lookDir
-        const attackX = myEntity.sprite.x + (myEntity.lookDir.x * distanceOffset);
-        const attackY = myEntity.sprite.y + (myEntity.lookDir.y * distanceOffset);
         const targets: string[] = [];
-        
-        for (const id in this.playerEntities) {
-            if (id === this.room.sessionId) continue;
+        let attackX = 0;
+        let attackY = 0;
+        let distanceOffset = 0;
+        let attackRadius = 0;
+        let attackNumber = 0;
 
-            const enemy = this.playerEntities[id];
-            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+        console.log ("Arma:", myEntity.myCurrentWeaponType, "Ataque:", myEntity.attack);    
 
-            if (dist <= attackRadius) {
-                targets.push(id);
+        if (myEntity.myCurrentWeaponType === 1 && myEntity.attack === 1) {
+
+            attackNumber = 1;
+            // Configuración del área de impacto
+            distanceOffset = 32; // Distancia desde el jugador hacia adelante
+            attackRadius = 32;   // Radio del área de impacto
+            // Calculamos el centro del ataque usando el vector lookDir
+            attackX = myEntity.sprite.x + (myEntity.lookDir.x * distanceOffset);
+            attackY = myEntity.sprite.y + (myEntity.lookDir.y * distanceOffset);
+            
+            for (const id in this.playerEntities) {
+                if (id === this.room.sessionId) continue;
+                const enemy = this.playerEntities[id];
+                const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+                if (dist <= attackRadius) {targets.push(id);}
             }
+
+        }
+
+        if (myEntity.myCurrentWeaponType === 2 && myEntity.attack === 1) {
+            const arrowRange = 400; // Alcance máximo de la flecha
+            const arrowWidth = 20;  // "Grosor" de la trayectoria (margen de acierto)
+
+            let closestTargetId: string | null = null;
+            let minDistance = arrowRange;
+
+            // El origen de la flecha
+            const startX = myEntity.sprite.x;
+            const startY = myEntity.sprite.y;
+
+            for (const id in this.playerEntities) {
+                if (id === this.room.sessionId) continue;
+                const enemy = this.playerEntities[id];
+
+                // 1. Vector desde el jugador hacia el enemigo
+                const dx = enemy.sprite.x - startX;
+                const dy = enemy.sprite.y - startY;
+
+                // 2. Proyectar el enemigo sobre la línea del vector lookDir
+                // (Producto punto para saber qué tan lejos está el enemigo a lo largo de la flecha)
+                const projection = dx * myEntity.lookDir.x + dy * myEntity.lookDir.y;
+
+                // 3. Validar si el enemigo está frente a nosotros y dentro del rango
+                if (projection > 0 && projection <= arrowRange) {
+                    // 4. Calcular distancia perpendicular a la línea (qué tan lejos está de la trayectoria)
+                    const closestX = startX + myEntity.lookDir.x * projection;
+                    const closestY = startY + myEntity.lookDir.y * projection;
+                    const distToLine = Phaser.Math.Distance.Between(enemy.sprite.x, enemy.sprite.y, closestX, closestY);
+
+                    // 5. Si está dentro del "ancho" de la flecha y es el más cercano
+                    if (distToLine <= arrowWidth) {
+                        if (projection < minDistance) {
+                            minDistance = projection;
+                            closestTargetId = id;
+                        }
+                    }
+                }
+            }
+
+            if (closestTargetId) {
+                targets.push(closestTargetId);
+                // La posición del impacto para el servidor será la del enemigo golpeado
+                const victim = this.playerEntities[closestTargetId];
+                attackX = victim.sprite.x;
+                attackY = victim.sprite.y;
+            } else {
+                // Si no hay objetivo, el punto de impacto es el final del rango
+                attackX = startX + myEntity.lookDir.x * arrowRange;
+                attackY = startY + myEntity.lookDir.y * arrowRange;
+            }
+
+            console.log("Impacto en:", closestTargetId);
+            
         }
 
         // ENVÍO AL SERVIDOR
-        this.room.send("attack", {
-            weaponType: this.myCurrentWeaponType,
-            attackNumber: 1,
-            position: { x: Math.floor(attackX), y: Math.floor(attackY) },
-            direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y },
-            targets: targets
-        });
+        this.room.send("attack", {weaponType: this.myCurrentWeaponType, attackNumber: attackNumber, position: { x: Math.floor(attackX), y: Math.floor(attackY) }, direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y }, targets: targets });
 
         // 2. Lanzar animación localmente de inmediato
         myEntity.attack = this.myCurrentWeaponType; 
@@ -491,25 +550,17 @@ export class MainScene extends Phaser.Scene {
 
         const myState = this.room.state.players.get(myId);
         if (myState) {
-            // --- EFECTO DE DAÑO PARA JUGADOR LOCAL ---
-            if (myState.hp < myEntity.hp) {
-                this.showDamageText(myEntity.sprite.x, myEntity.sprite.y, myEntity.hp - myState.hp);
-            }
+            if (myState.hp < myEntity.hp) this.showDamageText(myEntity.sprite.x, myEntity.sprite.y, myEntity.hp - myState.hp);
             myEntity.weapon = myState.weapon;
             myEntity.attack = myState.attack;
             myEntity.hp = myState.hp;
-
         }
 
-        // --- ATAQUE POR TECLADO (ESTO VA AQUÍ) ---
+        // --- ATAQUE POR TECLADO ---
         if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
             this.handleAttack();
-
-            // Feedback visual en el botón de la UI
             this.attackButton?.setFillStyle(0xff0000, 0.6);
-            this.time.delayedCall(100, () => {
-                this.attackButton?.setFillStyle(0xff0000, 0.3);
-            });
+            this.time.delayedCall(100, () => {this.attackButton?.setFillStyle(0xff0000, 0.3);});
         }
 
         // Actualizar el valor numérico del HP en la UI
@@ -546,8 +597,7 @@ export class MainScene extends Phaser.Scene {
             myEntity.lookDir.y = dy / len;
         }
 
-        // 2. LA ANIMACIÓN DECIDE QUÉ MOSTRAR:
-        // Siempre llamamos a updatePlayerAnimation, ella decidirá si el ataque bloquea al walk
+        // 2. LA ANIMACIÓN
         this.updatePlayerAnimation(myEntity, dx, dy);
 
         myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 55);
@@ -572,8 +622,8 @@ export class MainScene extends Phaser.Scene {
 
             const pData = this.room.state.players.get(id);
             if (pData) {
-                entity.weapon = pData.weapon; // <--- Importante
-                entity.attack = pData.attack; // <--- Importante
+                entity.weapon = pData.weapon;
+                entity.attack = pData.attack;
             }
 
             const diffX = entity.serverX - entity.sprite.x;
@@ -596,7 +646,6 @@ export class MainScene extends Phaser.Scene {
                 entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.15);
                 entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.15);
             } else {
-                // Clavamos posición final para evitar drift infinito
                 entity.sprite.x = entity.serverX;
                 entity.sprite.y = entity.serverY;
             }
