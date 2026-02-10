@@ -282,9 +282,9 @@ export class MainScene extends Phaser.Scene {
         if (!this.room || !this.playerEntities[this.room.sessionId]) return;
         const myEntity = this.playerEntities[this.room.sessionId];
 
-        myEntity.attack = 1; // hardcodeamos por ahora
-
         if (this.myCurrentWeaponType === 0) return;
+
+        myEntity.attack = 1; // hardcodeamos por ahora
 
         const targets: string[] = [];
         let attackX = 0;
@@ -294,6 +294,7 @@ export class MainScene extends Phaser.Scene {
 
         console.log ("Arma:", this.myCurrentWeaponType, "Ataque:", myEntity.attack);    
 
+        // SWORD ATTACK 1
         if (this.myCurrentWeaponType === 1 && myEntity.attack === 1) {
 
             // Configuración del área de impacto
@@ -311,7 +312,8 @@ export class MainScene extends Phaser.Scene {
             }
 
         }
-
+        
+        // BOW ATTACK 1
         if (this.myCurrentWeaponType === 2 && myEntity.attack === 1) {
             const arrowRange = 300; // Alcance máximo de la flecha
             const arrowWidth = 20;  // "Grosor" de la trayectoria (margen de acierto)
