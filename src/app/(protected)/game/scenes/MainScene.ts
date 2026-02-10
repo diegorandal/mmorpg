@@ -543,6 +543,9 @@ export class MainScene extends Phaser.Scene {
         }
         entity.hp = data.hp;
         entity.weapon = data.weapon;
+        entity.lookDir.x = data.lookx;
+        entity.lookDir.y = data.looky;
+
         if (data.name) entity.label.setText(data.name);
         if (sessionId !== this.room.sessionId) {
             entity.serverX = data.x;
@@ -626,6 +629,8 @@ export class MainScene extends Phaser.Scene {
                 x: Math.floor(myEntity.sprite.x), 
                 y: Math.floor(myEntity.sprite.y),
                 direction: myEntity.currentDir || 'down',
+                lookx: myEntity.lookDir.x,
+                looky: myEntity.lookDir.y,
             });
             this.moveTimer = 0;
         }
