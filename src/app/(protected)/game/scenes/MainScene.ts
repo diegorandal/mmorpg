@@ -264,7 +264,7 @@ export class MainScene extends Phaser.Scene {
 
         // Si el servidor dice que estamos atacando (entity.attack > 0)
         if (entity.attack && entity.attack > 0) {
-            action = attackMap[entity.attack];
+            action = `${weaponPrefix}attack`;
         } else {
             const isMoving = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
             action = isMoving ? 'walk' : `${weaponPrefix}idle`;
@@ -285,7 +285,8 @@ export class MainScene extends Phaser.Scene {
         if (this.myCurrentWeaponType === 0) return;
 
         myEntity.attack = 1; // hardcodeamos por ahora
-
+        myEntity.weapon = this.myCurrentWeaponType;
+        
         const targets: string[] = [];
         let attackX = 0;
         let attackY = 0;
