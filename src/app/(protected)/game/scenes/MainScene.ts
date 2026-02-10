@@ -272,15 +272,8 @@ export class MainScene extends Phaser.Scene {
         // 4. Determinar la acción
         let action = '';
 
-        // Si el servidor dice que estamos atacando (entity.attack > 0)
-        if (entity.attack && entity.attack > 0) {
-            action = `${weaponPrefix}attack`;
-
-
-        } else {
-            const isMoving = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
-            action = isMoving ? 'walk' : `${weaponPrefix}idle`;
-        }
+        const isMoving = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
+        action = isMoving ? 'walk' : `${weaponPrefix}idle`;
 
         // 5. Ejecutar
         const animKey = `${action}-${dir}-${id}`;
