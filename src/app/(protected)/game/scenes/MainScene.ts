@@ -76,6 +76,7 @@ export class MainScene extends Phaser.Scene {
         }
         this.load.image('tileset-image', `${BASE_URL}/tileset.png?v=${version}`);
         this.load.json('mapData', `${BASE_URL}/map.json?v=${version}`);
+        this.load.image('arrow', `${BASE_URL}/arrow.png?v=${version}`);
     }
 
     create(): void {
@@ -368,13 +369,9 @@ export class MainScene extends Phaser.Scene {
             }
 
             // EFECTO VISUAL: Línea de trayectoria rápida
-            const graphics = this.add.graphics();
-            graphics.lineStyle(1.5, 0xffffff, 0.5); // Grosor 1.5, Blanco, 80% Alpha
-            graphics.setDepth(myEntity.sprite.depth + 1); // Justo encima del jugador
-            // Dibujamos desde el centro del arco hacia el punto de impacto
-            graphics.lineBetween(startX, startY, attackX, attackY);
-            // Desvanecimiento rápido (apenas perceptible)
-            this.tweens.add({targets: graphics, alpha: 0, duration: 50, onComplete: () => graphics.destroy()});
+            const arrow = this.add.image(startX, startY, 'arrow').setOrigin(0, 0.5).setDepth(myEntity.sprite.depth + 1);
+            arrow.rotation = Phaser.Math.Angle.Between(startX, startY, attackX, attackY);
+            this.tweens.add({targets: arrow, x: attackX, y: attackY, duration: 60, ease: 'Linear', onComplete: () => arrow.destroy()});
 
         }
 

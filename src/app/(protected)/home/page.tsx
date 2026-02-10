@@ -125,7 +125,7 @@ export default function Home() {
             boxShadow: '0 4px 15px rgba(76, 175, 80, 0.3)'
           }}
         >
-          ENTRAR AL MUNDO
+          ENTRAR
         </button>
 
         {error && (
