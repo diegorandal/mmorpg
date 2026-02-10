@@ -111,7 +111,7 @@ export class MainScene extends Phaser.Scene {
                     layer.setDepth(1);
                     break;
                 case "trees":
-                    layer.setDepth(3); // Por encima de los jugadores
+                    layer.setDepth(10000); // Por encima de los jugadores
                     break;
                 case "Collisions":
                     layer.setDepth(4);
