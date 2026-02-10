@@ -215,6 +215,28 @@ export class MainScene extends Phaser.Scene {
         return 'down'; // Por defecto
     }
 
+    private showDamageText(x: number, y: number, amount: number) {
+        const damageLabel = this.add.text(x, y - 20, `-${amount}`, {
+            fontSize: '20px',
+            color: '#ff0000',
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 4
+        }).setOrigin(0.5).setDepth(3000);
+
+        // Animación: Subir y desvanecerse
+        this.tweens.add({
+            targets: damageLabel,
+            y: y - 80,          // Sube 60 pixeles
+            alpha: 0,           // Se vuelve transparente
+            duration: 800,      // Duración de 0.8 segundos
+            ease: 'Cubic.out',
+            onComplete: () => {
+                damageLabel.destroy(); // Lo eliminamos del juego
+            }
+        });
+    }
+
     // Nueva función de gestión de animaciones
     private updatePlayerAnimation(entity: any, dx: number, dy: number) {
         const id = entity.characterId;
@@ -313,8 +335,6 @@ export class MainScene extends Phaser.Scene {
         this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.2).setScrollFactor(0).setDepth(1000);
         this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(1001);
         
-
-
         // --- BOTÓN DE ATAQUE ---
         this.attackButton = this.add.circle(xAttack, y, 50, 0xff0000, 0.3)
             .setScrollFactor(0).setDepth(1000)
@@ -452,6 +472,12 @@ export class MainScene extends Phaser.Scene {
     private updatePlayer(data: any, sessionId: string) {
         const entity = this.playerEntities[sessionId];
         if (!entity) return;
+        // --- DETECCIÓN DE DAÑO ---
+        if (data.hp !== undefined && data.hp < entity.hp) {
+            const damageTaken = entity.hp - data.hp;
+            // Lanzamos el efecto en la posición actual del sprite
+            this.showDamageText(entity.sprite.x, entity.sprite.y, damageTaken);
+        }
         entity.hp = data.hp;
         entity.weapon = data.weapon;
         if (data.name) entity.label.setText(data.name);
