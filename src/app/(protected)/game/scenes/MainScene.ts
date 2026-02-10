@@ -402,9 +402,9 @@ export class MainScene extends Phaser.Scene {
             }
             
             // Feedback visual opcional: Un círculo de luz rápido
-            const magicCircle = this.add.circle(attackX, attackY, attackRadius, 0x00ffff, 0.2);
-            this.time.delayedCall(100, () => magicCircle.destroy());
-
+            const magicCircle = this.add.circle(attackX, attackY, 10, 0x00ffff, 0.5); // Empieza en radio 10
+            this.tweens.add({targets: magicCircle, radius: attackRadius, alpha: 0, duration: 100, ease: 'Cubic.out', onComplete: () => magicCircle.destroy()});
+            
         }
 
         // ENVÍO AL SERVIDOR
