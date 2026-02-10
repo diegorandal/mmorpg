@@ -291,13 +291,11 @@ export class MainScene extends Phaser.Scene {
         let attackY = 0;
         let distanceOffset = 0;
         let attackRadius = 0;
-        let attackNumber = 0;
 
         console.log ("Arma:", this.myCurrentWeaponType, "Ataque:", myEntity.attack);    
 
         if (this.myCurrentWeaponType === 1 && myEntity.attack === 1) {
 
-            attackNumber = 1;
             // Configuración del área de impacto
             distanceOffset = 32; // Distancia desde el jugador hacia adelante
             attackRadius = 32;   // Radio del área de impacto
@@ -368,17 +366,17 @@ export class MainScene extends Phaser.Scene {
 
             // EFECTO VISUAL: Línea de trayectoria rápida
             const graphics = this.add.graphics();
-            graphics.lineStyle(1.5, 0xffffff, 0.8); // Grosor 1.5, Blanco, 80% Alpha
+            graphics.lineStyle(1, 0x969696, 0.5); // Grosor 1.5, Blanco, 80% Alpha
             graphics.setDepth(myEntity.sprite.depth + 1); // Justo encima del jugador
             // Dibujamos desde el centro del arco hacia el punto de impacto
             graphics.lineBetween(startX, startY, attackX, attackY);
             // Desvanecimiento rápido (apenas perceptible)
-            this.tweens.add({targets: graphics, alpha: 0, duration: 50, onComplete: () => graphics.destroy()});
+            this.tweens.add({targets: graphics, alpha: 0, duration: 25, onComplete: () => graphics.destroy()});
 
         }
 
         // ENVÍO AL SERVIDOR
-        this.room.send("attack", {weaponType: this.myCurrentWeaponType, attackNumber: attackNumber, position: { x: Math.floor(attackX), y: Math.floor(attackY) }, direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y }, targets: targets });
+        this.room.send("attack", { weaponType: this.myCurrentWeaponType, attackNumber: myEntity.attack, position: { x: Math.floor(attackX), y: Math.floor(attackY) }, direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y }, targets: targets });
 
         // 2. Lanzar animación localmente de inmediato
         this.updatePlayerAnimation(myEntity, 0, 0);
