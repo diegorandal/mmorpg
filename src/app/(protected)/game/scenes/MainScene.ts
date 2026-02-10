@@ -430,8 +430,8 @@ export class MainScene extends Phaser.Scene {
             }
 
             const aura = this.add.circle(attackX, attackY, 5, 0xbf40bf, 0.6).setBlendMode(Phaser.BlendModes.ADD);
-            this.tweens.add({targets: aura, radius: attackRadius, alpha: 0, duration: 300, ease: 'Cubic.out', onComplete: () => aura.destroy()});
-            
+            this.tweens.add({targets: aura, radius: attackRadius, alpha: 0, duration: 500, ease: 'Cubic.out', onComplete: () => aura.destroy()});
+
         }
 
 
