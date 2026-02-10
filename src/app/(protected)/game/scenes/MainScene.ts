@@ -9,6 +9,7 @@ export class MainScene extends Phaser.Scene {
     private collisionLayer?: Phaser.Tilemaps.TilemapLayer;
     private joystickBase?: Phaser.GameObjects.Arc;
     private joystickThumb?: Phaser.GameObjects.Arc;
+    private spaceKey!: Phaser.Input.Keyboard.Key;
     private isDragging: boolean = false;
     private moveTimer: number = 0;
     private attackButton?: Phaser.GameObjects.Arc;
@@ -326,7 +327,8 @@ export class MainScene extends Phaser.Scene {
         const xAttack = window.innerWidth - margin;
         
         // En el create() o setupJoystick()
-        const spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        // En el create() o setupJoystick()
+        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.2).setScrollFactor(0).setDepth(1000);
         this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(1001);
         
@@ -336,9 +338,8 @@ export class MainScene extends Phaser.Scene {
             .setInteractive();
 
         // tecla space
-        if (Phaser.Input.Keyboard.JustDown(spaceKey)) {
+        if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
             this.handleAttack();
-
             // Opcional: Feedback visual en el botón de la pantalla
             this.attackButton?.setFillStyle(0xff0000, 0.6);
             this.time.delayedCall(100, () => {
