@@ -384,6 +384,29 @@ export class MainScene extends Phaser.Scene {
 
         }
 
+        // WAND ATTACK 1
+        if (this.myCurrentWeaponType === 3 && myEntity.attack === 1) {
+
+            // Configuración del área de impacto
+            distanceOffset = 64; // Distancia desde el jugador hacia adelante
+            attackRadius = 80;   // Radio del área de impacto
+            // Calculamos el centro del ataque usando el vector lookDir
+            attackX = myEntity.sprite.x + (myEntity.lookDir.x * distanceOffset);
+            attackY = myEntity.sprite.y + (myEntity.lookDir.y * distanceOffset);
+
+            for (const id in this.playerEntities) {
+                if (id === this.room.sessionId) continue;
+                const enemy = this.playerEntities[id];
+                const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+                if (dist <= attackRadius) { targets.push(id); }
+            }
+            
+            // Feedback visual opcional: Un círculo de luz rápido
+            const magicCircle = this.add.circle(attackX, attackY, attackRadius, 0x00ffff, 0.2);
+            this.time.delayedCall(100, () => magicCircle.destroy());
+
+        }
+
         // ENVÍO AL SERVIDOR
         this.room.send("attack", { weaponType: this.myCurrentWeaponType, attackNumber: myEntity.attack, position: { x: Math.floor(attackX), y: Math.floor(attackY) }, direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y }, targets: targets });
 
