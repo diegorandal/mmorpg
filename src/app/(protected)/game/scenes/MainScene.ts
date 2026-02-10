@@ -315,7 +315,7 @@ export class MainScene extends Phaser.Scene {
         }
 
         if (this.myCurrentWeaponType === 2 && myEntity.attack === 1) {
-            const arrowRange = 400; // Alcance máximo de la flecha
+            const arrowRange = 300; // Alcance máximo de la flecha
             const arrowWidth = 20;  // "Grosor" de la trayectoria (margen de acierto)
 
             let closestTargetId: string | null = null;
@@ -366,7 +366,14 @@ export class MainScene extends Phaser.Scene {
                 attackY = startY + myEntity.lookDir.y * arrowRange;
             }
 
-            console.log("Impacto en:", closestTargetId);
+            // EFECTO VISUAL: Línea de trayectoria rápida
+            const graphics = this.add.graphics();
+            graphics.lineStyle(1.5, 0xffffff, 0.8); // Grosor 1.5, Blanco, 80% Alpha
+            graphics.setDepth(myEntity.sprite.depth + 1); // Justo encima del jugador
+            // Dibujamos desde el centro del arco hacia el punto de impacto
+            graphics.lineBetween(startX, startY, attackX, attackY);
+            // Desvanecimiento rápido (apenas perceptible)
+            this.tweens.add({targets: graphics, alpha: 0, duration: 50, onComplete: () => graphics.destroy()});
 
         }
 
