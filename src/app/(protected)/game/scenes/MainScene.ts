@@ -315,11 +315,6 @@ export class MainScene extends Phaser.Scene {
         myEntity.attack = this.myCurrentWeaponType; 
         this.updatePlayerAnimation(myEntity, 0, 0);
 
-        // debug: mostrar el área de impacto
-        const circle = this.add.circle(attackX, attackY, attackRadius, 0xff0000, 0.2);
-        this.time.delayedCall(50, () => circle.destroy());
-
-
     }
 
     private joystickPointer: Phaser.Input.Pointer | null = null; // Añade esta propiedad a tu clase
