@@ -13,8 +13,8 @@ export class MainScene extends Phaser.Scene {
     private isDragging: boolean = false;
     private moveTimer: number = 0;
     private attackButton?: Phaser.GameObjects.Arc;
-    private isAttacking: boolean = false;
-    private myCurrentWeaponType: number = 1;
+    //private isAttacking: boolean = false;
+    private myCurrentWeaponType: number = 0;
     private readonly SEND_RATE = 100;
     private hpText?: Phaser.GameObjects.Text;
 
@@ -282,7 +282,7 @@ export class MainScene extends Phaser.Scene {
         if (!this.room || !this.playerEntities[this.room.sessionId]) return;
         const myEntity = this.playerEntities[this.room.sessionId];
 
-        if (myEntity.myCurrentWeaponType === 0) return;
+        if (this.myCurrentWeaponType === 0) return;
 
         const targets: string[] = [];
         let attackX = 0;
@@ -291,9 +291,9 @@ export class MainScene extends Phaser.Scene {
         let attackRadius = 0;
         let attackNumber = 0;
 
-        console.log ("Arma:", myEntity.myCurrentWeaponType, "Ataque:", myEntity.attack);    
+        console.log ("Arma:", this.myCurrentWeaponType, "Ataque:", myEntity.attack);    
 
-        if (myEntity.myCurrentWeaponType === 1 && myEntity.attack === 1) {
+        if (this.myCurrentWeaponType === 1 && myEntity.attack === 1) {
 
             attackNumber = 1;
             // Configuración del área de impacto
@@ -312,7 +312,7 @@ export class MainScene extends Phaser.Scene {
 
         }
 
-        if (myEntity.myCurrentWeaponType === 2 && myEntity.attack === 1) {
+        if (this.myCurrentWeaponType === 2 && myEntity.attack === 1) {
             const arrowRange = 400; // Alcance máximo de la flecha
             const arrowWidth = 20;  // "Grosor" de la trayectoria (margen de acierto)
 
@@ -365,7 +365,7 @@ export class MainScene extends Phaser.Scene {
             }
 
             console.log("Impacto en:", closestTargetId);
-            
+
         }
 
         // ENVÍO AL SERVIDOR
