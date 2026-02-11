@@ -602,18 +602,14 @@ export class MainScene extends Phaser.Scene {
         if (this.collisionLayer) this.physics.add.collider(sprite, this.collisionLayer);
    
         // label con el nombre del jugador
-        const label = this.add.text(data.x, data.y - 40, data.name, {fontSize: '14px', backgroundColor: 'rgba(96, 96, 96, 0.24)'}).setOrigin(0.5);
+        const label = this.add.text(data.x, data.y - 40, data.name, { fontSize: '14px', color: '#ffffff' }).setOrigin(0.5);
         // barra de HP )
         let hpBar: Phaser.GameObjects.Graphics | undefined;
-        if (sessionId !== this.room.sessionId) {
-            hpBar = this.add.graphics();
-        }
+        hpBar = this.add.graphics();
 
         // 4. Guardamos el characterId para saber qué animación llamar después
         this.playerEntities[sessionId] = { sprite, label, hpBar, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
-        
         if (hpBar) this.updateHealthBar(sessionId);
-        
         if (sessionId === this.room.sessionId) this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
         
     }
@@ -793,20 +789,33 @@ export class MainScene extends Phaser.Scene {
 
     private updateHealthBar(sessionId: string) {
         const player = this.playerEntities[sessionId];
-        if (!player || !player.hpBar) return;
-        const { sprite, hpBar, hp } = player;
+
+        if (!player) return;
+
+        const { label, hpBar, hp } = player;
+
+        const fullWidth = label.displayWidth + 10; // pequeño padding lateral
         const hpPercent = Phaser.Math.Clamp(hp / 100, 0, 1);
-        const currentWidth = player.label.width * hpPercent;
-        const barX = sprite.x - 32 / 2;
-        const barY = sprite.y - sprite.displayHeight / 2 - 2;
+        const currentWidth = fullWidth * hpPercent;
+
+        const barX = label.x - fullWidth / 2;
+        const barY = label.y - 2; // exactamente detrás del texto
+
         hpBar.clear();
+
+        // Fondo
+        hpBar.fillStyle(0x222222, 0.8);
+        hpBar.fillRect(barX, barY, fullWidth, label.displayHeight);
+
+        // Vida
         let color = 0x00ff00;
         if (hpPercent < 0.3) color = 0xff0000;
         else if (hpPercent < 0.6) color = 0xffff00;
-        hpBar.fillStyle(color);
-        hpBar.fillRect(barX, barY, currentWidth, 2);
-    }
 
+        hpBar.fillStyle(color);
+        hpBar.fillRect(barX, barY, currentWidth, label.displayHeight);
+    }
+   
     private updatePlayerCountUI() {
         const count = this.room.state.players.size;
         this.playersText?.setText(`👥 ${count}`);
