@@ -796,7 +796,7 @@ export class MainScene extends Phaser.Scene {
         if (!player || !player.hpBar) return;
         const { sprite, hpBar, hp } = player;
         const hpPercent = Phaser.Math.Clamp(hp / 100, 0, 1);
-        const currentWidth = 32 * hpPercent;
+        const currentWidth = player.label.width * hpPercent;
         const barX = sprite.x - 32 / 2;
         const barY = sprite.y - sprite.displayHeight / 2 - 2;
         hpBar.clear();
