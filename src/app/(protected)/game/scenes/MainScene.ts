@@ -691,25 +691,24 @@ export class MainScene extends Phaser.Scene {
         }
         if (Phaser.Input.Keyboard.JustDown(this.key1Key)) {
             myEntity.myCurrentWeaponType = 1;
-            myEntity.weaponLabel?.setText('SWORD');
+            this.weaponLabel?.setText('SWORD');
             this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
         }
         if (Phaser.Input.Keyboard.JustDown(this.key2Key)) {
             myEntity.myCurrentWeaponType = 2;
-            myEntity.weaponLabel?.setText('BOW');
+            this.weaponLabel?.setText('BOW');
             this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
         }
         if (Phaser.Input.Keyboard.JustDown(this.key3Key)) {
             myEntity.myCurrentWeaponType = 3;
-            myEntity.weaponLabel?.setText('WAND');
+            this.weaponLabel?.setText('WAND');
             this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
         }
         if (Phaser.Input.Keyboard.JustDown(this.key4Key)) {
             myEntity.myCurrentWeaponType = 4;
-            myEntity.weaponLabel?.setText('SPELL');
+            this.weaponLabel?.setText('SPELL');
             this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
         }
-
 
         // Actualizar el valor numérico del HP en la UI
         if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
