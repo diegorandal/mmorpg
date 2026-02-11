@@ -604,8 +604,7 @@ export class MainScene extends Phaser.Scene {
         // label con el nombre del jugador
         const label = this.add.text(data.x, data.y - 40, data.name, { fontSize: '14px', color: '#ffffff' }).setOrigin(0.5);
         // barra de HP )
-        let hpBar: Phaser.GameObjects.Graphics | undefined;
-        hpBar = this.add.graphics();
+        const hpBar = this.add.graphics();
 
         // 4. Guardamos el characterId para saber qué animación llamar después
         this.playerEntities[sessionId] = { sprite, label, hpBar, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
@@ -732,7 +731,10 @@ export class MainScene extends Phaser.Scene {
         myEntity.label.setDepth(myEntity.sprite.y + 1);
 
         this.updatePlayerAnimation(myEntity, dx, dy);
+
         myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 55);
+
+        this.updateHealthBar(myId);
 
         // Envío de posición al servidor
         this.moveTimer += delta;
@@ -746,6 +748,7 @@ export class MainScene extends Phaser.Scene {
             });
             this.moveTimer = 0;
         }
+        
 
         // --- OTROS JUGADORES ---
         for (const id in this.playerEntities) {
@@ -779,8 +782,6 @@ export class MainScene extends Phaser.Scene {
 
             entity.label.setDepth(entity.sprite.y + 1);
             entity.label.setPosition(entity.sprite.x, entity.sprite.y - 55);
-
-            entity.hpBar.setDepth(entity.sprite.y + 2);
             this.updateHealthBar(id);
             
         }
@@ -792,28 +793,23 @@ export class MainScene extends Phaser.Scene {
 
         if (!player) return;
 
-        const { label, hpBar, hp } = player;
+        const { sprite, label, hpBar, hp } = player;
 
         const fullWidth = label.displayWidth + 10; // pequeño padding lateral
         const hpPercent = Phaser.Math.Clamp(hp / 100, 0, 1);
         const currentWidth = fullWidth * hpPercent;
-
         const barX = label.x - fullWidth / 2;
-        const barY = label.y - 2; // exactamente detrás del texto
-
+        const barY = label.y; 
         hpBar.clear();
-
-        // Fondo
-        hpBar.fillStyle(0x222222, 0.8);
+        hpBar.fillStyle(0x555555, 0.5);
         hpBar.fillRect(barX, barY, fullWidth, label.displayHeight);
-
-        // Vida
         let color = 0x00ff00;
         if (hpPercent < 0.3) color = 0xff0000;
         else if (hpPercent < 0.6) color = 0xffff00;
-
         hpBar.fillStyle(color);
         hpBar.fillRect(barX, barY, currentWidth, label.displayHeight);
+        hpBar.setDepth(sprite.depth);
+
     }
    
     private updatePlayerCountUI() {
