@@ -696,7 +696,8 @@ export class MainScene extends Phaser.Scene {
 
         // Actualizar el valor numérico del HP en la UI
         if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
-
+        if (this.potText) this.potText.setText(`💰 ${myState.pot || 0}`);
+        
         // Obtenemos el tipo de ataque directamente del estado del servidor para este frame
 
         let dx = 0;
