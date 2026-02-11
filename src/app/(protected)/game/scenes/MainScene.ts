@@ -799,7 +799,7 @@ export class MainScene extends Phaser.Scene {
         const hpPercent = Phaser.Math.Clamp(hp / 100, 0, 1);
         const currentWidth = fullWidth * hpPercent;
         const barX = label.x - fullWidth / 2;
-        const barY = label.y - 2; 
+        const barY = label.y - 6; 
 
         hpBar.clear();
         hpBar.fillStyle(0x888888, 0.4);
