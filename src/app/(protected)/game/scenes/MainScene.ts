@@ -673,22 +673,22 @@ export class MainScene extends Phaser.Scene {
             this.time.delayedCall(100, () => {this.attackButton?.setFillStyle(0xff0000, 0.3);});
         }
         if (Phaser.Input.Keyboard.JustDown(this.key1Key)) {
-            myEntity.myCurrentWeaponType = 1;
+            this.myCurrentWeaponType = 1;
             this.weaponLabel?.setText('SWORD');
             this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
         }
         if (Phaser.Input.Keyboard.JustDown(this.key2Key)) {
-            myEntity.myCurrentWeaponType = 2;
+            this.myCurrentWeaponType = 2;
             this.weaponLabel?.setText('BOW');
             this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
         }
         if (Phaser.Input.Keyboard.JustDown(this.key3Key)) {
-            myEntity.myCurrentWeaponType = 3;
+            this.myCurrentWeaponType = 3;
             this.weaponLabel?.setText('WAND');
             this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
         }
         if (Phaser.Input.Keyboard.JustDown(this.key4Key)) {
-            myEntity.myCurrentWeaponType = 4;
+            this.myCurrentWeaponType = 4;
             this.weaponLabel?.setText('SPELL');
             this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
         }
