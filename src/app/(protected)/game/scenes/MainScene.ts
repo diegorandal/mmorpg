@@ -604,12 +604,16 @@ export class MainScene extends Phaser.Scene {
         // label con el nombre del jugador
         const label = this.add.text(data.x, data.y - 40, data.name, {fontSize: '14px', backgroundColor: 'rgba(96, 96, 96, 0.24)'}).setOrigin(0.5);
         // barra de HP )
-        const hpBar = this.add.graphics();
-
+        let hpBar: Phaser.GameObjects.Graphics | undefined;
+        if (sessionId !== this.room.sessionId) {
+            hpBar = this.add.graphics();
+        }
 
         // 4. Guardamos el characterId para saber qué animación llamar después
         this.playerEntities[sessionId] = { sprite, label, hpBar, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
-        this.updateHealthBar(sessionId);
+        
+        if (hpBar) this.updateHealthBar(sessionId);
+        
         if (sessionId === this.room.sessionId) this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
         
     }
@@ -789,12 +793,12 @@ export class MainScene extends Phaser.Scene {
 
     private updateHealthBar(sessionId: string) {
         const player = this.playerEntities[sessionId];
-        if (!player) return;
+        if (!player || !player.hpBar) return;
         const { sprite, hpBar, hp } = player;
         const hpPercent = Phaser.Math.Clamp(hp / 100, 0, 1);
         const currentWidth = 32 * hpPercent;
         const barX = sprite.x - 32 / 2;
-        const barY = sprite.y - sprite.displayHeight / 2 - 12;
+        const barY = sprite.y - sprite.displayHeight / 2 - 2;
         hpBar.clear();
         let color = 0x00ff00;
         if (hpPercent < 0.3) color = 0xff0000;
