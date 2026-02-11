@@ -795,20 +795,21 @@ export class MainScene extends Phaser.Scene {
 
         const { sprite, label, hpBar, hp } = player;
 
-        const fullWidth = label.displayWidth + 10; // pequeño padding lateral
+        const fullWidth = label.displayWidth + 4; // pequeño padding lateral
         const hpPercent = Phaser.Math.Clamp(hp / 100, 0, 1);
         const currentWidth = fullWidth * hpPercent;
         const barX = label.x - fullWidth / 2;
-        const barY = label.y; 
+        const barY = label.y + 4; 
+
         hpBar.clear();
-        hpBar.fillStyle(0x555555, 0.5);
+        hpBar.fillStyle(0x888888, 0.4);
         hpBar.fillRect(barX, barY, fullWidth, label.displayHeight);
         let color = 0x00ff00;
         if (hpPercent < 0.3) color = 0xff0000;
         else if (hpPercent < 0.6) color = 0xffff00;
-        hpBar.fillStyle(color);
+        hpBar.fillStyle(color, 0.4);
         hpBar.fillRect(barX, barY, currentWidth, label.displayHeight);
-        hpBar.setDepth(sprite.depth);
+        hpBar.setDepth(label.depth - 1);
 
     }
    
