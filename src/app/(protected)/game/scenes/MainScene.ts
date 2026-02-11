@@ -210,7 +210,7 @@ export class MainScene extends Phaser.Scene {
             }
         });
 
-        // Etiqueta de HP fija en la esquina superior izquierda
+        // hud 
         this.hpText = this.add.text(20, 20, `❤ ${this.room.state.players.get(this.room.sessionId)?.hp || 0}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.24)', padding: { x: 10, y: 5 },}).setScrollFactor(0).setDepth(10000);
         this.playersText = this.add.text(this.scale.width - 20, 20, `👥 ${this.room.state.players.size}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.24)', padding: { x: 10, y: 5 }}).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
 
@@ -238,25 +238,8 @@ export class MainScene extends Phaser.Scene {
     }
 
     private showDamageText(x: number, y: number, amount: number) {
-        const damageLabel = this.add.text(x, y - 20, `-${amount}`, {
-            fontSize: '20px',
-            color: '#ff0000',
-            fontStyle: 'bold',
-            stroke: '#000000',
-            strokeThickness: 4
-        }).setOrigin(0.5).setDepth(3000);
-
-        // Animación: Subir y desvanecerse
-        this.tweens.add({
-            targets: damageLabel,
-            y: y - 80,          // Sube 60 pixeles
-            alpha: 0,           // Se vuelve transparente
-            duration: 800,      // Duración de 0.8 segundos
-            ease: 'Cubic.out',
-            onComplete: () => {
-                damageLabel.destroy(); // Lo eliminamos del juego
-            }
-        });
+        const damageLabel = this.add.text(x, y - 20, `-${amount}`, {fontSize: '20px', color: '#ff0000', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4}).setOrigin(0.5).setDepth(3000);
+        this.tweens.add({ targets: damageLabel, y: y - 80, alpha: 0, duration: 800, ease: 'Cubic.out', onComplete: () => {damageLabel.destroy();}});
     }
 
     // Nueva función de gestión de animaciones
@@ -618,14 +601,15 @@ export class MainScene extends Phaser.Scene {
 
         if (this.collisionLayer) this.physics.add.collider(sprite, this.collisionLayer);
    
-        const label = this.add.text(data.x, data.y - 40, data.name, {
-            fontSize: '14px', backgroundColor: 'rgba(96, 96, 96, 0.24)'
-        }).setOrigin(0.5);
-        
-        label.setDepth(2);
+        // label con el nombre del jugador
+        const label = this.add.text(data.x, data.y - 40, data.name, {fontSize: '14px', backgroundColor: 'rgba(96, 96, 96, 0.24)'}).setOrigin(0.5);
+        // barra de HP )
+        const hpBar = this.add.graphics();
+
 
         // 4. Guardamos el characterId para saber qué animación llamar después
-        this.playerEntities[sessionId] = { sprite, label, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
+        this.playerEntities[sessionId] = { sprite, label, hpBar, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
+        this.updateHealthBar(sessionId);
         if (sessionId === this.room.sessionId) this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
         
     }
@@ -790,11 +774,33 @@ export class MainScene extends Phaser.Scene {
                 entity.sprite.x = entity.serverX;
                 entity.sprite.y = entity.serverY;
             }
-            entity.sprite.setDepth(entity.sprite.y);
-            entity.label.setDepth(entity.sprite.y + 1);
 
+            entity.sprite.setDepth(entity.sprite.y);
+
+            entity.label.setDepth(entity.sprite.y + 1);
             entity.label.setPosition(entity.sprite.x, entity.sprite.y - 55);
+
+            entity.hpBar.setDepth(entity.sprite.y + 2);
+            this.updateHealthBar(id);
+            
         }
+    }
+
+
+    private updateHealthBar(sessionId: string) {
+        const player = this.playerEntities[sessionId];
+        if (!player) return;
+        const { sprite, hpBar, hp } = player;
+        const hpPercent = Phaser.Math.Clamp(hp / 100, 0, 1);
+        const currentWidth = 32 * hpPercent;
+        const barX = sprite.x - 32 / 2;
+        const barY = sprite.y - sprite.displayHeight / 2 - 12;
+        hpBar.clear();
+        let color = 0x00ff00;
+        if (hpPercent < 0.3) color = 0xff0000;
+        else if (hpPercent < 0.6) color = 0xffff00;
+        hpBar.fillStyle(color);
+        hpBar.fillRect(barX, barY, currentWidth, 2);
     }
 
     private updatePlayerCountUI() {
