@@ -802,12 +802,12 @@ export class MainScene extends Phaser.Scene {
         const barY = label.y - 6; 
 
         hpBar.clear();
-        hpBar.fillStyle(0x888888, 0.4);
+        hpBar.fillStyle(0x888888, 0.2);
         hpBar.fillRect(barX, barY, fullWidth, label.displayHeight);
         let color = 0x00ff00;
         if (hpPercent < 0.3) color = 0xff0000;
         else if (hpPercent < 0.6) color = 0xffff00;
-        hpBar.fillStyle(color, 0.4);
+        hpBar.fillStyle(color, 0.2);
         hpBar.fillRect(barX, barY, currentWidth, label.displayHeight);
         hpBar.setDepth(label.depth - 1);
 
