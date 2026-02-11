@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { Room } from '@colyseus/sdk';
 import type { MyRoomState } from '@/app/(protected)/home/PlayerState';
+import { MapSchema } from "@colyseus/schema";
 
 export class MainScene extends Phaser.Scene {
     private room!: Room<MyRoomState>;
@@ -26,6 +27,7 @@ export class MainScene extends Phaser.Scene {
     private myCurrentWeaponType: number = 0;
     private readonly SEND_RATE = 100;
     private hpText?: Phaser.GameObjects.Text;
+    private playersText?: Phaser.GameObjects.Text;
 
     preload(): void {
 
@@ -178,6 +180,10 @@ export class MainScene extends Phaser.Scene {
             this.addPlayer(player, sessionId);
         });
 
+        this.room.onStateChange((state) => {
+            this.updatePlayerCountUI();
+        });
+
         // 1. Escuchar eventos de ataque desde el servidor
         this.room.onMessage("playerAttack", (msg) => {
             if (msg.sessionId === this.room.sessionId) return;
@@ -205,11 +211,8 @@ export class MainScene extends Phaser.Scene {
         });
 
         // Etiqueta de HP fija en la esquina superior izquierda
-        this.hpText = this.add.text(20, 20, `❤ ${this.room.state.players.get(this.room.sessionId)?.hp || 0}`, {
-            fontSize: '18px',
-            backgroundColor: 'rgba(96, 96, 96, 0.24)',
-            padding: { x: 10, y: 5 },
-        }).setScrollFactor(0).setDepth(10000);
+        this.hpText = this.add.text(20, 20, `❤ ${this.room.state.players.get(this.room.sessionId)?.hp || 0}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.24)', padding: { x: 10, y: 5 },}).setScrollFactor(0).setDepth(10000);
+        this.playersText = this.add.text(this.scale.width - 20, 20, `👥 ${this.room.state.players.size}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.24)', padding: { x: 10, y: 5 }}).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
 
         this.setupJoystick();
     }
@@ -305,7 +308,7 @@ export class MainScene extends Phaser.Scene {
             const attackY = entity.sprite.y + entity.lookDir.y * 300;
             const arrow = this.add.image(entity.sprite.x, entity.sprite.y, 'arrow').setOrigin(0.5, 0.5).setDepth(entity.sprite.depth + 10).setScale(3);
             arrow.rotation = Phaser.Math.Angle.Between(entity.sprite.x, entity.sprite.y, attackX, attackY);
-            this.tweens.add({ targets: arrow, x: attackX, y: attackY, duration: 50, ease: 'Linear', onComplete: () => arrow.destroy() });
+            this.tweens.add({ targets: arrow, x: attackX, y: attackY, duration: 100, ease: 'Linear', onComplete: () => arrow.destroy() });
         }
 
         if (entity.weapon === 3) { // FX
@@ -314,7 +317,7 @@ export class MainScene extends Phaser.Scene {
             const attackX = entity.sprite.x + (entity.lookDir.x * distanceOffset);
             const attackY = entity.sprite.y + (entity.lookDir.y * distanceOffset);
             const magicCircle = this.add.circle(attackX, attackY, 10, 0x00ffff, 0.5); // Empieza en radio 10
-            this.tweens.add({ targets: magicCircle, radius: attackRadius, alpha: 0, duration: 150, ease: 'Cubic.out', onComplete: () => magicCircle.destroy() });
+            this.tweens.add({ targets: magicCircle, radius: attackRadius, alpha: 0, duration: 250, ease: 'Cubic.out', onComplete: () => magicCircle.destroy() });
         }
 
         if (entity.weapon === 4) { // FX
@@ -794,6 +797,12 @@ export class MainScene extends Phaser.Scene {
             entity.label.setPosition(entity.sprite.x, entity.sprite.y - 55);
         }
     }
+
+    private updatePlayerCountUI() {
+        const count = this.room.state.players.size;
+        this.playersText?.setText(`👥 ${count}`);
+    }
+
     private showDeathScreen() {
         const { width, height } = this.scale;
 
