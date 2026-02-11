@@ -13,6 +13,8 @@ export default function Home() {
   const [error, setError] = useState('');
   const { data: session } = useSession();
   const [playerName, setPlayerName] = useState('');
+  const [onlinePlayers, setOnlinePlayers] = useState<number | null>(null);
+  const [serverOnline, setServerOnline] = useState(true);
 
   const characters = Array.from({ length: 18 }, (_, i) => i + 1);
 
@@ -24,6 +26,40 @@ export default function Home() {
       setPlayerName(prev => prev || 'player' + Math.floor(Math.random() * 99999));
     }
   }, [session]);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const response = await fetch(
+          "https://randal.onepixperday.xyz/matchmake/my_room"
+        );
+
+        if (!response.ok) {
+          throw new Error("Server error");
+        }
+
+        const rooms = await response.json();
+
+        // rooms es un array
+        const totalPlayers = rooms.reduce(
+          (acc: number, room: any) => acc + room.clients,
+          0
+        );
+
+        setOnlinePlayers(totalPlayers);
+        setServerOnline(true);
+      } catch (error) {
+        console.error("Servidor no disponible:", error);
+        setServerOnline(false);
+        setOnlinePlayers(null);
+      }
+    };
+
+    fetchRooms();
+    const interval = setInterval(fetchRooms, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleConnection = async () => {
     try {
@@ -86,6 +122,15 @@ export default function Home() {
         <h2 style={{ fontSize: '1rem', marginBottom: '0.5rem', textAlign: 'center' }}>
           ¡Bienvenido, {playerName}!
         </h2>
+        {serverOnline ? (
+          <h2 style={{ fontSize: '0.9rem', marginBottom: '1rem', opacity: 0.8 }}>
+            Jugadores conectados: {onlinePlayers ?? 0}
+          </h2>
+        ) : (
+          <h2 style={{ fontSize: '0.9rem', marginBottom: '1rem', color: '#ff5555' }}>
+            Servidor offline
+          </h2>
+        )}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
