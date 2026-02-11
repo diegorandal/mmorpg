@@ -10,6 +10,8 @@ export class Player extends Schema {
     @type("number") weapon: number = 0;
     @type("number") lookx: number = 0;
     @type("number") looky: number = 1;
+    @type("number") pot: number = 0;
+
 }
 
 export class MyRoomState extends Schema {

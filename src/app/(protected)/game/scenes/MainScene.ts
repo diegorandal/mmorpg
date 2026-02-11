@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 import { Room } from '@colyseus/sdk';
 import type { MyRoomState } from '@/app/(protected)/home/PlayerState';
-import { MapSchema } from "@colyseus/schema";
 
 export class MainScene extends Phaser.Scene {
     private room!: Room<MyRoomState>;
@@ -26,6 +25,7 @@ export class MainScene extends Phaser.Scene {
     //private isAttacking: boolean = false;
     private myCurrentWeaponType: number = 0;
     private readonly SEND_RATE = 100;
+    private potText?: Phaser.GameObjects.Text;
     private hpText?: Phaser.GameObjects.Text;
     private playersText?: Phaser.GameObjects.Text;
 
@@ -211,8 +211,9 @@ export class MainScene extends Phaser.Scene {
         });
 
         // hud 
-        this.hpText = this.add.text(20, 20, `❤ ${this.room.state.players.get(this.room.sessionId)?.hp || 0}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.24)', padding: { x: 10, y: 5 },}).setScrollFactor(0).setDepth(10000);
-        this.playersText = this.add.text(this.scale.width - 20, 20, `👥 ${this.room.state.players.size}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.24)', padding: { x: 10, y: 5 }}).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
+        this.potText = this.add.text(this.scale.width / 2, 20, `💰 ${this.room.state.players.get(this.room.sessionId)?.pot || 0}`, { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }, }).setScrollFactor(0).setDepth(10000);
+        this.hpText = this.add.text(20, 20, `❤ ${this.room.state.players.get(this.room.sessionId)?.hp || 0}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 },}).setScrollFactor(0).setDepth(10000);
+        this.playersText = this.add.text(this.scale.width - 20, 20, `👥 ${this.room.state.players.size}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }}).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
 
         this.setupJoystick();
     }
