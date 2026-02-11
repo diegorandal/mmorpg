@@ -676,28 +676,28 @@ export class MainScene extends Phaser.Scene {
         if (Phaser.Input.Keyboard.JustDown(this.key1Key)) {
             this.myCurrentWeaponType = 1;
             this.weaponLabel?.setText('SWORD');
-            this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
+            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType});
         }
         if (Phaser.Input.Keyboard.JustDown(this.key2Key)) {
             this.myCurrentWeaponType = 2;
             this.weaponLabel?.setText('BOW');
-            this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
+            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType});
         }
         if (Phaser.Input.Keyboard.JustDown(this.key3Key)) {
             this.myCurrentWeaponType = 3;
             this.weaponLabel?.setText('WAND');
-            this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
+            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType});
         }
         if (Phaser.Input.Keyboard.JustDown(this.key4Key)) {
             this.myCurrentWeaponType = 4;
             this.weaponLabel?.setText('SPELL');
-            this.room.send("changeWeapon", { weapon: myEntity.myCurrentWeaponType });
+            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType});
         }
 
         // Actualizar el valor numérico del HP en la UI
         if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
         if (this.potText) this.potText.setText(`💰 ${myState.pot || 0}`);
-        
+
         // Obtenemos el tipo de ataque directamente del estado del servidor para este frame
 
         let dx = 0;
