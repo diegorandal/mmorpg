@@ -300,7 +300,7 @@ export class MainScene extends Phaser.Scene {
             const attackY = entity.sprite.y + entity.lookDir.y * 300;
             const arrow = this.add.image(entity.sprite.x, entity.sprite.y, 'arrow').setOrigin(0.5, 0.5).setDepth(entity.sprite.depth + 10).setScale(3);
             arrow.rotation = Phaser.Math.Angle.Between(entity.sprite.x, entity.sprite.y, attackX, attackY);
-            this.tweens.add({ targets: arrow, x: attackX, y: attackY, duration: 100, ease: 'Linear', onComplete: () => arrow.destroy() });
+            this.tweens.add({ targets: arrow, x: attackX, y: attackY, duration: 250, ease: 'Linear', onComplete: () => arrow.destroy() });
         }
 
         if (entity.weapon === 3) { // FX
@@ -372,7 +372,6 @@ export class MainScene extends Phaser.Scene {
         if (now < this.attackCooldowns[key]) return;
         const cooldownTime = this.attackSpeeds[key] || 500; // default 500ms
         this.attackCooldowns[key] = now + cooldownTime;
-
         
         const targets: string[] = [];
         let attackX = 0;
