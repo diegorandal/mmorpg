@@ -5,13 +5,13 @@ import { handleAttack } from "./systems/AttackSystem";
 import { MovementSystem } from "./systems/MovementSystem";
 
 export class MainScene extends Phaser.Scene {
-    private room!: Room<MyRoomState>;
+    public room!: Room<MyRoomState>;
     private movementSystem!: MovementSystem;
-    private playerEntities: { [sessionId: string]: any } = {};
-    private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+    public playerEntities: { [sessionId: string]: any } = {};
+    public cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private collisionLayer?: Phaser.Tilemaps.TilemapLayer;
-    private joystickBase?: Phaser.GameObjects.Arc;
-    private joystickThumb?: Phaser.GameObjects.Arc;
+    public joystickBase?: Phaser.GameObjects.Arc;
+    public joystickThumb?: Phaser.GameObjects.Arc;
     private attackText?: Phaser.GameObjects.Text;
     private weaponButton?: Phaser.GameObjects.Arc;
     private weaponLabel?: Phaser.GameObjects.Text;
@@ -22,12 +22,12 @@ export class MainScene extends Phaser.Scene {
     private key2Key!: Phaser.Input.Keyboard.Key;
     private key3Key!: Phaser.Input.Keyboard.Key;
     private key4Key!: Phaser.Input.Keyboard.Key;
-    private isDragging: boolean = false;
-    private moveTimer: number = 0;
+    public isDragging: boolean = false;
+    public moveTimer: number = 0;
     private attackButton?: Phaser.GameObjects.Arc;
     //private isAttacking: boolean = false;
     private myCurrentWeaponType: number = 0;
-    private readonly SEND_RATE = 100;
+    public readonly SEND_RATE = 100;
     private potText?: Phaser.GameObjects.Text;
     private hpText?: Phaser.GameObjects.Text;
     private playersText?: Phaser.GameObjects.Text;
@@ -104,7 +104,7 @@ export class MainScene extends Phaser.Scene {
     create(): void {
 
         const roomInstance = this.registry.get('room') as Room<MyRoomState>;
-        
+
         // configuramos el mapa
         const data = this.cache.json.get('mapData');
         const map = this.make.tilemap({tileWidth: data.tileSize, tileHeight: data.tileSize, width: data.mapWidth, height: data.mapHeight});
@@ -228,20 +228,7 @@ export class MainScene extends Phaser.Scene {
 
         this.setupJoystick();
 
-        this.movementSystem = new MovementSystem({
-            scene: this,
-            room: this.room,
-            playerEntities: this.playerEntities,
-            cursors: this.cursors,
-            joystickBase: this.joystickBase,
-            joystickThumb: this.joystickThumb,
-            isDragging: this.isDragging,
-            sendRate: this.SEND_RATE,
-            moveTimer: this.moveTimer,
-            updatePlayerAnimation: this.updatePlayerAnimation.bind(this),
-            updateHealthBar: this.updateHealthBar.bind(this),
-            updateAura: this.updateAura.bind(this),
-        });
+        this.movementSystem = new MovementSystem(this);
         
     }
     
@@ -271,7 +258,7 @@ export class MainScene extends Phaser.Scene {
     }
 
     // Nueva función de gestión de animaciones
-    private updatePlayerAnimation(entity: any, dx: number, dy: number) {
+    public updatePlayerAnimation(entity: any, dx: number, dy: number) {
         const id = entity.characterId;
         const sprite = entity.sprite;
         
@@ -613,7 +600,7 @@ export class MainScene extends Phaser.Scene {
         // 🚶 MOVEMENT SYSTEM
         // =========================
         this.movementSystem.update(delta);
-        
+
     }
 
     private changeWeapon(type: number, label: string) {
@@ -622,7 +609,7 @@ export class MainScene extends Phaser.Scene {
         this.room?.send("changeWeapon", { weapon: type });
     }
 
-    private updateAura(entity: any) {
+    public updateAura(entity: any) {
         if (!entity.glow) return;
         const pot = Math.max(entity.pot || 0, 0);
         const strength = Phaser.Math.Clamp(pot / 250, 0, 8);
@@ -631,7 +618,7 @@ export class MainScene extends Phaser.Scene {
         entity.glow.color = 0xffffff;
     }
 
-    private updateHealthBar(sessionId: string) {
+    public updateHealthBar(sessionId: string) {
         const player = this.playerEntities[sessionId];
         if (!player) return;
 

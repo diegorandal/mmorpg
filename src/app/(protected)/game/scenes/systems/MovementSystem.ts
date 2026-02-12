@@ -1,50 +1,17 @@
 // systems/MovementSystem.ts
 import Phaser from "phaser";
-import { Room } from "@colyseus/sdk";
-import type { MyRoomState } from "@/app/(protected)/home/PlayerState";
-
-interface MovementContext {
-    scene: Phaser.Scene;
-    room: Room<MyRoomState>;
-    playerEntities: { [id: string]: any };
-    cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-    joystickBase?: Phaser.GameObjects.Arc;
-    joystickThumb?: Phaser.GameObjects.Arc;
-    isDragging: boolean;
-    sendRate: number;
-    moveTimer: number;
-    updatePlayerAnimation: (entity: any, dx: number, dy: number) => void;
-    updateHealthBar: (id: string) => void;
-    updateAura: (entity: any) => void;
-}
+import { MainScene } from "../MainScene";
 
 export class MovementSystem {
 
-    private ctx: MovementContext;
-
-    constructor(ctx: MovementContext) {
-        this.ctx = ctx;
-    }
+    constructor(private scene: MainScene) { }
 
     update(delta: number) {
 
-        const {
-            room,
-            playerEntities,
-            cursors,
-            joystickBase,
-            joystickThumb,
-            isDragging,
-            sendRate,
-            updatePlayerAnimation,
-            updateHealthBar,
-            updateAura
-        } = this.ctx;
-
-        if (!room) return;
+        const room = this.scene.room;
 
         const myId = room.sessionId;
-        const myEntity = playerEntities[myId];
+        const myEntity = this.scene.playerEntities[myId];
         if (!myEntity) return;
 
         let dx = 0;
@@ -53,16 +20,16 @@ export class MovementSystem {
         const speed = 4;
 
         // 🎮 INPUT
-        if (isDragging && joystickThumb && joystickBase) {
-            dx = (joystickThumb.x - joystickBase.x) / 50;
-            dy = (joystickThumb.y - joystickBase.y) / 50;
+        if (this.scene.isDragging && this.scene.joystickThumb && this.scene.joystickBase) {
+            dx = (this.scene.joystickThumb.x - this.scene.joystickBase.x) / 50;
+            dy = (this.scene.joystickThumb.y - this.scene.joystickBase.y) / 50;
             moved = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
         } else {
-            if (cursors.left.isDown) dx = -1;
-            else if (cursors.right.isDown) dx = 1;
+            if (this.scene.cursors.left.isDown) dx = -1;
+            else if (this.scene.cursors.right.isDown) dx = 1;
 
-            if (cursors.up.isDown) dy = -1;
-            else if (cursors.down.isDown) dy = 1;
+            if (this.scene.cursors.up.isDown) dy = -1;
+            else if (this.scene.cursors.down.isDown) dy = 1;
 
             moved = dx !== 0 || dy !== 0;
         }
@@ -80,18 +47,18 @@ export class MovementSystem {
         myEntity.sprite.setDepth(myEntity.sprite.y);
         myEntity.label.setDepth(myEntity.sprite.y + 1);
 
-        updatePlayerAnimation(myEntity, dx, dy);
+        this.scene.updatePlayerAnimation(myEntity, dx, dy);
 
         myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 55);
 
-        updateHealthBar(myId);
-        updateAura(myEntity);
+        this.scene.updateHealthBar(myId);
+        this.scene.updateAura(myEntity);
 
         // 📡 ENVÍO AL SERVER
-        this.ctx.moveTimer += delta;
+        this.scene.moveTimer += delta;
 
-        if (this.ctx.moveTimer >= sendRate) {
-            room.send("move", {
+        if (this.scene.moveTimer >= this.scene.SEND_RATE) {
+            this.scene.room.send("move", {
                 x: Math.floor(myEntity.sprite.x),
                 y: Math.floor(myEntity.sprite.y),
                 direction: myEntity.currentDir || 'down',
@@ -99,15 +66,15 @@ export class MovementSystem {
                 looky: myEntity.lookDir.y,
             });
 
-            this.ctx.moveTimer = 0;
+            this.scene.moveTimer = 0;
         }
 
         // 👥 OTROS JUGADORES (Interpolación)
-        for (const id in playerEntities) {
+        for (const id in this.scene.playerEntities) {
 
             if (id === myId) continue;
 
-            const entity = playerEntities[id];
+            const entity = this.scene.playerEntities[id];
 
             const diffX = entity.serverX - entity.sprite.x;
             const diffY = entity.serverY - entity.sprite.y;
@@ -115,7 +82,7 @@ export class MovementSystem {
             const STOP_EPSILON = 1;
             entity.isMoving = Math.abs(diffX) > STOP_EPSILON || Math.abs(diffY) > STOP_EPSILON;
 
-            updatePlayerAnimation(
+            this.scene.updatePlayerAnimation(
                 entity,
                 entity.isMoving ? diffX : 0,
                 entity.isMoving ? diffY : 0,
@@ -133,7 +100,7 @@ export class MovementSystem {
             entity.label.setDepth(entity.sprite.y + 1);
             entity.label.setPosition(entity.sprite.x, entity.sprite.y - 55);
 
-            updateHealthBar(id);
+            this.scene.updateHealthBar(id);
         }
     }
 }
