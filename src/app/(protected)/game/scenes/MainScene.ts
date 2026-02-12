@@ -798,7 +798,7 @@ export class MainScene extends Phaser.Scene {
     private updateAura(entity: any) {
         if (!entity.glow) return;
         const pot = Math.max(entity.pot || 0, 0);
-        const strength = Phaser.Math.Clamp(pot / 100, 0, 8);
+        const strength = Phaser.Math.Clamp(pot / 250, 0, 8);
         entity.glow.outerStrength = strength;
         entity.glow.innerStrength = strength * 0.5;
         entity.glow.color = 0xffffff;
@@ -806,12 +806,10 @@ export class MainScene extends Phaser.Scene {
 
     private updateHealthBar(sessionId: string) {
         const player = this.playerEntities[sessionId];
-
         if (!player) return;
 
-        const { sprite, label, hpBar, hp } = player;
-
-        const fullWidth = label.displayWidth + 4; // pequeño padding lateral
+        const { label, hpBar, hp } = player;
+        const fullWidth = label.displayWidth + 2;
         const hpPercent = Phaser.Math.Clamp(hp / 100, 0, 1);
         const currentWidth = fullWidth * hpPercent;
         const barX = label.x - fullWidth / 2;
