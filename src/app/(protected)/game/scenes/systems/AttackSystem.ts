@@ -1,0 +1,168 @@
+import Phaser from "phaser";
+import { Room } from "@colyseus/sdk";
+import type { MyRoomState } from "@/app/(protected)/home/PlayerState";
+
+interface AttackContext {
+    room: Room<MyRoomState>;
+    playerEntities: any;
+    myCurrentWeaponType: number;
+    attackCooldowns: { [key: string]: number };
+    attackSpeeds: { [key: string]: number };
+    time: Phaser.Time.Clock;
+    playAttackOnce: (entity: any, msg: any) => void;
+}
+
+export function handleAttack(ctx: AttackContext) {
+    const {
+        room,
+        playerEntities,
+        myCurrentWeaponType,
+        attackCooldowns,
+        attackSpeeds,
+        time,
+        playAttackOnce,
+    } = ctx;
+
+     if (!room || !playerEntities[room.sessionId]) return;
+    const myEntity = playerEntities[room.sessionId];
+
+    if (myCurrentWeaponType === 0) return;
+
+    myEntity.attack = 1; // hardcodeamos por ahora
+    myEntity.weapon = myCurrentWeaponType;
+
+    // cooldown local
+    const key = `${myCurrentWeaponType}-${myEntity.attack}`;
+    const now = time.now;
+    if (!attackCooldowns[key]) attackCooldowns[key] = 0;
+    if (now < attackCooldowns[key]) return;
+    const cooldownTime = attackSpeeds[key] || 500; // default 500ms
+    attackCooldowns[key] = now + cooldownTime;
+    
+    const targets: string[] = [];
+    let attackX = 0;
+    let attackY = 0;
+    let distanceOffset = 0;
+    let attackRadius = 0;
+
+    const attack = 1;
+
+    // SWORD ATTACK 1
+    if (myCurrentWeaponType === 1 && myEntity.attack === 1) {
+
+        // Configuración del área de impacto
+        distanceOffset = 32; // Distancia desde el jugador hacia adelante
+        attackRadius = 32;   // Radio del área de impacto
+        // Calculamos el centro del ataque usando el vector lookDir
+        attackX = myEntity.sprite.x + (myEntity.lookDir.x * distanceOffset);
+        attackY = myEntity.sprite.y + (myEntity.lookDir.y * distanceOffset);
+        
+        for (const id in playerEntities) {
+            if (id === room.sessionId) continue;
+            const enemy = playerEntities[id];
+            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+            if (dist <= attackRadius) {targets.push(id);}
+        }
+
+    }
+    
+    // BOW ATTACK 1
+if (    myCurrentWeaponType === 2 && myEntity.attack === 1) {
+        const arrowRange = 300; // Alcance máximo de la flecha
+        const arrowWidth = 20;  // "Grosor" de la trayectoria (margen de acierto)
+
+        let closestTargetId: string | null = null;
+        let minDistance = arrowRange;
+
+        // El origen de la flecha
+        const startX = myEntity.sprite.x;
+        const startY = myEntity.sprite.y;
+
+        for (const id in playerEntities) {
+            if (id === room.sessionId) continue;
+            const enemy = playerEntities[id];
+
+            // 1. Vector desde el jugador hacia el enemigo
+            const dx = enemy.sprite.x - startX;
+            const dy = enemy.sprite.y - startY;
+
+            // 2. Proyectar el enemigo sobre la línea del vector lookDir
+            // (Producto punto para saber qué tan lejos está el enemigo a lo largo de la flecha)
+            const projection = dx * myEntity.lookDir.x + dy * myEntity.lookDir.y;
+
+            // 3. Validar si el enemigo está frente a nosotros y dentro del rango
+            if (projection > 0 && projection <= arrowRange) {
+                // 4. Calcular distancia perpendicular a la línea (qué tan lejos está de la trayectoria)
+                const closestX = startX + myEntity.lookDir.x * projection;
+                const closestY = startY + myEntity.lookDir.y * projection;
+                const distToLine = Phaser.Math.Distance.Between(enemy.sprite.x, enemy.sprite.y, closestX, closestY);
+
+                // 5. Si está dentro del "ancho" de la flecha y es el más cercano
+                if (distToLine <= arrowWidth) {
+                    if (projection < minDistance) {
+                        minDistance = projection;
+                        closestTargetId = id;
+                    }
+                }
+            }
+        }
+
+        if (closestTargetId) {
+            targets.push(closestTargetId);
+            // La posición del impacto para el servidor será la del enemigo golpeado
+            const victim = playerEntities[closestTargetId];
+            attackX = victim.sprite.x;
+            attackY = victim.sprite.y;
+        } else {
+            // Si no hay objetivo, el punto de impacto es el final del rango
+            attackX = startX + myEntity.lookDir.x * arrowRange;
+            attackY = startY + myEntity.lookDir.y * arrowRange;
+        }
+
+    }
+
+    // WAND ATTACK 1
+    if (myCurrentWeaponType === 3 && myEntity.attack === 1) {
+
+        // Configuración del área de impacto
+        distanceOffset = 64; // Distancia desde el jugador hacia adelante
+        attackRadius = 80;   // Radio del área de impacto
+        // Calculamos el centro del ataque usando el vector lookDir
+        attackX = myEntity.sprite.x + (myEntity.lookDir.x * distanceOffset);
+        attackY = myEntity.sprite.y + (myEntity.lookDir.y * distanceOffset);
+
+        for (const id in playerEntities) {
+            if (id === room.sessionId) continue;
+            const enemy = playerEntities[id];
+            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+            if (dist <= attackRadius) { targets.push(id); }
+        }
+
+    }
+
+    // SPELL ATTACK 1
+    if (myCurrentWeaponType === 4 && myEntity.attack === 1) {
+        
+        attackRadius = 100; // Radio amplio alrededor del jugador
+        attackX = myEntity.sprite.x;
+        attackY = myEntity.sprite.y;
+
+        for (const id in playerEntities) {
+            if (id === room.sessionId) continue;
+            const enemy = playerEntities[id];
+            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+            if (dist <= attackRadius) targets.push(id);
+        }
+
+    }
+
+    // ENVÍO AL SERVIDOR
+    room.send("attack", {weaponType: myCurrentWeaponType, attackNumber: attack, position: { x: Math.floor(attackX), y: Math.floor(attackY) }, direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y }, targets: targets });
+
+    playAttackOnce(myEntity, {
+        weaponType: myCurrentWeaponType,
+        attackNumber: attack,
+        position: { x: Math.floor(attackX), y: Math.floor(attackY) }
+    });
+
+}
