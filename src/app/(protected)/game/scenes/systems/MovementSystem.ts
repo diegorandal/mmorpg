@@ -55,7 +55,7 @@ export class MovementSystem {
 
         myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 55);
 
-        this.visualSystem.updateHealthBar(myId);
+        this.visualSystem.updateHealthBar(myEntity);
         this.visualSystem.updateAura(myEntity);
 
         // 📡 ENVÍO AL SERVER
