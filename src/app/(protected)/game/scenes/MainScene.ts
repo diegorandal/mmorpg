@@ -501,7 +501,7 @@ export class MainScene extends Phaser.Scene {
                 attackCooldowns: this.attackCooldowns,
                 attackSpeeds: this.attackSpeeds,
                 time: this.time,
-                playAttackOnce: this.visualSystem.playAttackOnce.bind(this),
+                playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem),
             });
 
             this.attackButton?.setFillStyle(0xff0000, 0.6);
