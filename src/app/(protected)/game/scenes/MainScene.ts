@@ -29,6 +29,14 @@ export class MainScene extends Phaser.Scene {
     private hpText?: Phaser.GameObjects.Text;
     private playersText?: Phaser.GameObjects.Text;
 
+    private attackCooldowns: { [key: string]: number } = {};
+    private attackSpeeds: { [key: string]: number } = {
+        "1-1": 250,
+        "2-1": 250,
+        "3-1": 500,
+        "4-1": 750,
+    };
+
     preload(): void {
 
         //PROGRESO
@@ -356,6 +364,15 @@ export class MainScene extends Phaser.Scene {
 
         myEntity.attack = 1; // hardcodeamos por ahora
         myEntity.weapon = this.myCurrentWeaponType;
+
+        // cooldown local
+        const key = `${this.myCurrentWeaponType}-${myEntity.attack}`;
+        const now = this.time.now;
+        if (!this.attackCooldowns[key]) this.attackCooldowns[key] = 0;
+        if (now < this.attackCooldowns[key]) return;
+        const cooldownTime = this.attackSpeeds[key] || 500; // default 500ms
+        this.attackCooldowns[key] = now + cooldownTime;
+
         
         const targets: string[] = [];
         let attackX = 0;
