@@ -606,9 +606,11 @@ export class MainScene extends Phaser.Scene {
         const label = this.add.text(data.x, data.y - 40, data.name, { fontSize: '14px', color: '#ffffff' }).setOrigin(0.5);
         // barra de HP )
         const hpBar = this.add.graphics();
+        // aura
+        const glow = sprite.postFX.addGlow(0x00aaff, 0, 0, false);
 
         // 4. Guardamos el characterId para saber qué animación llamar después
-        this.playerEntities[sessionId] = { sprite, label, hpBar, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
+        this.playerEntities[sessionId] = { sprite, label, hpBar, glow,  characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
         if (hpBar) this.updateHealthBar(sessionId);
         if (sessionId === this.room.sessionId) this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
         
@@ -622,13 +624,15 @@ export class MainScene extends Phaser.Scene {
         if (data.hp !== undefined && data.hp < entity.hp) {
             const damageTaken = entity.hp - data.hp;
             this.showDamageText(entity.sprite.x, entity.sprite.y, damageTaken);
-
         }
 
         // --- DETECCIÓN DE MUERTE ---
         if (data.hp !== undefined && data.hp <= 0 && entity.hp > 0) {
             this.handleDeath(entity, sessionId);
         }
+        
+        entity.pot = data.pot ?? entity.pot;
+        this.updateAura(entity);
 
         entity.hp = data.hp;
         entity.weapon = data.weapon;
@@ -738,6 +742,8 @@ export class MainScene extends Phaser.Scene {
 
         this.updateHealthBar(myId);
 
+        this.updateAura(myEntity);
+
         // Envío de posición al servidor
         this.moveTimer += delta;
         if (this.moveTimer >= this.SEND_RATE) {
@@ -789,6 +795,23 @@ export class MainScene extends Phaser.Scene {
         }
     }
 
+    private updateAura(entity: any) {
+    
+        if (!entity.glow) return;
+        const pot = Math.max(entity.pot || 0, 0);
+        const normalized = Math.log10(pot + 1) / 4;
+        const t = Phaser.Math.Clamp(normalized, 0, 1);
+        const intensity = t * 7;
+
+        entity.glow.outerStrength = intensity;
+        entity.glow.innerStrength = intensity * 0.4;
+
+        if (pot < 100) {entity.glow.color = 0x00aaff;}
+        else if (pot < 1000) {entity.glow.color = 0xaa00ff;}
+        else if (pot < 5000) {entity.glow.color = 0xff5500;
+        } else {entity.glow.color = 0xffff00;}
+
+    }
 
     private updateHealthBar(sessionId: string) {
         const player = this.playerEntities[sessionId];
