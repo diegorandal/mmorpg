@@ -75,12 +75,13 @@ export class PlayerVisualSystem {
     }
 
     updateHealthBar(entity: any) {
-        const { label, hpBar, hp } = entity;
 
+        if (!entity?.label || !entity?.hpBar) return;
+
+        const { label, hpBar, hp } = entity;
         const fullWidth = label.displayWidth + 2;
         const hpPercent = Phaser.Math.Clamp(hp / 100, 0, 1);
         const currentWidth = fullWidth * hpPercent;
-
         const barX = label.x - fullWidth / 2;
         const barY = label.y - 6;
 
