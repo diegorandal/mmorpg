@@ -798,7 +798,7 @@ export class MainScene extends Phaser.Scene {
     private updateAura(entity: any) {
         if (!entity.glow) return;
         const pot = Math.max(entity.pot || 0, 0);
-        const strength = Phaser.Math.Clamp(pot / 500, 0, 8);
+        const strength = Phaser.Math.Clamp(pot / 100, 0, 8);
         entity.glow.outerStrength = strength;
         entity.glow.innerStrength = strength * 0.5;
         entity.glow.color = 0xffffff;
