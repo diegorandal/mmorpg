@@ -796,21 +796,12 @@ export class MainScene extends Phaser.Scene {
     }
 
     private updateAura(entity: any) {
-    
         if (!entity.glow) return;
         const pot = Math.max(entity.pot || 0, 0);
-        const normalized = Math.log10(pot + 1) / 4;
-        const t = Phaser.Math.Clamp(normalized, 0, 1);
-        const intensity = t * 7;
-
-        entity.glow.outerStrength = intensity;
-        entity.glow.innerStrength = intensity * 0.4;
-
-        if (pot < 100) {entity.glow.color = 0x00aaff;}
-        else if (pot < 1000) {entity.glow.color = 0xaa00ff;}
-        else if (pot < 5000) {entity.glow.color = 0xff5500;
-        } else {entity.glow.color = 0xffff00;}
-
+        const strength = pot / 1500;
+        entity.glow.outerStrength = strength;
+        entity.glow.innerStrength = strength * 0.5;
+        entity.glow.color = 0xffffff;
     }
 
     private updateHealthBar(sessionId: string) {
