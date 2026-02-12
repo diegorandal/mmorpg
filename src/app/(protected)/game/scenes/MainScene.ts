@@ -155,7 +155,10 @@ export class MainScene extends Phaser.Scene {
         // 1. Guardamos la referencia de la sala y configuramos controles
         this.room = roomInstance;
         this.cursors = this.input.keyboard!.createCursorKeys();
-        
+
+        this.visualSystem = new PlayerVisualSystem(this);
+        this.movementSystem = new MovementSystem(this, this.visualSystem);
+
         // 2. Creamos animaciones específicas para cada personaje
         const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
         const actionsConfig = {
@@ -230,9 +233,6 @@ export class MainScene extends Phaser.Scene {
 
         this.setupJoystick();
 
-        this.visualSystem = new PlayerVisualSystem(this);
-        this.movementSystem = new MovementSystem(this, this.visualSystem);
-        
     }
     
     // Nueva función para obtener la dirección según dx y dy
@@ -415,7 +415,7 @@ export class MainScene extends Phaser.Scene {
 
         // 4. Guardamos el characterId para saber qué animación llamar después
         this.playerEntities[sessionId] = { sprite, label, hpBar, glow,  characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
-        if (hpBar) this.visualSystem.updateHealthBar(sessionId);
+        if (hpBar) this.visualSystem.updateHealthBar(this.playerEntities[sessionId]);
         if (sessionId === this.room.sessionId) this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
         
     }
