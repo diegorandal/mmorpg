@@ -2,9 +2,11 @@ import Phaser from 'phaser';
 import { Room } from '@colyseus/sdk';
 import type { MyRoomState } from '@/app/(protected)/home/PlayerState';
 import { handleAttack } from "./systems/AttackSystem";
+import { MovementSystem } from "./systems/MovementSystem";
 
 export class MainScene extends Phaser.Scene {
     private room!: Room<MyRoomState>;
+    private movementSystem!: MovementSystem;
     private playerEntities: { [sessionId: string]: any } = {};
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private collisionLayer?: Phaser.Tilemaps.TilemapLayer;
@@ -220,11 +222,27 @@ export class MainScene extends Phaser.Scene {
         });
 
         // hud 
-        this.potText = this.add.text(this.scale.width / 2, 20, `💰 ${this.room.state.players.get(this.room.sessionId)?.pot || 0}`, { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }, }).setScrollFactor(0).setDepth(10000);
+        this.potText = this.add.text(this.scale.width / 2, 20, `💰 ${this.room.state.players.get(this.room.sessionId)?.pot || 0}`, { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }, }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(10000);
         this.hpText = this.add.text(20, 20, `❤ ${this.room.state.players.get(this.room.sessionId)?.hp || 0}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 },}).setScrollFactor(0).setDepth(10000);
         this.playersText = this.add.text(this.scale.width - 20, 20, `👥 ${this.room.state.players.size}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }}).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
 
         this.setupJoystick();
+
+        this.movementSystem = new MovementSystem({
+            scene: this,
+            room: this.room,
+            playerEntities: this.playerEntities,
+            cursors: this.cursors,
+            joystickBase: this.joystickBase,
+            joystickThumb: this.joystickThumb,
+            isDragging: this.isDragging,
+            sendRate: this.SEND_RATE,
+            moveTimer: this.moveTimer,
+            updatePlayerAnimation: this.updatePlayerAnimation.bind(this),
+            updateHealthBar: this.updateHealthBar.bind(this),
+            updateAura: this.updateAura.bind(this),
+        });
+        
     }
     
     // Nueva función para obtener la dirección según dx y dy
@@ -527,143 +545,81 @@ export class MainScene extends Phaser.Scene {
     }
 
     update(time: number, delta: number): void {
+
         if (!this.room) return;
+
         const myId = this.room.sessionId;
         const myEntity = this.playerEntities[myId];
         if (!myEntity) return;
 
         const myState = this.room.state.players.get(myId);
+
+        // =========================
+        // 🧠 STATE SYNC (Health / Death)
+        // =========================
         if (myState) {
-            if (myState.hp < myEntity.hp) this.showDamageText(myEntity.sprite.x, myEntity.sprite.y, myEntity.hp - myState.hp);
+            if (myState.hp < myEntity.hp) {
+                this.showDamageText(
+                    myEntity.sprite.x,
+                    myEntity.sprite.y,
+                    myEntity.hp - myState.hp
+                );
+            }
+
             if (myState.hp <= 0 && myEntity.hp > 0) {
                 this.handleDeath(myEntity, myId);
             }
+
             myEntity.weapon = myState.weapon;
             myEntity.hp = myState.hp;
         }
 
-        // --- ATAQUE POR TECLADO ---
+        // =========================
+        // ⚔ ATAQUE
+        // =========================
         if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-            handleAttack({ room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.playAttackOnce.bind(this) });
-            this.attackButton?.setFillStyle(0xff0000, 0.6);
-            this.time.delayedCall(100, () => {this.attackButton?.setFillStyle(0xff0000, 0.3);});
-        }
-        if (Phaser.Input.Keyboard.JustDown(this.key1Key)) {
-            this.myCurrentWeaponType = 1;
-            this.weaponLabel?.setText('SWORD');
-            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType});
-        }
-        if (Phaser.Input.Keyboard.JustDown(this.key2Key)) {
-            this.myCurrentWeaponType = 2;
-            this.weaponLabel?.setText('BOW');
-            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType});
-        }
-        if (Phaser.Input.Keyboard.JustDown(this.key3Key)) {
-            this.myCurrentWeaponType = 3;
-            this.weaponLabel?.setText('WAND');
-            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType});
-        }
-        if (Phaser.Input.Keyboard.JustDown(this.key4Key)) {
-            this.myCurrentWeaponType = 4;
-            this.weaponLabel?.setText('SPELL');
-            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType});
-        }
 
-        // Actualizar el valor numérico del HP en la UI
-        if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
-        if (this.potText) this.potText.setText(`💰 ${myState.pot || 0}`);
-
-        // Obtenemos el tipo de ataque directamente del estado del servidor para este frame
-
-        let dx = 0;
-        let dy = 0;
-        let moved = false;
-        const speed = 4;
-
-        // Lógica de entrada (Joystick o Teclado)
-        if (this.isDragging && this.joystickThumb && this.joystickBase) {
-            dx = (this.joystickThumb.x - this.joystickBase.x) / 50;
-            dy = (this.joystickThumb.y - this.joystickBase.y) / 50;
-            moved = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
-        } else {
-            if (this.cursors.left.isDown) dx = -1;
-            else if (this.cursors.right.isDown) dx = 1;
-            if (this.cursors.up.isDown) dy = -1;
-            else if (this.cursors.down.isDown) dy = 1;
-            moved = dx !== 0 || dy !== 0;
-        }
-
-        // 1. LA FÍSICA NO SE DETIENE: El personaje se mueve aunque ataque
-        myEntity.sprite.body.setVelocity(dx * speed * 60, dy * speed * 60);
-
-        if (moved) {
-            // Normalizamos el vector para tener una dirección pura
-            const len = Math.sqrt(dx * dx + dy * dy);
-            myEntity.lookDir.x = dx / len;
-            myEntity.lookDir.y = dy / len;
-        }
-
-        // 2. LA ANIMACIÓN
-        myEntity.sprite.setDepth(myEntity.sprite.y);
-        myEntity.label.setDepth(myEntity.sprite.y + 1);
-
-        this.updatePlayerAnimation(myEntity, dx, dy);
-
-        myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 55);
-
-        this.updateHealthBar(myId);
-
-        this.updateAura(myEntity);
-
-        // Envío de posición al servidor
-        this.moveTimer += delta;
-        if (this.moveTimer >= this.SEND_RATE) {
-            this.room.send("move", {
-                x: Math.floor(myEntity.sprite.x), 
-                y: Math.floor(myEntity.sprite.y),
-                direction: myEntity.currentDir || 'down',
-                lookx: myEntity.lookDir.x,
-                looky: myEntity.lookDir.y,
+            handleAttack({
+                room: this.room,
+                playerEntities: this.playerEntities,
+                myCurrentWeaponType: this.myCurrentWeaponType,
+                attackCooldowns: this.attackCooldowns,
+                attackSpeeds: this.attackSpeeds,
+                time: this.time,
+                playAttackOnce: this.playAttackOnce.bind(this),
             });
-            this.moveTimer = 0;
+
+            this.attackButton?.setFillStyle(0xff0000, 0.6);
+            this.time.delayedCall(100, () => {
+                this.attackButton?.setFillStyle(0xff0000, 0.3);
+            });
         }
+
+        // =========================
+        // 🗡 CAMBIO DE ARMA
+        // =========================
+        if (Phaser.Input.Keyboard.JustDown(this.key1Key)) this.changeWeapon(1, "SWORD");
+        if (Phaser.Input.Keyboard.JustDown(this.key2Key)) this.changeWeapon(2, "BOW");
+        if (Phaser.Input.Keyboard.JustDown(this.key3Key)) this.changeWeapon(3, "WAND");
+        if (Phaser.Input.Keyboard.JustDown(this.key4Key)) this.changeWeapon(4, "SPELL");
+
+        // =========================
+        // 🖥 UI
+        // =========================
+        if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
+        if (this.potText) this.potText.setText(`💰 ${myState?.pot || 0}`);
+
+        // =========================
+        // 🚶 MOVEMENT SYSTEM
+        // =========================
+        this.movementSystem.update(delta);
         
+    }
 
-        // --- OTROS JUGADORES ---
-        for (const id in this.playerEntities) {
-
-            if (id === myId) continue;
-            
-            const entity = this.playerEntities[id];
-            const pData = this.room.state.players.get(id);
-            if (pData) entity.weapon = pData.weapon;
-            const diffX = entity.serverX - entity.sprite.x;
-            const diffY = entity.serverY - entity.sprite.y;
-            const STOP_EPSILON = 1;
-            entity.isMoving = Math.abs(diffX) > STOP_EPSILON || Math.abs(diffY) > STOP_EPSILON;
-
-            // Animación desacoplada de la interpolación
-            this.updatePlayerAnimation(
-                entity,
-                entity.isMoving ? diffX : 0,
-                entity.isMoving ? diffY : 0,
-            );
-
-            if (entity.isMoving) {
-                entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.15);
-                entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.15);
-            } else {
-                entity.sprite.x = entity.serverX;
-                entity.sprite.y = entity.serverY;
-            }
-
-            entity.sprite.setDepth(entity.sprite.y);
-
-            entity.label.setDepth(entity.sprite.y + 1);
-            entity.label.setPosition(entity.sprite.x, entity.sprite.y - 55);
-            this.updateHealthBar(id);
-            
-        }
+    private changeWeapon(type: number, label: string) {
+        this.myCurrentWeaponType = type;
+        this.weaponLabel?.setText(label);
+        this.room?.send("changeWeapon", { weapon: type });
     }
 
     private updateAura(entity: any) {
