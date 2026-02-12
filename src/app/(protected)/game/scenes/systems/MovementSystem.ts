@@ -1,10 +1,14 @@
 // systems/MovementSystem.ts
 import Phaser from "phaser";
 import { MainScene } from "../MainScene";
+import { PlayerVisualSystem } from "./PlayerVisualSystem";
 
 export class MovementSystem {
 
-    constructor(private scene: MainScene) { }
+    constructor(
+        private scene: MainScene,
+        private visualSystem: PlayerVisualSystem
+    ) { }
 
     update(delta: number) {
 
@@ -47,12 +51,12 @@ export class MovementSystem {
         myEntity.sprite.setDepth(myEntity.sprite.y);
         myEntity.label.setDepth(myEntity.sprite.y + 1);
 
-        this.scene.updatePlayerAnimation(myEntity, dx, dy);
+        this.visualSystem.updatePlayerAnimation(myEntity, dx, dy);
 
         myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 55);
 
-        this.scene.updateHealthBar(myId);
-        this.scene.updateAura(myEntity);
+        this.visualSystem.updateHealthBar(myId);
+        this.visualSystem.updateAura(myEntity);
 
         // 📡 ENVÍO AL SERVER
         this.scene.moveTimer += delta;
@@ -82,7 +86,7 @@ export class MovementSystem {
             const STOP_EPSILON = 1;
             entity.isMoving = Math.abs(diffX) > STOP_EPSILON || Math.abs(diffY) > STOP_EPSILON;
 
-            this.scene.updatePlayerAnimation(
+            this.visualSystem.updatePlayerAnimation(
                 entity,
                 entity.isMoving ? diffX : 0,
                 entity.isMoving ? diffY : 0,
@@ -100,7 +104,7 @@ export class MovementSystem {
             entity.label.setDepth(entity.sprite.y + 1);
             entity.label.setPosition(entity.sprite.x, entity.sprite.y - 55);
 
-            this.scene.updateHealthBar(id);
+            this.visualSystem.updateHealthBar(id);
         }
     }
 }

@@ -3,10 +3,12 @@ import { Room } from '@colyseus/sdk';
 import type { MyRoomState } from '@/app/(protected)/home/PlayerState';
 import { handleAttack } from "./systems/AttackSystem";
 import { MovementSystem } from "./systems/MovementSystem";
+import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
 
 export class MainScene extends Phaser.Scene {
     public room!: Room<MyRoomState>;
     private movementSystem!: MovementSystem;
+    private visualSystem!: PlayerVisualSystem;
     public playerEntities: { [sessionId: string]: any } = {};
     public cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private collisionLayer?: Phaser.Tilemaps.TilemapLayer;
@@ -200,7 +202,7 @@ export class MainScene extends Phaser.Scene {
             if (msg.sessionId === this.room.sessionId) return;
             const entity = this.playerEntities[msg.sessionId];
             if (!entity || entity.isDead) return;
-            this.playAttackOnce(entity, msg);
+            this.visualSystem.playAttackOnce(entity, msg);
         });
 
         // 2. Sincronización en Tiempo Real:
@@ -228,7 +230,8 @@ export class MainScene extends Phaser.Scene {
 
         this.setupJoystick();
 
-        this.movementSystem = new MovementSystem(this);
+        this.visualSystem = new PlayerVisualSystem(this);
+        this.movementSystem = new MovementSystem(this, this.visualSystem);
         
     }
     
@@ -251,82 +254,7 @@ export class MainScene extends Phaser.Scene {
         if (angle >= 292.5 && angle < 337.5)  return 'up-right';
         return 'down'; // Por defecto
     }
-
-    private showDamageText(x: number, y: number, amount: number) {
-        const damageLabel = this.add.text(x, y - 20, `-${amount}`, {fontSize: '20px', color: '#ff0000', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4}).setOrigin(0.5).setDepth(3000);
-        this.tweens.add({ targets: damageLabel, y: y - 80, alpha: 0, duration: 800, ease: 'Cubic.out', onComplete: () => {damageLabel.destroy();}});
-    }
-
-    // Nueva función de gestión de animaciones
-    public updatePlayerAnimation(entity: any, dx: number, dy: number) {
-        const id = entity.characterId;
-        const sprite = entity.sprite;
-        
-        if (entity.isDead) return;
-
-        // 1. Prioridad absoluta: Si la animación de ataque sigue activa, no interrumpir
-        if (sprite.anims.currentAnim?.key.includes('attack') && sprite.anims.isPlaying) {
-            return;
-        }
-
-        // 2. Actualizar dirección
-        const newDir = this.getDirectionName(dx, dy);
-        if (newDir) entity.currentDir = newDir;
-        const dir = entity.currentDir || 'down';
-
-        // 3. Arma (Aseguramos que weapon tenga un valor por defecto)
-        const weaponType = entity.weapon || 0;
-        const weaponMap: any = { 0: '', 1: 'sword-', 2: 'bow-', 3: 'wand-', 4: 'spell-' };
-        const weaponPrefix = weaponMap[weaponType] || '';
-        const attackMap: any = {1: 'sword-attack', 2: 'bow-attack', 3: 'wand-attack', 4: 'spell-attack'};
-
-        // 4. Determinar la acción
-        let action = '';
-
-        const isMoving = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
-        action = isMoving ? 'walk' : `${weaponPrefix}idle`;
-
-        // 5. Ejecutar
-        const animKey = `${action}-${dir}-${id}`;
-
-        if (sprite.anims.currentAnim?.key !== animKey) sprite.anims.play(animKey, true);
-
-    }
-
-    private playAttackOnce(entity: any, msg: any) {
-
-        const dir = entity.currentDir || 'down';
-        const weaponMap: any = {1: 'sword-attack', 2: 'bow-attack', 3: 'wand-attack', 4: 'spell-attack'};
-        const animKey = `${weaponMap[msg.weaponType]}-${dir}-${entity.characterId}`;
-        entity.sprite.anims.play(animKey, true);
-
-        // FX aquí (flecha, aura, círculo)
-        if (entity.weapon === 2) { // FX
-            const attackX = entity.sprite.x + entity.lookDir.x * 300;
-            const attackY = entity.sprite.y + entity.lookDir.y * 300;
-            const arrow = this.add.image(entity.sprite.x, entity.sprite.y, 'arrow').setOrigin(0.5, 0.5).setDepth(entity.sprite.depth + 10).setScale(3);
-            arrow.rotation = Phaser.Math.Angle.Between(entity.sprite.x, entity.sprite.y, attackX, attackY);
-            this.tweens.add({ targets: arrow, x: attackX, y: attackY, duration: 250, ease: 'Linear', onComplete: () => arrow.destroy() });
-        }
-
-        if (entity.weapon === 3) { // FX
-            const distanceOffset = 64; // Distancia desde el jugador hacia adelante
-            const attackRadius = 80;   // Radio del área de impacto
-            const attackX = entity.sprite.x + (entity.lookDir.x * distanceOffset);
-            const attackY = entity.sprite.y + (entity.lookDir.y * distanceOffset);
-            const magicCircle = this.add.circle(attackX, attackY, 10, 0x00ffff, 0.5); // Empieza en radio 10
-            this.tweens.add({ targets: magicCircle, radius: attackRadius, alpha: 0, duration: 250, ease: 'Cubic.out', onComplete: () => magicCircle.destroy() });
-        }
-
-        if (entity.weapon === 4) { // FX
-            const attackRadius = 100;   // Radio del área de impacto
-            const attackX = entity.sprite.x;
-            const attackY = entity.sprite.y;
-            const aura = this.add.circle(attackX, attackY, 5, 0xbf40bf, 0.6).setBlendMode(Phaser.BlendModes.ADD);
-            this.tweens.add({ targets: aura, radius: attackRadius, alpha: 0, duration: 500, ease: 'Cubic.out', onComplete: () => aura.destroy() });
-        }
-    }
-
+    
     private handleDeath(entity: any, sessionId: string) {
         if (entity.isDead) return;
 
@@ -386,7 +314,7 @@ export class MainScene extends Phaser.Scene {
         this.attackText = this.add.text(xAttack, y, 'ATK', {fontSize: '20px', color: '#fff'}).setOrigin(0.5).setScrollFactor(0).setDepth(10001);
 
         this.attackButton.on('pointerdown', () => {
-            handleAttack({room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.playAttackOnce.bind(this)});
+            handleAttack({ room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.visualSystem.playAttackOnce.bind(this)});
             this.attackButton?.setFillStyle(0xff0000, 0.6);
         });
         this.attackButton.on('pointerup', () => {
@@ -487,7 +415,7 @@ export class MainScene extends Phaser.Scene {
 
         // 4. Guardamos el characterId para saber qué animación llamar después
         this.playerEntities[sessionId] = { sprite, label, hpBar, glow,  characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
-        if (hpBar) this.updateHealthBar(sessionId);
+        if (hpBar) this.visualSystem.updateHealthBar(sessionId);
         if (sessionId === this.room.sessionId) this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
         
     }
@@ -499,7 +427,7 @@ export class MainScene extends Phaser.Scene {
         // --- DETECCIÓN DE DAÑO ---
         if (data.hp !== undefined && data.hp < entity.hp) {
             const damageTaken = entity.hp - data.hp;
-            this.showDamageText(entity.sprite.x, entity.sprite.y, damageTaken);
+            this.visualSystem.showDamageText(entity.sprite.x, entity.sprite.y, damageTaken);
         }
 
         // --- DETECCIÓN DE MUERTE ---
@@ -508,7 +436,7 @@ export class MainScene extends Phaser.Scene {
         }
         
         entity.pot = data.pot ?? entity.pot;
-        this.updateAura(entity);
+        this.visualSystem.updateAura(entity);
 
         entity.hp = data.hp;
         entity.weapon = data.weapon;
@@ -546,7 +474,7 @@ export class MainScene extends Phaser.Scene {
         // =========================
         if (myState) {
             if (myState.hp < myEntity.hp) {
-                this.showDamageText(
+                this.visualSystem.showDamageText(
                     myEntity.sprite.x,
                     myEntity.sprite.y,
                     myEntity.hp - myState.hp
@@ -573,7 +501,7 @@ export class MainScene extends Phaser.Scene {
                 attackCooldowns: this.attackCooldowns,
                 attackSpeeds: this.attackSpeeds,
                 time: this.time,
-                playAttackOnce: this.playAttackOnce.bind(this),
+                playAttackOnce: this.visualSystem.playAttackOnce.bind(this),
             });
 
             this.attackButton?.setFillStyle(0xff0000, 0.6);
@@ -609,38 +537,6 @@ export class MainScene extends Phaser.Scene {
         this.room?.send("changeWeapon", { weapon: type });
     }
 
-    public updateAura(entity: any) {
-        if (!entity.glow) return;
-        const pot = Math.max(entity.pot || 0, 0);
-        const strength = Phaser.Math.Clamp(pot / 250, 0, 8);
-        entity.glow.outerStrength = strength;
-        entity.glow.innerStrength = strength * 0.5;
-        entity.glow.color = 0xffffff;
-    }
-
-    public updateHealthBar(sessionId: string) {
-        const player = this.playerEntities[sessionId];
-        if (!player) return;
-
-        const { label, hpBar, hp } = player;
-        const fullWidth = label.displayWidth + 2;
-        const hpPercent = Phaser.Math.Clamp(hp / 100, 0, 1);
-        const currentWidth = fullWidth * hpPercent;
-        const barX = label.x - fullWidth / 2;
-        const barY = label.y - 6; 
-
-        hpBar.clear();
-        hpBar.fillStyle(0x888888, 0.2);
-        hpBar.fillRect(barX, barY, fullWidth, label.displayHeight);
-        let color = 0x00ff00;
-        if (hpPercent < 0.3) color = 0xff0000;
-        else if (hpPercent < 0.6) color = 0xffff00;
-        hpBar.fillStyle(color, 0.2);
-        hpBar.fillRect(barX, barY, currentWidth, label.displayHeight);
-        hpBar.setDepth(label.depth - 1);
-
-    }
-   
     private updatePlayerCountUI() {
         const count = this.room.state.players.size;
         this.playersText?.setText(`👥 ${count}`);
