@@ -1,33 +1,53 @@
-## Create a Mini App
+=========================================================
+      RANDAL
+=========================================================
 
-[Mini apps](https://docs.worldcoin.org/mini-apps) enable third-party developers to create native-like applications within World App.
+1. INTRODUCCIÓN
+---------------------------------------------------------
+RANDAL es un ARPG (Action Role-Playing Game) de mapa persistente y extracción masiva donde la habilidad del jugador se traduce directamente en activos digitales. 
+A diferencia de los modelos Play-to-Earn tradicionales, RANDAL utiliza un modelo Skill-to-Earn de suma cero con deflación controlada, asegurando la sostenibilidad 
+a largo plazo.
 
-This template is a way for you to quickly get started with authentication and examples of some of the trickier commands.
+2. EL ECOSISTEMA ECONÓMICO
+---------------------------------------------------------
+El juego utiliza Worldcoin (WLD) como unidad nativa de cuenta, aprovechando su protocolo de Proof of Personhood para garantizar un entorno libre de bots.
 
-## Getting Started
+2.1 El Costo de Entrada (Buy-in)
+Cada incursión al mapa requiere un pago de 0.20 WLD.
+- Protocol Fee (10%): 0.02 WLD (Mantenimiento y Tesorería).
+- Capital Inicial (90%): 0.18 WLD (Equivalente a 100 HP).
 
-1. cp .env.example .env.local
-2. Follow the instructions in the .env.local file
-3. Run `npm run dev`
-4. Run `ngrok http 3000`
-5. Run `npx auth secret` to update the `AUTH_SECRET` in the .env.local file
-6. Add your domain to the `allowedDevOrigins` in the next.config.ts file.
-7. [For Testing] If you're using a proxy like ngrok, you need to update the `AUTH_URL` in the .env.local file to your ngrok url.
-8. Continue to developer.worldcoin.org and make sure your app is connected to the right ngrok url
-9. [Optional] For Verify and Send Transaction to work you need to do some more setup in the dev portal. The steps are outlined in the respective component files.
+2.2 Dinámica de Valor (The Pot)
+- Transferencia de Valor: Al dañar a otro jugador, se extrae la fracción proporcional de WLD de su "Sangre" (HP) y se transfiere al "Pot" del atacante.
+- Aura Visual: El brillo del personaje crece según el tamaño de su Pot, convirtiendo a los jugadores exitosos en objetivos prioritarios (Bounties naturales).
 
-## Authentication
+3. MECÁNICAS DE SUPERVIVENCIA Y EXTRACCIÓN
+---------------------------------------------------------
+3.1 Gestión de Salud (Pociones)
+Los jugadores pueden recuperar HP usando su Pot.
+- Ratio 1:1: Recuperar 10 HP consume el valor equivalente a 10 HP de su Pot acumulado. Es una herramienta de seguro de vida para proteger las ganancias.
 
-This starter kit uses [Minikit's](https://github.com/worldcoin/minikit-js) wallet auth to authenticate users, and [next-auth](https://authjs.dev/getting-started) to manage sessions.
+3.2 Los Portales de Extracción
+Salida exitosa con el 100% de los activos.
+- Naturaleza: Portales instantáneos de ubicación aleatoria.
+- Liquidación: Al salir, el jugador recibe: TOTAL = POT + HP RESTANTE (liquidado a valor nominal).
 
-## UI Library
+3.3 Protocolo de Muerte
+Si el HP llega a 0, se aplica liquidación forzosa:
+- Conservación: El jugador retiene el 80% de su Pot.
+- Fee de Muerte: 15% para el ecosistema.
+- Bono de Verdugo: 5% para quien asestó el golpe final.
 
-This starter kit uses [Mini Apps UI Kit](https://github.com/worldcoin/mini-apps-ui-kit) to style the app. We recommend using the UI kit to make sure you are compliant with [World App's design system](https://docs.world.org/mini-apps/design/app-guidelines).
+4. SEGURIDAD Y FAIR PLAY
+---------------------------------------------------------
+- Anti-Botting: Acceso exclusivo vía World ID.
+- Skill-Based: No existe el Pay-to-Win. Todos los jugadores son iguales en estadísticas (daño/velocidad).
+- Anti-Collusion: Portales móviles.
 
-## Eruda
+5. CONCLUSIÓN
+---------------------------------------------------------
+RANDAL fusiona la adrenalina de los ARPG con una economía transparente.
 
-[Eruda](https://github.com/liriliri/eruda) is a tool that allows you to inspect the console while building as a mini app. You should disable this in production.
-
-## Contributing
-
-This template was made with help from the amazing [supercorp-ai](https://github.com/supercorp-ai) team.
+=========================================================
+(c) 2026 - RANDAL Project
+=========================================================
