@@ -46,6 +46,9 @@ export class PlayerVisualSystem {
     }
 
     playAttackOnce(entity: any, msg: any) {
+        
+        console.log('msg:', msg);
+        
         const dir = entity.currentDir || "down";
         const weaponMap: any = {
             1: "sword-attack",
