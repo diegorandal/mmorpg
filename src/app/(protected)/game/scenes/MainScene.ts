@@ -314,7 +314,7 @@ export class MainScene extends Phaser.Scene {
         this.attackText = this.add.text(xAttack, y, 'ATK', {fontSize: '20px', color: '#fff'}).setOrigin(0.5).setScrollFactor(0).setDepth(10001);
 
         this.attackButton.on('pointerdown', () => {
-            handleAttack({ room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.visualSystem.playAttackOnce.bind(this)});
+            handleAttack({ room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem)});
             this.attackButton?.setFillStyle(0xff0000, 0.6);
         });
         this.attackButton.on('pointerup', () => {
@@ -411,11 +411,10 @@ export class MainScene extends Phaser.Scene {
         // barra de HP )
         const hpBar = this.add.graphics();
         // aura
-        //const glow = sprite.postFX.addGlow(0x00aaff, 0, 0, false);
+        const glow = sprite.postFX.addGlow(0x00aaff, 0, 0, false);
 
         // 4. Guardamos el characterId para saber qué animación llamar después
-//        this.playerEntities[sessionId] = { sprite, label, hpBar, glow,  characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
-        this.playerEntities[sessionId] = { sprite, label, hpBar, characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 } };
+        this.playerEntities[sessionId] = { sprite, label, hpBar, glow,  characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
         if (sessionId === this.room.sessionId) this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
         
     }
