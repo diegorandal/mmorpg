@@ -339,21 +339,22 @@ export class MainScene extends Phaser.Scene {
 
         const ax = this.attackButton.x;
         const ay = this.attackButton.y;
-        const r = 80; // distancia desde boton ataque
+        const r = 70; // distancia desde boton ataque
+        const wsize = 30; // tamaño del botón
 
-        this.weapon0 = this.add.circle(ax + r, ay - r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
-        this.weapon1 = this.add.circle(ax + (r * 1.2), ay, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
-        this.weapon2 = this.add.circle(ax + r, ay + r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
-        this.weapon3 = this.add.circle(ax, ay + (r * 1.2), 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
-        this.weapon4 = this.add.circle(ax - r, ay + r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
-        this.potion = this.add.circle(30, this.weapon4.y, 20, 0xff0000, 0.3).setScrollFactor(0).setInteractive();
+        this.weapon0 = this.add.circle(ax + r, ay - r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
+        this.weapon1 = this.add.circle(ax + (r * 1.25), ay, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
+        this.weapon2 = this.add.circle(ax + r, ay + r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
+        this.weapon3 = this.add.circle(ax, ay + (r * 1.25), wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
+        this.weapon4 = this.add.circle(ax - r, ay + r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
+        this.potion = this.add.circle(35, this.weapon4.y, wsize, 0xff0000, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
 
-        this.weapon0Text = this.add.text(this.weapon0.x, this.weapon0.y, '🏃‍♂️', { fontSize: '12px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon1Text = this.add.text(this.weapon1.x, this.weapon1.y, '🗡', { fontSize: '12px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon2Text = this.add.text(this.weapon2.x, this.weapon2.y, '🏹', { fontSize: '12px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon3Text = this.add.text(this.weapon3.x, this.weapon3.y, '🧙‍♂️', { fontSize: '12px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon4Text = this.add.text(this.weapon4.x, this.weapon4.y, '🗣', { fontSize: '12px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.potionText = this.add.text(this.potion.x, this.potion.y, '♥', { fontSize: '12px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon0Text = this.add.text(this.weapon0.x, this.weapon0.y, '🏃‍♂️', { fontSize: '16px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon1Text = this.add.text(this.weapon1.x, this.weapon1.y, '🗡', { fontSize: '16px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon2Text = this.add.text(this.weapon2.x, this.weapon2.y, '🏹', { fontSize: '16px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon3Text = this.add.text(this.weapon3.x, this.weapon3.y, '🧙‍♂️', { fontSize: '16px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon4Text = this.add.text(this.weapon4.x, this.weapon4.y, '🗣', { fontSize: '16px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.potionText = this.add.text(this.potion.x, this.potion.y, '♥', { fontSize: '16px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
 
 
         this.weapon0.on('pointerdown', () => this.selectWeapon(0));
