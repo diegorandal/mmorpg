@@ -174,8 +174,8 @@ export class MainScene extends Phaser.Scene {
         // 1. Guardamos la referencia de la sala y configuramos controles
         this.room = roomInstance;
         this.cursors = this.input.keyboard!.createCursorKeys();
-        this.input.addPointer(2);
-        
+        this.input.addPointer(3);
+
         this.visualSystem = new PlayerVisualSystem(this);
         this.movementSystem = new MovementSystem(this, this.visualSystem);
 
@@ -324,7 +324,7 @@ export class MainScene extends Phaser.Scene {
         this.key3Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
         this.key4Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
         this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.2).setScrollFactor(0).setDepth(10000);
-        this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(10001);
+        this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(10001).setInteractive();
         
         // --- BOTÓN DE ATAQUE ---
         this.attackButton = this.add.circle(xAttack, y, 50, 0xff0000, 0.3)
@@ -395,6 +395,7 @@ export class MainScene extends Phaser.Scene {
         // --- LÓGICA PARA JOYSTICK ---
 
         this.input.setDraggable(this.joystickThumb);
+
         
         this.joystickThumb.on('dragstart', (pointer: Phaser.Input.Pointer) => {
             this.joystickPointerId = pointer.id;
