@@ -23,19 +23,43 @@ export class MovementSystem {
         let moved = false;
         const speed = 4;
 
-        // 🎮 INPUT
-        if (this.scene.joystickPointerId !== null && this.scene.joystickThumb && this.scene.joystickBase){
-            dx = (this.scene.joystickThumb.x - this.scene.joystickBase.x) / 50;
-            dy = (this.scene.joystickThumb.y - this.scene.joystickBase.y) / 50;
-            moved = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
-        } else {
-            if (this.scene.cursors.left.isDown) dx = -1;
-            else if (this.scene.cursors.right.isDown) dx = 1;
+        if (
+            this.scene.joystickPointerId !== null &&
+            this.scene.joystickThumb &&
+            this.scene.joystickBase
+        ) {
+            // Obtener desplazamiento real
+            const rawDx = this.scene.joystickThumb.x - this.scene.joystickBase.x;
+            const rawDy = this.scene.joystickThumb.y - this.scene.joystickBase.y;
 
-            if (this.scene.cursors.up.isDown) dy = -1;
-            else if (this.scene.cursors.down.isDown) dy = 1;
+            // Convertir a rango -1 a 1
+            dx = rawDx / 50;
+            dy = rawDy / 50;
+
+            // Deadzone
+            const deadzone = 0.1;
+            if (Math.abs(dx) < deadzone) dx = 0;
+            if (Math.abs(dy) < deadzone) dy = 0;
 
             moved = dx !== 0 || dy !== 0;
+
+        } else {
+            // Teclado
+            if (this.scene.cursors.left.isDown) dx -= 1;
+            if (this.scene.cursors.right.isDown) dx += 1;
+            if (this.scene.cursors.up.isDown) dy -= 1;
+            if (this.scene.cursors.down.isDown) dy += 1;
+
+            moved = dx !== 0 || dy !== 0;
+        }
+
+        // 🔥 Normalizar para evitar que diagonal sea más rápido
+        if (moved) {
+            const length = Math.hypot(dx, dy);
+            if (length > 0) {
+                dx /= length;
+                dy /= length;
+            }
         }
 
         // 🧱 FÍSICA

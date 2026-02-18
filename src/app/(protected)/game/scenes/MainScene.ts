@@ -325,7 +325,7 @@ export class MainScene extends Phaser.Scene {
         this.key3Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
         this.key4Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
         this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.2).setScrollFactor(0).setDepth(10000);
-        this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(10001).setInteractive();
+        this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(10001);
         
         // --- BOTÓN DE ATAQUE ---
         this.attackButton = this.add.circle(xAttack, y, 50, 0xff0000, 0.3)
@@ -394,35 +394,39 @@ export class MainScene extends Phaser.Scene {
         this.weapon4.on('pointerdown', () => this.selectWeapon(4));
         
         // --- LÓGICA PARA JOYSTICK ---
+        this.joystickBase.setInteractive();
+        this.joystickThumb.setInteractive();     
 
-        this.input.setDraggable(this.joystickThumb);
+        this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 
-        
-        this.joystickThumb.on('dragstart', (pointer: Phaser.Input.Pointer) => {
-            this.isJoystickDragging = true;
-            this.joystickPointerId = pointer.id;
+            if (pointer.x > window.innerWidth / 2) return;
+
+            const dist = Phaser.Math.Distance.Between(pointer.x, pointer.y, x, y);
+
+            if (dist <= 60) {
+                this.joystickPointerId = pointer.id;
+            }
         });
-
-        this.joystickThumb.on('drag', (pointer, dragX, dragY) => {
+        
+        this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
 
             if (pointer.id !== this.joystickPointerId) return;
 
-            const angle = Phaser.Math.Angle.Between(x, y, dragX, dragY);
-            const dist = Math.min(
-                Phaser.Math.Distance.Between(x, y, dragX, dragY),
-                50
-            );
+            const dx = pointer.x - x;
+            const dy = pointer.y - y;
 
-            this.joystickThumb.x = x + Math.cos(angle) * dist;
-            this.joystickThumb.y = y + Math.sin(angle) * dist;
+            const distance = Math.min(Math.hypot(dx, dy), 50);
+            const angle = Math.atan2(dy, dx);
+
+            this.joystickThumb.x = x + Math.cos(angle) * distance;
+            this.joystickThumb.y = y + Math.sin(angle) * distance;
         });
 
-        this.joystickThumb.on('dragend', (pointer: Phaser.Input.Pointer) => {
+        this.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
 
             if (pointer.id !== this.joystickPointerId) return;
 
             this.joystickPointerId = null;
-            this.isJoystickDragging = false;
 
             this.joystickThumb.x = x;
             this.joystickThumb.y = y;
