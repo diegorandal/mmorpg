@@ -299,6 +299,7 @@ export class MainScene extends Phaser.Scene {
         this.weapon3Text?.setVisible(false);
         this.weapon4Text?.setVisible(false);
         this.potionText?.setVisible(false);
+        this.weaponSelectorRing?.setVisible(false);
     }
 
     private setupJoystick() {
@@ -382,10 +383,7 @@ export class MainScene extends Phaser.Scene {
         this.weapon3.on('pointerdown', () => this.selectWeapon(3));
         this.weapon4.on('pointerdown', () => this.selectWeapon(4));
         
-        this.weaponSelectorRing = this.add.circle(-100, -100, 45)
-            .setStrokeStyle(4, 0xffff00)
-            .setScrollFactor(0)
-            .setDepth(10001);
+        this.weaponSelectorRing = this.add.circle(-100, -100, 45).setStrokeStyle(4, 0xffff00).setScrollFactor(0).setDepth(10001);
 
         // --- LÓGICA PARA JOYSTICK ---
         this.joystickBase.setInteractive();
@@ -429,29 +427,12 @@ export class MainScene extends Phaser.Scene {
     }
 
     private selectWeapon(type: number) {
-        const buttons = [
-            this.weapon0,
-            this.weapon1,
-            this.weapon2,
-            this.weapon3,
-            this.weapon4
-        ];
-
+        const buttons = [this.weapon0, this.weapon1, this.weapon2, this.weapon3, this.weapon4];
         const active = buttons[type];
-
         this.myCurrentWeaponType = type;
-
         this.weaponSelectorRing.setPosition(active.x, active.y);
-        
-        this.tweens.add({
-            targets: this.weaponSelectorRing,
-            scale: { from: 0.8, to: 1.2 },
-            duration: 100,
-            yoyo: true
-        });
-
+        this.tweens.add({targets: this.weaponSelectorRing, scale: { from: 0.8, to: 1.05 }, duration: 50, yoyo: true});
         this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
-
     }
 
     private addPlayer(data: any, sessionId: string) {
