@@ -27,6 +27,13 @@ export class MainScene extends Phaser.Scene {
     public isDragging: boolean = false;
     public moveTimer: number = 0;
     private attackButton?: Phaser.GameObjects.Arc;
+    private weapon0?: Phaser.GameObjects.Arc;
+    private weapon1?: Phaser.GameObjects.Arc;
+    private weapon2?: Phaser.GameObjects.Arc;
+    private weapon3?: Phaser.GameObjects.Arc;
+    private weapon4?: Phaser.GameObjects.Arc;
+    private potion?: Phaser.GameObjects.Arc;
+
     //private isAttacking: boolean = false;
     private myCurrentWeaponType: number = 0;
     public readonly SEND_RATE = 100;
@@ -321,6 +328,18 @@ export class MainScene extends Phaser.Scene {
             this.attackButton?.setFillStyle(0xff0000, 0.3);
         });
 
+        // --- Botones seleccion weapon ---
+
+        const ax = this.attackButton.x;
+        const ay = this.attackButton.y;
+        const r = 60; // distancia desde ataque
+
+        this.weapon0 = this.add.circle(ax + r, ay - r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
+        this.weapon1 = this.add.circle(ax + r, ay, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
+        this.weapon2 = this.add.circle(ax + r, ay + r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
+        this.weapon3 = this.add.circle(ax, ay + r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
+        this.weapon4 = this.add.circle(ax - r, ay + r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
+        this.potion = this.add.circle(10, this.weapon4.y, 20, 0xff0000, 0.3).setScrollFactor(0).setInteractive();
 
         // --- BOTÓN DE CAMBIO DE ARMA ---
         const xWeapon = window.innerWidth - 70; // Un poco más a la derecha que el de ataque
