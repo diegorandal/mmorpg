@@ -475,6 +475,7 @@ export class MainScene extends Phaser.Scene {
         if (data.hp !== undefined && data.hp < entity.hp) {
             const damageTaken = entity.hp - data.hp;
             this.visualSystem.showDamageText(entity.sprite.x, entity.sprite.y, damageTaken);
+            this.visualSystem.updateHealthBar(entity);
         }
 
         // --- DETECCIÓN DE MUERTE ---
@@ -603,7 +604,7 @@ export class MainScene extends Phaser.Scene {
             0.6
         )
             .setScrollFactor(0)
-            .setDepth(9998);
+            .setDepth(10009);
 
         this.deathButton = this.add.text(
             width / 2,
