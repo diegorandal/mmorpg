@@ -349,12 +349,12 @@ export class MainScene extends Phaser.Scene {
         this.weapon4 = this.add.circle(ax - r, ay + r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
         this.potion = this.add.circle(35, this.weapon4.y, wsize, 0xff0000, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
 
-        this.weapon0Text = this.add.text(this.weapon0.x, this.weapon0.y, '🏃‍♂️', { fontSize: '16px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon1Text = this.add.text(this.weapon1.x, this.weapon1.y, '🗡', { fontSize: '16px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon2Text = this.add.text(this.weapon2.x, this.weapon2.y, '🏹', { fontSize: '16px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon3Text = this.add.text(this.weapon3.x, this.weapon3.y, '🧙‍♂️', { fontSize: '16px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon4Text = this.add.text(this.weapon4.x, this.weapon4.y, '🗣', { fontSize: '16px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.potionText = this.add.text(this.potion.x, this.potion.y, '♥', { fontSize: '16px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon0Text = this.add.text(this.weapon0.x, this.weapon0.y, '🏃‍♂️', { fontSize: '24px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon1Text = this.add.text(this.weapon1.x, this.weapon1.y, '🗡', { fontSize: '24px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon2Text = this.add.text(this.weapon2.x, this.weapon2.y, '🏹', { fontSize: '24px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon3Text = this.add.text(this.weapon3.x, this.weapon3.y, '🧙‍♂️', { fontSize: '24px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon4Text = this.add.text(this.weapon4.x, this.weapon4.y, '🗣', { fontSize: '24px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.potionText = this.add.text(this.potion.x, this.potion.y, '♥', { fontSize: '24px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
 
 
         this.weapon0.on('pointerdown', () => this.selectWeapon(0));
