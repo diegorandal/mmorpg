@@ -41,8 +41,7 @@ export class MainScene extends Phaser.Scene {
     private potionText?: Phaser.GameObjects.Text;
     private attackDragStartX = 0;
     private attackDragStartY = 0;
-    private attackIsDragging = false;
-    private attackDragSelect = 0;
+    private attackDragSelect = 1;
     public joystickPointerId: number | null = null;
     private attackPointerId: number | null = null;
     public isJoystickDragging = false;
@@ -503,6 +502,8 @@ export class MainScene extends Phaser.Scene {
         if (entity) {
             entity.sprite.destroy();
             entity.label.destroy();
+            entity.hpBar.destroy();
+            entity.glow.destroy();
             delete this.playerEntities[sessionId];
         }
     }
@@ -562,10 +563,10 @@ export class MainScene extends Phaser.Scene {
         // =========================
         // 🗡 CAMBIO DE ARMA
         // =========================
-        if (Phaser.Input.Keyboard.JustDown(this.key1Key)) this.changeWeapon(1, "SWORD");
-        if (Phaser.Input.Keyboard.JustDown(this.key2Key)) this.changeWeapon(2, "BOW");
-        if (Phaser.Input.Keyboard.JustDown(this.key3Key)) this.changeWeapon(3, "WAND");
-        if (Phaser.Input.Keyboard.JustDown(this.key4Key)) this.changeWeapon(4, "SPELL");
+        if (Phaser.Input.Keyboard.JustDown(this.key1Key)) this.selectWeapon(1);
+        if (Phaser.Input.Keyboard.JustDown(this.key2Key)) this.selectWeapon(2);
+        if (Phaser.Input.Keyboard.JustDown(this.key3Key)) this.selectWeapon(3);
+        if (Phaser.Input.Keyboard.JustDown(this.key4Key)) this.selectWeapon(4);
 
         // =========================
         // 🖥 UI
