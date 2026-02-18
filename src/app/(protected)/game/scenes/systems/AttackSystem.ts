@@ -32,6 +32,7 @@ export function handleAttack(ctx: AttackContext) {
     if (myCurrentWeaponType === 0) return;
 
     myEntity.weapon = myCurrentWeaponType;
+    myEntity.attack = attackNumber;
 
     // cooldown local
     const key = `${myCurrentWeaponType}-${myEntity.attack}`;
