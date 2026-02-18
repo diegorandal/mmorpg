@@ -61,9 +61,10 @@ export class PlayerVisualSystem {
         entity.sprite.anims.play(animKey, true);
 
         // FX
-        if (msg.weaponType === 2) this.playArrowFX(entity);
-        if (msg.weaponType === 3) this.playWandFX(entity);
-        if (msg.weaponType === 4) this.playSpellFX(entity);
+        if (msg.weaponType === 2 && msg.attackNumber === 1) this.playArrowFX(entity);
+        if (msg.weaponType === 3 && msg.attackNumber === 1) this.playWandFX(entity);
+        if (msg.weaponType === 4 && msg.attackNumber === 1) this.playSpellFX(entity);
+        
     }
 
     updateAura(entity: any) {

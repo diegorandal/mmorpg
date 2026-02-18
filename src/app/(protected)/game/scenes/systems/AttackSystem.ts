@@ -13,15 +13,7 @@ interface AttackContext {
 }
 
 export function handleAttack(ctx: AttackContext) {
-    const {
-        room,
-        playerEntities,
-        myCurrentWeaponType,
-        attackCooldowns,
-        attackSpeeds,
-        time,
-        playAttackOnce,
-    } = ctx;
+    const {room, playerEntities, myCurrentWeaponType, attackCooldowns, attackSpeeds, time, playAttackOnce} = ctx;
 
      if (!room || !playerEntities[room.sessionId]) return;
     const myEntity = playerEntities[room.sessionId];
@@ -67,7 +59,7 @@ export function handleAttack(ctx: AttackContext) {
     }
     
     // BOW ATTACK 1
-if (    myCurrentWeaponType === 2 && myEntity.attack === 1) {
+    if (myCurrentWeaponType === 2 && myEntity.attack === 1) {
         const arrowRange = 300; // Alcance máximo de la flecha
         const arrowWidth = 20;  // "Grosor" de la trayectoria (margen de acierto)
 
