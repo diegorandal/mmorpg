@@ -46,6 +46,7 @@ export class MainScene extends Phaser.Scene {
     public joystickPointerId: number | null = null;
     private attackPointerId: number | null = null;
     public isJoystickDragging = false;
+    private weaponSelectorRing?: Phaser.GameObjects.Arc;
 
     //private isAttacking: boolean = false;
     private myCurrentWeaponType: number = 0;
@@ -256,26 +257,6 @@ export class MainScene extends Phaser.Scene {
 
     }
     
-    // Nueva función para obtener la dirección según dx y dy
-    private getDirectionName(dx: number, dy: number): string {
-        if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) return '';
-        // Calculamos el ángulo en radianes y lo pasamos a grados (0 a 360)
-        let angle = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(0, 0, dx, dy));
-        if (angle < 0) angle += 360;
-        // Dividimos el círculo en 8 sectores de 45 grados cada uno.
-        // Desplazamos 22.5 grados para que las direcciones principales 
-        // (Arriba, Abajo, etc.) queden en el centro de su porción.
-        if (angle >= 337.5 || angle < 22.5)   return 'right';
-        if (angle >= 22.5  && angle < 67.5)   return 'down-right';
-        if (angle >= 67.5  && angle < 112.5)  return 'down';
-        if (angle >= 112.5 && angle < 157.5)  return 'down-left';
-        if (angle >= 157.5 && angle < 202.5)  return 'left';
-        if (angle >= 202.5 && angle < 247.5)  return 'up-left';
-        if (angle >= 247.5 && angle < 292.5)  return 'up';
-        if (angle >= 292.5 && angle < 337.5)  return 'up-right';
-        return 'down'; // Por defecto
-    }
-    
     private handleDeath(entity: any, sessionId: string) {
         if (entity.isDead) return;
 
@@ -306,11 +287,19 @@ export class MainScene extends Phaser.Scene {
         this.weaponButton?.setVisible(false);
         this.weaponLabel?.setVisible(false);
         this.input.keyboard?.removeAllKeys(true);
-
-
+        this.weapon0?.setVisible(false);
+        this.weapon1?.setVisible(false);
+        this.weapon2?.setVisible(false);
+        this.weapon3?.setVisible(false);
+        this.weapon4?.setVisible(false);
+        this.potion?.setVisible(false);
+        this.weapon0Text?.setVisible(false);
+        this.weapon1Text?.setVisible(false);
+        this.weapon2Text?.setVisible(false);
+        this.weapon3Text?.setVisible(false);
+        this.weapon4Text?.setVisible(false);
+        this.potionText?.setVisible(false);
     }
-
-    private joystickPointer: Phaser.Input.Pointer | null = null; // Añade esta propiedad a tu clase
 
     private setupJoystick() {
 
@@ -393,6 +382,11 @@ export class MainScene extends Phaser.Scene {
         this.weapon3.on('pointerdown', () => this.selectWeapon(3));
         this.weapon4.on('pointerdown', () => this.selectWeapon(4));
         
+        this.weaponSelectorRing = this.add.circle(-100, -100, 45)
+            .setStrokeStyle(4, 0xffff00)
+            .setScrollFactor(0)
+            .setDepth(10001);
+
         // --- LÓGICA PARA JOYSTICK ---
         this.joystickBase.setInteractive();
         this.joystickThumb.setInteractive();     
@@ -435,14 +429,28 @@ export class MainScene extends Phaser.Scene {
     }
 
     private selectWeapon(type: number) {
+        const buttons = [
+            this.weapon0,
+            this.weapon1,
+            this.weapon2,
+            this.weapon3,
+            this.weapon4
+        ];
 
-            this.myCurrentWeaponType = type;
+        const active = buttons[type];
 
-            // 2. Destacar activo
+        this.myCurrentWeaponType = type;
 
-            // TO DO
+        this.weaponSelectorRing.setPosition(active.x, active.y);
+        
+        this.tweens.add({
+            targets: this.weaponSelectorRing,
+            scale: { from: 0.8, to: 1.2 },
+            duration: 100,
+            yoyo: true
+        });
 
-            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
+        this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
 
     }
 
