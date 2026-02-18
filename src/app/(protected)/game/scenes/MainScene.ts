@@ -34,6 +34,13 @@ export class MainScene extends Phaser.Scene {
     private weapon4?: Phaser.GameObjects.Arc;
     private potion?: Phaser.GameObjects.Arc;
 
+    private weapon0Text?: Phaser.GameObjects.Text;
+    private weapon1Text?: Phaser.GameObjects.Text;
+    private weapon2Text?: Phaser.GameObjects.Text;
+    private weapon3Text?: Phaser.GameObjects.Text;
+    private weapon4Text?: Phaser.GameObjects.Text;
+    private potionText?: Phaser.GameObjects.Text;
+
     //private isAttacking: boolean = false;
     private myCurrentWeaponType: number = 0;
     public readonly SEND_RATE = 100;
@@ -328,47 +335,33 @@ export class MainScene extends Phaser.Scene {
             this.attackButton?.setFillStyle(0xff0000, 0.3);
         });
 
-        // --- Botones seleccion weapon ---
+        // --- Botones seleccion weapon y pocion ---
 
         const ax = this.attackButton.x;
         const ay = this.attackButton.y;
-        const r = 80; // distancia desde ataque
+        const r = 80; // distancia desde boton ataque
 
         this.weapon0 = this.add.circle(ax + r, ay - r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
-        this.weapon1 = this.add.circle(ax + r + (r * 0.2), ay, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
+        this.weapon1 = this.add.circle(ax + (r * 1.2), ay, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
         this.weapon2 = this.add.circle(ax + r, ay + r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
-        this.weapon3 = this.add.circle(ax + (r * 0.2), ay + r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
+        this.weapon3 = this.add.circle(ax, ay + (r * 1.2), 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
         this.weapon4 = this.add.circle(ax - r, ay + r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
         this.potion = this.add.circle(30, this.weapon4.y, 20, 0xff0000, 0.3).setScrollFactor(0).setInteractive();
 
-        // --- BOTÓN DE CAMBIO DE ARMA ---
-        const xWeapon = window.innerWidth - 70; // Un poco más a la derecha que el de ataque
-        const yWeapon = window.innerHeight - 220; // Por encima del botón de ataque
+        this.weapon0Text = this.add.text(this.weapon0.x, this.weapon0.y, '🏃‍♂️', { fontSize: '12px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon1Text = this.add.text(this.weapon1.x, this.weapon1.y, '🗡', { fontSize: '12px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon2Text = this.add.text(this.weapon2.x, this.weapon2.y, '🏹', { fontSize: '12px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon3Text = this.add.text(this.weapon3.x, this.weapon3.y, '🧙‍♂️', { fontSize: '12px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon4Text = this.add.text(this.weapon4.x, this.weapon4.y, '🗣', { fontSize: '12px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.potionText = this.add.text(this.potion.x, this.potion.y, '♥', { fontSize: '12px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
 
-        this.weaponButton = this.add.circle(xWeapon, yWeapon, 35, 0x00ff00, 0.3).setScrollFactor(0).setDepth(10000).setInteractive();
 
-        this.weaponLabel = this.add.text(xWeapon, yWeapon, 'NONE', {fontSize: '16px', color: '#fff', fontStyle: 'bold'}).setOrigin(0.5).setScrollFactor(0).setDepth(10001);
-
-        this.weaponButton.on('pointerdown', () => {
-            // 1. Ciclar el valor localmente (0 -> 1 -> 2 -> 3 -> 4 -> 0)
-            this.myCurrentWeaponType = (this.myCurrentWeaponType + 1) % 5;
-
-            // 2. Actualizar el texto del botón
-            const names = ['NONE', 'SWORD', 'BOW', 'WAND', 'SPELL'];
-            this.weaponLabel.setText(names[this.myCurrentWeaponType]);
-            
-            // 3. ENVIAR AL SERVIDOR para que todos vean el cambio
-            // Asegúrate de tener un mensaje "changeWeapon" en tu servidor
-            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
-
-            // Feedback visual al tocar
-            this.weaponButton.setFillStyle(0x00ff00, 0.6);
-        });
-
-        this.weaponButton.on('pointerup', () => {
-            this.weaponButton.setFillStyle(0x00ff00, 0.3);
-        });
-
+        this.weapon0.on('pointerdown', () => this.selectWeapon(0));
+        this.weapon1.on('pointerdown', () => this.selectWeapon(1));
+        this.weapon2.on('pointerdown', () => this.selectWeapon(2));
+        this.weapon3.on('pointerdown', () => this.selectWeapon(3));
+        this.weapon4.on('pointerdown', () => this.selectWeapon(4));
+        
         // --- LÓGICA DE MULTITOUCH PARA JOYSTICK ---
         this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
             // Si el toque es en la derecha, ignoramos (es para el botón de ataque)
@@ -404,6 +397,18 @@ export class MainScene extends Phaser.Scene {
                 }
             }
         });
+    }
+
+    private selectWeapon(type: number) {
+
+            this.myCurrentWeaponType = type;
+
+            // 2. Destacar activo
+
+            // TO DO
+
+            this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
+
     }
 
     private addPlayer(data: any, sessionId: string) {
