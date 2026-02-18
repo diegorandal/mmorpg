@@ -43,8 +43,9 @@ export class MainScene extends Phaser.Scene {
     private attackDragStartY = 0;
     private attackIsDragging = false;
     private attackDragSelect = 0;
-    private joystickPointerId: number | null = null;
+    public joystickPointerId: number | null = null;
     private attackPointerId: number | null = null;
+    public isJoystickDragging = false;
 
     //private isAttacking: boolean = false;
     private myCurrentWeaponType: number = 0;
@@ -398,6 +399,7 @@ export class MainScene extends Phaser.Scene {
 
         
         this.joystickThumb.on('dragstart', (pointer: Phaser.Input.Pointer) => {
+            this.isJoystickDragging = true;
             this.joystickPointerId = pointer.id;
         });
 
@@ -420,6 +422,7 @@ export class MainScene extends Phaser.Scene {
             if (pointer.id !== this.joystickPointerId) return;
 
             this.joystickPointerId = null;
+            this.isJoystickDragging = false;
 
             this.joystickThumb.x = x;
             this.joystickThumb.y = y;

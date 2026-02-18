@@ -24,7 +24,7 @@ export class MovementSystem {
         const speed = 4;
 
         // 🎮 INPUT
-        if (this.scene.isDragging && this.scene.joystickThumb && this.scene.joystickBase) {
+        if (this.scene.joystickPointerId !== null && this.scene.joystickThumb && this.scene.joystickBase){
             dx = (this.scene.joystickThumb.x - this.scene.joystickBase.x) / 50;
             dy = (this.scene.joystickThumb.y - this.scene.joystickBase.y) / 50;
             moved = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
