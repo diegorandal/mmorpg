@@ -383,7 +383,7 @@ export class MainScene extends Phaser.Scene {
         this.weapon3.on('pointerdown', () => this.selectWeapon(3));
         this.weapon4.on('pointerdown', () => this.selectWeapon(4));
         
-        this.weaponSelectorRing = this.add.circle(-100, -100, 45).setStrokeStyle(4, 0xffff00).setScrollFactor(0).setDepth(10001);
+        this.weaponSelectorRing = this.add.circle(-100, -100, wsize + 5).setStrokeStyle(4, 0xffff00, 0.4).setScrollFactor(0).setDepth(10001);
 
         // --- LÓGICA PARA JOYSTICK ---
         this.joystickBase.setInteractive();
