@@ -10,6 +10,7 @@ export default function Home() {
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const [room, setRoom] = useState<Colyseus.Room | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState(1);
+  const [usersOnline, setUsersOnline] = useState<number | null>(null);
   const [error, setError] = useState('');
   const { data: session } = useSession();
   const [playerName, setPlayerName] = useState('');
@@ -23,6 +24,25 @@ export default function Home() {
       setPlayerName(prev => prev || 'player' + Math.floor(Math.random() * 99999));
     }
   }, [session]);
+
+  useEffect(() => {
+    const fetchUsersOnline = async () => {
+      try {
+        const res = await fetch("https://randal.onepixperday.xyz/api/usersonline");
+        const data = await res.json();
+        setUsersOnline(data.totalClients);
+      } catch (err) {
+        console.error("Error fetching users online:", err);
+      }
+    };
+
+    fetchUsersOnline();
+
+    // 👇 opcional: actualizar cada 10 segundos
+    const interval = setInterval(fetchUsersOnline, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleConnection = async () => {
     try {
@@ -85,6 +105,11 @@ export default function Home() {
         <h2 style={{ fontSize: '1rem', marginBottom: '0.5rem', textAlign: 'center' }}>
           ¡Bienvenido, {playerName}!
         </h2>
+        <p style={{fontSize: '0.8rem', opacity: 0.7, marginBottom: '1rem'}}>
+          {usersOnline !== null
+            ? `${usersOnline} jugador${usersOnline === 1 ? '' : 'es'} online`
+            : 'Cargando jugadores...'}
+        </p>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
