@@ -43,6 +43,8 @@ export class MainScene extends Phaser.Scene {
     private attackDragStartY = 0;
     private attackIsDragging = false;
     private attackDragSelect = 0;
+    private joystickPointerId: number | null = null;
+    private attackPointerId: number | null = null;
 
     //private isAttacking: boolean = false;
     private myCurrentWeaponType: number = 0;
@@ -172,7 +174,8 @@ export class MainScene extends Phaser.Scene {
         // 1. Guardamos la referencia de la sala y configuramos controles
         this.room = roomInstance;
         this.cursors = this.input.keyboard!.createCursorKeys();
-
+        this.input.addPointer(2);
+        
         this.visualSystem = new PlayerVisualSystem(this);
         this.movementSystem = new MovementSystem(this, this.visualSystem);
 
@@ -333,26 +336,26 @@ export class MainScene extends Phaser.Scene {
         this.attackText = this.add.text(xAttack, y, 'ATK', {fontSize: '20px', color: '#fff'}).setOrigin(0.5).setScrollFactor(0).setDepth(10001);
 
         this.attackButton.on('dragstart', (pointer: Phaser.Input.Pointer) => {
+            this.attackPointerId = pointer.id;
             this.isDragging = true;
             this.attackDragStartX = pointer.x;
             this.attackDragStartY = pointer.y;
         });
 
         this.attackButton.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
-                this.attackButton?.setFillStyle(0x0000ff, 0.6);
-                const dx = pointer.x - this.attackDragStartX;
-                const dy = pointer.y - this.attackDragStartY;
-                const threshold = 25;
-                if (Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
-                if (Math.abs(dx) > Math.abs(dy)) {
-                    this.attackDragSelect = dx > 0 ? 3 : 2;
-                } else {
-                    this.attackDragSelect = dy < 0 ? 1 : 4;
-                }
-            }
-        );
+            if (pointer.id !== this.attackPointerId) return;
+            this.attackButton?.setFillStyle(0x0000ff, 0.6);
+            const dx = pointer.x - this.attackDragStartX;
+            const dy = pointer.y - this.attackDragStartY;
+            const threshold = 25;
+            if (Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
+            if (Math.abs(dx) > Math.abs(dy)) {this.attackDragSelect = dx > 0 ? 3 : 2;
+            } else {this.attackDragSelect = dy < 0 ? 1 : 4;}
+        });
         
-        this.attackButton.on('dragend', () => {
+        this.attackButton.on('dragend', (pointer: Phaser.Input.Pointer) => {
+            if (pointer.id !== this.attackPointerId) return;
+            this.attackPointerId = null;
             this.attackButton?.setFillStyle(0xff0000, 0.3);
             this.isDragging = false;
             this.attackText?.setText('ATK' + this.attackDragSelect);
@@ -383,48 +386,44 @@ export class MainScene extends Phaser.Scene {
         this.weapon4Text = this.add.text(this.weapon4.x, this.weapon4.y, '🗣', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
         this.potionText = this.add.text(this.potion.x, this.potion.y, '♥', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
 
-
         this.weapon0.on('pointerdown', () => this.selectWeapon(0));
         this.weapon1.on('pointerdown', () => this.selectWeapon(1));
         this.weapon2.on('pointerdown', () => this.selectWeapon(2));
         this.weapon3.on('pointerdown', () => this.selectWeapon(3));
         this.weapon4.on('pointerdown', () => this.selectWeapon(4));
         
-        // --- LÓGICA DE MULTITOUCH PARA JOYSTICK ---
-        this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
-            // Si el toque es en la derecha, ignoramos (es para el botón de ataque)
-            if (p.x > window.innerWidth / 2) return;
+        // --- LÓGICA PARA JOYSTICK ---
 
-            if (Phaser.Math.Distance.Between(p.x, p.y, x, y) < 80) {
-                this.isDragging = true;
-                this.joystickPointer = p; // <--- Guardamos qué dedo mueve el joystick
-            }
+        this.input.setDraggable(this.joystickThumb);
+        
+        this.joystickThumb.on('dragstart', (pointer: Phaser.Input.Pointer) => {
+            this.joystickPointerId = pointer.id;
         });
 
-        this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
-            // Solo movemos el joystick si el puntero que lo mueve es el mismo que empezó
-            if (!this.isDragging || this.joystickPointer?.id !== p.id) return;
+        this.joystickThumb.on('drag', (pointer, dragX, dragY) => {
 
-            const angle = Phaser.Math.Angle.Between(x, y, p.x, p.y);
-            const dist = Math.min(Phaser.Math.Distance.Between(x, y, p.x, p.y), 50);
+            if (pointer.id !== this.joystickPointerId) return;
 
-            if (this.joystickThumb) {
-                this.joystickThumb.x = x + Math.cos(angle) * dist;
-                this.joystickThumb.y = y + Math.sin(angle) * dist;
-            }
+            const angle = Phaser.Math.Angle.Between(x, y, dragX, dragY);
+            const dist = Math.min(
+                Phaser.Math.Distance.Between(x, y, dragX, dragY),
+                50
+            );
+
+            this.joystickThumb.x = x + Math.cos(angle) * dist;
+            this.joystickThumb.y = y + Math.sin(angle) * dist;
         });
 
-        this.input.on('pointerup', (p: Phaser.Input.Pointer) => {
-            // Solo soltamos el joystick si el dedo que se levanta es el del joystick
-            if (this.joystickPointer?.id === p.id) {
-                this.isDragging = false;
-                this.joystickPointer = null;
-                if (this.joystickThumb) {
-                    this.joystickThumb.x = x;
-                    this.joystickThumb.y = y;
-                }
-            }
+        this.joystickThumb.on('dragend', (pointer: Phaser.Input.Pointer) => {
+
+            if (pointer.id !== this.joystickPointerId) return;
+
+            this.joystickPointerId = null;
+
+            this.joystickThumb.x = x;
+            this.joystickThumb.y = y;
         });
+
     }
 
     private selectWeapon(type: number) {
