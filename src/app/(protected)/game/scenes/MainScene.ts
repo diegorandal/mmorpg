@@ -332,14 +332,14 @@ export class MainScene extends Phaser.Scene {
 
         const ax = this.attackButton.x;
         const ay = this.attackButton.y;
-        const r = 60; // distancia desde ataque
+        const r = 80; // distancia desde ataque
 
         this.weapon0 = this.add.circle(ax + r, ay - r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
-        this.weapon1 = this.add.circle(ax + r, ay, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
+        this.weapon1 = this.add.circle(ax + r + (r * 0.2), ay, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
         this.weapon2 = this.add.circle(ax + r, ay + r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
-        this.weapon3 = this.add.circle(ax, ay + r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
+        this.weapon3 = this.add.circle(ax + (r * 0.2), ay + r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
         this.weapon4 = this.add.circle(ax - r, ay + r, 20, 0xffffff, 0.3).setScrollFactor(0).setInteractive();
-        this.potion = this.add.circle(10, this.weapon4.y, 20, 0xff0000, 0.3).setScrollFactor(0).setInteractive();
+        this.potion = this.add.circle(30, this.weapon4.y, 20, 0xff0000, 0.3).setScrollFactor(0).setInteractive();
 
         // --- BOTÓN DE CAMBIO DE ARMA ---
         const xWeapon = window.innerWidth - 70; // Un poco más a la derecha que el de ataque
