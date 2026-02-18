@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { Room } from '@colyseus/sdk';
 import type { MyRoomState } from '@/app/(protected)/home/PlayerState';
-import { handleAttack } from "./systems/AttackSystem";
+import { handleAttack, selectAttack } from "./systems/AttackSystem";
 import { MovementSystem } from "./systems/MovementSystem";
 import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
 
@@ -33,13 +33,16 @@ export class MainScene extends Phaser.Scene {
     private weapon3?: Phaser.GameObjects.Arc;
     private weapon4?: Phaser.GameObjects.Arc;
     private potion?: Phaser.GameObjects.Arc;
-
     private weapon0Text?: Phaser.GameObjects.Text;
     private weapon1Text?: Phaser.GameObjects.Text;
     private weapon2Text?: Phaser.GameObjects.Text;
     private weapon3Text?: Phaser.GameObjects.Text;
     private weapon4Text?: Phaser.GameObjects.Text;
     private potionText?: Phaser.GameObjects.Text;
+    private attackDragStartX = 0;
+    private attackDragStartY = 0;
+    private attackIsDragging = false;
+    private attackDragSelect = 0;
 
     //private isAttacking: boolean = false;
     private myCurrentWeaponType: number = 0;
@@ -327,12 +330,54 @@ export class MainScene extends Phaser.Scene {
 
         this.attackText = this.add.text(xAttack, y, 'ATK', {fontSize: '20px', color: '#fff'}).setOrigin(0.5).setScrollFactor(0).setDepth(10001);
 
-        this.attackButton.on('pointerdown', () => {
-            handleAttack({ room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem)});
+        this.attackButton.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            //handleAttack({ room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem)});
+            //this.attackButton?.setFillStyle(0xff0000, 0.6);
+
+            this.attackDragStartX = pointer.x;
+            this.attackDragStartY = pointer.y;
+            this.attackIsDragging = false;
             this.attackButton?.setFillStyle(0xff0000, 0.6);
+
         });
+
+        this.attackButton.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+
+            if (!pointer.isDown) return;
+
+            const dx = pointer.x - this.attackDragStartX;
+            const dy = pointer.y - this.attackDragStartY;
+
+            const threshold = 25;
+
+            if (Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
+
+            this.isDragging = true;
+
+            if (Math.abs(dx) > Math.abs(dy)) {
+                // Horizontal dominante
+                this.attackDragSelect = dx > 0 ? 3 : 2;
+            } else {
+                // Vertical dominante
+                this.attackDragSelect = dy < 0 ? 1 : 4;
+            }
+
+            this.attackButton?.setFillStyle(0x0000ff, 0.3);
+
+        });
+
         this.attackButton.on('pointerup', () => {
+            
             this.attackButton?.setFillStyle(0xff0000, 0.3);
+
+            if (!this.isDragging) {
+                handleAttack({room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem)});
+            } else {
+                this.attackText?.setText('ATK' + this.attackDragSelect);
+                selectAttack({entity: this.playerEntities[this.room.sessionId], selectedAttack: this.attackDragSelect});
+                this.isDragging = false;
+            }
+
         });
 
         // --- Botones seleccion weapon y pocion ---
@@ -343,9 +388,9 @@ export class MainScene extends Phaser.Scene {
         const wsize = 30; // tamaño del botón
 
         this.weapon0 = this.add.circle(ax + r, ay - r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
-        this.weapon1 = this.add.circle(ax + (r * 1.25), ay, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
+        this.weapon1 = this.add.circle(ax + (r * 1.31), ay, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
         this.weapon2 = this.add.circle(ax + r, ay + r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
-        this.weapon3 = this.add.circle(ax, ay + (r * 1.25), wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
+        this.weapon3 = this.add.circle(ax, ay + (r * 1.31), wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
         this.weapon4 = this.add.circle(ax - r, ay + r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
         this.potion = this.add.circle(35, this.weapon4.y, wsize, 0xff0000, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
 

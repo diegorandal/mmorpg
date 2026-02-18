@@ -12,6 +12,16 @@ interface AttackContext {
     playAttackOnce: (entity: any, msg: any) => void;
 }
 
+interface AttackSelection {
+    entity: any;
+    selectedAttack: number;
+}
+export function selectAttack(ctx: AttackSelection) {
+    const { entity, selectedAttack } = ctx;
+    if (!entity) return;
+    entity.attack = selectedAttack;
+}
+
 export function handleAttack(ctx: AttackContext) {
     const {room, playerEntities, myCurrentWeaponType, attackCooldowns, attackSpeeds, time, playAttackOnce} = ctx;
 
@@ -20,7 +30,6 @@ export function handleAttack(ctx: AttackContext) {
 
     if (myCurrentWeaponType === 0) return;
 
-    myEntity.attack = 1; // hardcodeamos por ahora
     myEntity.weapon = myCurrentWeaponType;
 
     // cooldown local
