@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { Room } from '@colyseus/sdk';
 import type { MyRoomState } from '@/app/(protected)/home/PlayerState';
-import { handleAttack, selectAttack } from "./systems/AttackSystem";
+import { handleAttack } from "./systems/AttackSystem";
 import { MovementSystem } from "./systems/MovementSystem";
 import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
 
@@ -355,12 +355,11 @@ export class MainScene extends Phaser.Scene {
         this.attackButton.on('dragend', () => {
             this.attackButton?.setFillStyle(0xff0000, 0.3);
             this.isDragging = false;
-            selectAttack({ entity: this.playerEntities[this.room.sessionId], selectedAttack: this.attackDragSelect });
             this.attackText?.setText('ATK' + this.attackDragSelect);
         });
 
         this.attackButton.on('pointerup', () => {
-            handleAttack({room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem)});
+            handleAttack({room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackNumber: this.attackDragSelect, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem)});
         });
 
         // --- Botones seleccion weapon y pocion ---
@@ -549,6 +548,7 @@ export class MainScene extends Phaser.Scene {
             handleAttack({
                 room: this.room,
                 playerEntities: this.playerEntities,
+                attackNumber: this.attackDragSelect,
                 myCurrentWeaponType: this.myCurrentWeaponType,
                 attackCooldowns: this.attackCooldowns,
                 attackSpeeds: this.attackSpeeds,

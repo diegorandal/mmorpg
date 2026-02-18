@@ -6,12 +6,13 @@ interface AttackContext {
     room: Room<MyRoomState>;
     playerEntities: any;
     myCurrentWeaponType: number;
+    attackNumber: number;
     attackCooldowns: { [key: string]: number };
     attackSpeeds: { [key: string]: number };
     time: Phaser.Time.Clock;
     playAttackOnce: (entity: any, msg: any) => void;
 }
-
+/*
 interface AttackSelection {
     entity: any;
     selectedAttack: number;
@@ -21,9 +22,9 @@ export function selectAttack(ctx: AttackSelection) {
     if (!entity) return;
     entity.attack = selectedAttack;
 }
-
+*/
 export function handleAttack(ctx: AttackContext) {
-    const {room, playerEntities, myCurrentWeaponType, attackCooldowns, attackSpeeds, time, playAttackOnce} = ctx;
+    const {room, playerEntities, myCurrentWeaponType, attackNumber, attackCooldowns, attackSpeeds, time, playAttackOnce} = ctx;
 
      if (!room || !playerEntities[room.sessionId]) return;
     const myEntity = playerEntities[room.sessionId];
@@ -47,7 +48,7 @@ export function handleAttack(ctx: AttackContext) {
     let attackRadius = 0;
 
     // SWORD ATTACK 1
-    if (myCurrentWeaponType === 1 && myEntity.attack === 1) {
+    if (myCurrentWeaponType === 1 && attackNumber === 1) {
 
         // Configuración del área de impacto
         distanceOffset = 32; // Distancia desde el jugador hacia adelante
@@ -66,7 +67,7 @@ export function handleAttack(ctx: AttackContext) {
     }
     
     // BOW ATTACK 1
-    if (myCurrentWeaponType === 2 && myEntity.attack === 1) {
+    if (myCurrentWeaponType === 2 && attackNumber === 1) {
         const arrowRange = 300; // Alcance máximo de la flecha
         const arrowWidth = 20;  // "Grosor" de la trayectoria (margen de acierto)
 
@@ -121,7 +122,7 @@ export function handleAttack(ctx: AttackContext) {
     }
 
     // WAND ATTACK 1
-    if (myCurrentWeaponType === 3 && myEntity.attack === 1) {
+    if (myCurrentWeaponType === 3 && attackNumber === 1) {
 
         // Configuración del área de impacto
         distanceOffset = 64; // Distancia desde el jugador hacia adelante
@@ -140,7 +141,7 @@ export function handleAttack(ctx: AttackContext) {
     }
 
     // SPELL ATTACK 1
-    if (myCurrentWeaponType === 4 && myEntity.attack === 1) {
+    if (myCurrentWeaponType === 4 && attackNumber === 1) {
         
         attackRadius = 100; // Radio amplio alrededor del jugador
         attackX = myEntity.sprite.x;
