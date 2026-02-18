@@ -46,8 +46,6 @@ export function handleAttack(ctx: AttackContext) {
     let distanceOffset = 0;
     let attackRadius = 0;
 
-    const attack = 1;
-
     // SWORD ATTACK 1
     if (myCurrentWeaponType === 1 && myEntity.attack === 1) {
 
@@ -158,11 +156,11 @@ export function handleAttack(ctx: AttackContext) {
     }
 
     // ENVÍO AL SERVIDOR
-    room.send("attack", {weaponType: myCurrentWeaponType, attackNumber: attack, position: { x: Math.floor(attackX), y: Math.floor(attackY) }, direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y }, targets: targets });
+    room.send("attack", { weaponType: myCurrentWeaponType, attackNumber: myEntity.attack, position: { x: Math.floor(attackX), y: Math.floor(attackY) }, direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y }, targets: targets });
 
     playAttackOnce(myEntity, {
         weaponType: myCurrentWeaponType,
-        attackNumber: attack,
+        attackNumber: myEntity.attack,
         position: { x: Math.floor(attackX), y: Math.floor(attackY) }
     });
 

@@ -336,10 +336,10 @@ export class MainScene extends Phaser.Scene {
             this.isDragging = true;
             this.attackDragStartX = pointer.x;
             this.attackDragStartY = pointer.y;
-            this.attackButton?.setFillStyle(0x0000ff, 0.6);
         });
 
         this.attackButton.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
+                this.attackButton?.setFillStyle(0x0000ff, 0.6);
                 const dx = pointer.x - this.attackDragStartX;
                 const dy = pointer.y - this.attackDragStartY;
                 const threshold = 25;
@@ -353,16 +353,14 @@ export class MainScene extends Phaser.Scene {
         );
         
         this.attackButton.on('dragend', () => {
-            this.isDragging = false;
             this.attackButton?.setFillStyle(0xff0000, 0.3);
+            this.isDragging = false;
             selectAttack({ entity: this.playerEntities[this.room.sessionId], selectedAttack: this.attackDragSelect });
             this.attackText?.setText('ATK' + this.attackDragSelect);
         });
 
         this.attackButton.on('pointerup', () => {
-
             handleAttack({room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem)});
-
         });
 
         // --- Botones seleccion weapon y pocion ---
