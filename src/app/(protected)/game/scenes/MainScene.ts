@@ -618,7 +618,7 @@ export class MainScene extends Phaser.Scene {
         )
             .setOrigin(0.5)
             .setScrollFactor(0)
-            .setDepth(9999)
+            .setDepth(10010)
             .setInteractive({ useHandCursor: true });
 
         // hover feedback
