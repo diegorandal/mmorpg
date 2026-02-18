@@ -18,47 +18,51 @@ export class MovementSystem {
         const myEntity = this.scene.playerEntities[myId];
         if (!myEntity) return;
 
+        const speed = 4;
         let dx = 0;
         let dy = 0;
         let moved = false;
-        const speed = 4;
+        const maxRadius = 50;
 
         if (
             this.scene.joystickPointerId !== null &&
             this.scene.joystickThumb &&
             this.scene.joystickBase
         ) {
-            // Obtener desplazamiento real
             const rawDx = this.scene.joystickThumb.x - this.scene.joystickBase.x;
             const rawDy = this.scene.joystickThumb.y - this.scene.joystickBase.y;
 
-            // Convertir a rango -1 a 1
-            dx = rawDx / 50;
-            dy = rawDy / 50;
+            dx = rawDx / maxRadius;
+            dy = rawDy / maxRadius;
 
-            // Deadzone
             const deadzone = 0.1;
-            if (Math.abs(dx) < deadzone) dx = 0;
-            if (Math.abs(dy) < deadzone) dy = 0;
+
+            const magnitude = Math.hypot(dx, dy);
+
+            if (magnitude < deadzone) {
+                dx = 0;
+                dy = 0;
+            } else {
+                // Clamp máximo a 1 pero NO normalizar siempre
+                const clamped = Math.min(magnitude, 1);
+                dx = (dx / magnitude) * clamped;
+                dy = (dy / magnitude) * clamped;
+            }
 
             moved = dx !== 0 || dy !== 0;
 
         } else {
-            // Teclado
+            // 🎹 Teclado (digital)
             if (this.scene.cursors.left.isDown) dx -= 1;
             if (this.scene.cursors.right.isDown) dx += 1;
             if (this.scene.cursors.up.isDown) dy -= 1;
             if (this.scene.cursors.down.isDown) dy += 1;
 
-            moved = dx !== 0 || dy !== 0;
-        }
-
-        // 🔥 Normalizar para evitar que diagonal sea más rápido
-        if (moved) {
-            const length = Math.hypot(dx, dy);
-            if (length > 0) {
-                dx /= length;
+            if (dx !== 0 || dy !== 0) {
+                const length = Math.hypot(dx, dy);
+                dx /= length;  // solo teclado se normaliza
                 dy /= length;
+                moved = true;
             }
         }
 
