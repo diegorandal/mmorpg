@@ -367,16 +367,17 @@ export class MainScene extends Phaser.Scene {
         });
 
         this.attackButton.on('pointerup', () => {
-            
-            this.attackButton?.setFillStyle(0xff0000, 0.3);
 
+            this.attackButton?.setFillStyle(0xff0000, 0.3);
+            
             if (!this.isDragging) {
                 handleAttack({room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem)});
             } else {
-                this.attackText?.setText('ATK' + this.attackDragSelect);
                 selectAttack({entity: this.playerEntities[this.room.sessionId], selectedAttack: this.attackDragSelect});
-                this.isDragging = false;
+                this.attackText?.setText('ATK' + this.attackDragSelect);
             }
+
+            this.isDragging = false;
 
         });
 
