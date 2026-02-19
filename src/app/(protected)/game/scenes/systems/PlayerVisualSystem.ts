@@ -60,7 +60,8 @@ export class PlayerVisualSystem {
 
         // FX
         if (msg.weaponType === 1 && msg.attackNumber === 2) this.playRapierFX(entity);
-        if (msg.weaponType === 2 && msg.attackNumber === 1) this.playArrowFX(entity);
+        if (msg.weaponType === 2 && msg.attackNumber === 1) this.playArrowFX(entity, msg);
+        if (msg.weaponType === 2 && msg.attackNumber === 2) this.playArrow2FX(entity, msg);
         if (msg.weaponType === 3 && msg.attackNumber === 1) this.playWandFX(entity);
         if (msg.weaponType === 4 && msg.attackNumber === 1) this.playSpellFX(entity);
         
@@ -151,30 +152,69 @@ export class PlayerVisualSystem {
 
     }
 
-    private playArrowFX(entity: any) {
-        const attackX = entity.sprite.x + entity.lookDir.x * 300;
-        const attackY = entity.sprite.y + entity.lookDir.y * 300;
+    private playArrowFX(entity: any, msg: any) {
+        // Usamos la posición final enviada por el servidor (donde ocurrió el impacto)
+        const endX = msg.position.x;
+        const endY = msg.position.y;
+        const startX = entity.sprite.x;
+        const startY = entity.sprite.y;
 
         const arrow = this.scene.add
-            .image(entity.sprite.x, entity.sprite.y, "arrow")
+            .image(startX, startY, "arrow")
             .setOrigin(0.5)
             .setDepth(entity.sprite.depth + 10)
             .setScale(3);
 
-        arrow.rotation = Phaser.Math.Angle.Between(
-            entity.sprite.x,
-            entity.sprite.y,
-            attackX,
-            attackY
-        );
+        arrow.rotation = Phaser.Math.Angle.Between(startX, startY, endX, endY);
 
         this.scene.tweens.add({
             targets: arrow,
-            x: attackX,
-            y: attackY,
+            x: endX,
+            y: endY,
+            duration: 200, // Un poco más rápida por ser tiro directo
+            ease: "Linear",
+            onComplete: () => {
+                arrow.destroy();
+            },
+        });
+    }
+
+    private playArrow2FX(entity: any, msg: any) {
+        // 1. Obtener el ID del objetivo desde el mensaje del servidor
+        const targetId = msg.targets && msg.targets[0];
+        const targetEntity = this.scene.playerEntities[targetId];
+
+        // Si no hay objetivo válido, disparamos hacia adelante por defecto
+        if (!targetEntity) {
+            this.playArrowFX(entity, msg);
+            return;
+        }
+
+        const startX = entity.sprite.x;
+        const startY = entity.sprite.y;
+        const endX = targetEntity.sprite.x;
+        const endY = targetEntity.sprite.y;
+
+        // 2. Crear el sprite de la flecha
+        const arrow = this.scene.add
+            .image(startX, startY, "arrow")
+            .setOrigin(0.5)
+            .setDepth(entity.sprite.depth + 10)
+            .setScale(3);
+
+        // 3. Orientar la flecha hacia el objetivo
+        arrow.rotation = Phaser.Math.Angle.Between(startX, startY, endX, endY);
+
+        // 4. Tween hacia la posición actual del enemigo
+        this.scene.tweens.add({
+            targets: arrow,
+            x: endX,
+            y: endY,
             duration: 250,
             ease: "Linear",
-            onComplete: () => arrow.destroy(),
+            onComplete: () => {
+                arrow.destroy();
+            },
         });
     }
 
