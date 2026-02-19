@@ -246,7 +246,12 @@ export class PlayerVisualSystem {
         const targetId = msg.targets && msg.targets[0];
         const targetEntity = this.scene.playerEntities[targetId];
 
-        if (!targetEntity) return;
+        console.log("Wand2FX targetId:", targetId, "Entity.label:", targetEntity.label?.text);
+
+        if (!targetEntity) {
+            console.log("No valid target for Wand2FX");
+            return;
+        }
 
         const targetSprite = targetEntity.sprite;
 
