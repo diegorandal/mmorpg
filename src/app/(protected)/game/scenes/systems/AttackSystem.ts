@@ -103,8 +103,6 @@ export function handleAttack(ctx: AttackContext) {
         attackX = originX + dirX * stabLength;
         attackY = originY + dirY * stabLength;
 
-        console.log("Rapier hits:", targets);
-
     }
     
     // BOW ATTACK 1
