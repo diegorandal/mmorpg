@@ -157,13 +157,11 @@ export class PlayerVisualSystem {
         slash.strokePath();
 
         // Animación rápida
-        slash.setScale(0, 1); // empieza colapsada
         this.scene.tweens.add({
             targets: slash,
-            scaleX: 1,
-            alpha: 0,
-            duration: 120,
-            ease: "Quad.out",
+            alpha: 0.5,
+            duration: 100,
+            ease: "Cubic.out",
             onComplete: () => {
                 slash.destroy();
             }
