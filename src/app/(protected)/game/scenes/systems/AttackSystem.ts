@@ -151,12 +151,24 @@ export function handleAttack(ctx: AttackContext) {
 
     }
 
-    // BOW with TARGET
+    // BOW with TARGET (W2 A2)
     if (myCurrentWeaponType === 2 && attackNumber === 2) {
-
-        console.log("W2A2:", currentTargetId);
-        ctx.clearTarget?.(); // Limpiar objetivo seleccionado
-
+        const target = playerEntities[currentTargetId];
+        // 1. Validar que el objetivo realmente existe y está vivo
+        if (!currentTargetId || !target || target.isDead) return;
+        // 2. Asignar datos del objetivo
+        targets.push(currentTargetId);
+        attackX = target.sprite.x;
+        attackY = target.sprite.y;
+        // 3. (Opcional) Girar al jugador hacia el objetivo antes de enviar el mensaje
+        const dx = attackX - myEntity.sprite.x;
+        const dy = attackY - myEntity.sprite.y;
+        const angle = Math.atan2(dy, dx);
+        // Esto ayuda a que la animación de disparo coincida visualmente
+        myEntity.lookDir.x = Math.cos(angle);
+        myEntity.lookDir.y = Math.sin(angle);
+        // 4. Limpiar el apuntado
+        ctx.clearTarget?.();
     }
 
     // WAND ATTACK 1
