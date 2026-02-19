@@ -263,7 +263,11 @@ export class MainScene extends Phaser.Scene {
             .setDepth(5); // Debajo de los nombres pero sobre el terreno
 
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-            // Solo permitimos apuntar si tenemos el arma 2 y ataque 2 seleccionado
+            const objectsUnderPointer = this.input.hitTestPointer(pointer);
+            // Si hay objetos y alguno es de la interfaz (profundidad alta), no procesamos el target
+            const isUI = objectsUnderPointer.some((obj: any) => obj.depth >= 10000);
+            if (isUI) return;
+            // 2. Solo permitimos apuntar si tenemos el arma 2 y ataque 2
             if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2) {
                 this.checkTargetSelection(pointer);
             }
