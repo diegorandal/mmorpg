@@ -60,8 +60,8 @@ export function handleAttack(ctx: AttackContext) {
     // SWORD ATTACK 2 — ESTOCADA
     if (myCurrentWeaponType === 1 && attackNumber === 2) {
 
-        const stabLength = 80;   // largo del rectángulo
-        const stabWidth = 48;    // ancho del rectángulo
+        const stabLength = 60;   // largo del rectángulo
+        const stabWidth = 24;    // ancho del rectángulo
 
         const originX = myEntity.sprite.x;
         const originY = myEntity.sprite.y;
