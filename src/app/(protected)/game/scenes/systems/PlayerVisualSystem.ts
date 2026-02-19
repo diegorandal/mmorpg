@@ -156,24 +156,16 @@ export class PlayerVisualSystem {
         slash.lineTo(endX, endY);
         slash.strokePath();
 
-        // Destello en la punta
-        const spark = this.scene.add.circle(
-            endX,
-            endY,
-            6,
-            0xffffff,
-            0.8
-        ).setDepth(entity.sprite.depth + 21);
-
         // Animación rápida
+        slash.setScale(0, 1); // empieza colapsada
         this.scene.tweens.add({
-            targets: [slash, spark],
+            targets: slash,
+            scaleX: 1,
             alpha: 0,
             duration: 120,
-            ease: "Cubic.out",
+            ease: "Quad.out",
             onComplete: () => {
                 slash.destroy();
-                spark.destroy();
             }
         });
     }
