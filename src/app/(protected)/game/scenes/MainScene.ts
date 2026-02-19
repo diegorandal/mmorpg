@@ -373,7 +373,7 @@ export class MainScene extends Phaser.Scene {
         });
 
         this.attackButton.on('pointerup', () => {
-            handleAttack({room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackNumber: this.attackDragSelect, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem)});
+            handleAttack({ room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackNumber: this.attackDragSelect, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem), clearTarget: this.clearTarget.bind(this)});
         });
 
         // --- Botones seleccion weapon y pocion ---
@@ -568,6 +568,7 @@ export class MainScene extends Phaser.Scene {
                 attackSpeeds: this.attackSpeeds,
                 time: this.time,
                 playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem),
+                clearTarget: this.clearTarget.bind(this),
             });
 
             this.attackButton?.setFillStyle(0xff0000, 0.6);
@@ -598,7 +599,9 @@ export class MainScene extends Phaser.Scene {
                 const isVisible = this.cameras.main.worldView.contains(target.sprite.x, target.sprite.y);
 
                 // 3. Validar que sigas con el arma/ataque correcto (opcional, por si cambias)
-                const hasRightEquip = (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2);
+                const hasRightEquip = (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2) ||
+                    (this.myCurrentWeaponType === 3 && this.attackDragSelect === 2) ||
+                    (this.myCurrentWeaponType === 4 && this.attackDragSelect === 2);
 
                 if (!isVisible || !hasRightEquip) {
                     this.currentTargetId = null;
@@ -616,15 +619,16 @@ export class MainScene extends Phaser.Scene {
 
     }
 
-    private changeWeapon(type: number, label: string) {
-        this.myCurrentWeaponType = type;
-        this.weaponLabel?.setText(label);
-        this.room?.send("changeWeapon", { weapon: type });
-    }
-
     private updatePlayerCountUI() {
         const count = this.room.state.players.size;
         this.playersText?.setText(`👥 ${count}`);
+    }
+
+    private clearTarget(): void {
+        this.currentTargetId = null;
+        if (this.targetCircle) {
+            this.targetCircle.setVisible(false);
+        }
     }
 
     private checkTargetSelection(pointer: Phaser.Input.Pointer) {

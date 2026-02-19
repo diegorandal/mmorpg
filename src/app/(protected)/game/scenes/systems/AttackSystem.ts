@@ -11,10 +11,11 @@ interface AttackContext {
     attackSpeeds: { [key: string]: number };
     time: Phaser.Time.Clock;
     playAttackOnce: (entity: any, msg: any) => void;
+    clearTarget?: () => void;
 }
 
 export function handleAttack(ctx: AttackContext) {
-    const {room, playerEntities, myCurrentWeaponType, attackNumber, attackCooldowns, attackSpeeds, time, playAttackOnce} = ctx;
+    const {room, playerEntities, myCurrentWeaponType, attackNumber, attackCooldowns, attackSpeeds, time, playAttackOnce, clearTarget} = ctx;
 
      if (!room || !playerEntities[room.sessionId]) return;
     const myEntity = playerEntities[room.sessionId];
@@ -146,6 +147,15 @@ export function handleAttack(ctx: AttackContext) {
             attackX = startX + myEntity.lookDir.x * arrowRange;
             attackY = startY + myEntity.lookDir.y * arrowRange;
         }
+
+    }
+
+    // BOW with TARGET
+    if (myCurrentWeaponType === 2 && attackNumber === 2) {
+
+        ctx.clearTarget?.(); // Limpiar objetivo seleccionado
+
+        console.log("Bow Attack 2 lost aim");
 
     }
 
