@@ -57,7 +57,7 @@ export function handleAttack(ctx: AttackContext) {
 
     }
     
-    // SWORD ATTACK 2 — ESTOCADA EXTENDIDA (360°)
+    // SWORD ATTACK 2 — ESTOCADA
     if (myCurrentWeaponType === 1 && attackNumber === 2) {
 
         const stabLength = 80;   // largo del rectángulo
@@ -96,11 +96,14 @@ export function handleAttack(ctx: AttackContext) {
             ) {
                 targets.push(id);
             }
+            
         }
 
         // Punto final visual del ataque
         attackX = originX + dirX * stabLength;
         attackY = originY + dirY * stabLength;
+
+        console.log("Rapier hits:", targets);
 
     }
     
