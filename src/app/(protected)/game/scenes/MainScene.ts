@@ -257,10 +257,7 @@ export class MainScene extends Phaser.Scene {
         this.setupJoystick();
 
         //target circle
-        this.targetCircle = this.add.circle(0, 0, 40)
-            .setStrokeStyle(2, 0xff0000, 0.8)
-            .setVisible(false)
-            .setDepth(5); // Debajo de los nombres pero sobre el terreno
+        this.targetCircle = this.add.circle(0, 0, 25).setStrokeStyle(2, 0xff0000, 0.5).setVisible(false).setDepth(5);
 
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
             const objectsUnderPointer = this.input.hitTestPointer(pointer);
@@ -270,7 +267,12 @@ export class MainScene extends Phaser.Scene {
             // 2. Solo permitimos apuntar si tenemos el arma 2 y ataque 2
             if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2) {
                 this.checkTargetSelection(pointer);
+            } else if (this.myCurrentWeaponType === 3 && this.attackDragSelect === 2) {
+                this.checkTargetSelection(pointer);
+            } else if (this.myCurrentWeaponType === 4 && this.attackDragSelect === 2) {
+                this.checkTargetSelection(pointer);
             }
+
         });
 
     }
