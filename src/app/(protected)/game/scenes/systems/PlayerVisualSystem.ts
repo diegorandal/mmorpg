@@ -131,17 +131,14 @@ export class PlayerVisualSystem {
     
     private playRapierFX(entity: any) {
 
-        const length = 80;
-
+        const length = 60;
         const startX = entity.sprite.x;
         const startY = entity.sprite.y;
-
         const endX = startX + entity.lookDir.x * length;
         const endY = startY + entity.lookDir.y * length;
 
         // Línea principal
-        const slash = this.scene.add.graphics()
-            .setDepth(entity.sprite.depth + 20);
+        const slash = this.scene.add.graphics().setDepth(entity.sprite.depth);
 
         slash.lineStyle(4, 0xffffff, 1);
         slash.beginPath();
@@ -149,23 +146,9 @@ export class PlayerVisualSystem {
         slash.lineTo(endX, endY);
         slash.strokePath();
 
-        // Glow extra (línea interior más fina)
-        slash.lineStyle(2, 0xb0f0ff, 1);
-        slash.beginPath();
-        slash.moveTo(startX, startY);
-        slash.lineTo(endX, endY);
-        slash.strokePath();
-
         // Animación rápida
-        this.scene.tweens.add({
-            targets: slash,
-            alpha: 0.5,
-            duration: 100,
-            ease: "Cubic.out",
-            onComplete: () => {
-                slash.destroy();
-            }
-        });
+        this.scene.tweens.add({targets: slash, alpha: 0.5, duration: 100, ease: "Cubic.out", onComplete: () => {slash.destroy();}});
+
     }
 
     private playArrowFX(entity: any) {

@@ -77,27 +77,15 @@ export function handleAttack(ctx: AttackContext) {
 
         for (const id in playerEntities) {
             if (id === room.sessionId) continue;
-
             const enemy = playerEntities[id];
-
             // Vector jugador → enemigo
             const dx = enemy.sprite.x - originX;
             const dy = enemy.sprite.y - originY;
-
             // Rotamos el punto al sistema local del ataque
             const localX = dx * Math.cos(-angle) - dy * Math.sin(-angle);
             const localY = dx * Math.sin(-angle) + dy * Math.cos(-angle);
-
             // Rectángulo alineado al eje X positivo
-            if (
-                localX >= 0 &&
-                localX <= stabLength &&
-                Math.abs(localY) <= stabWidth / 2
-            ) {
-                targets.push(id);
-                console.log(`${id} hit by stab attack!`);
-            }
-            
+            if (localX >= 0 && localX <= stabLength && Math.abs(localY) <= stabWidth / 2) targets.push(id);
         }
 
         // Punto final visual del ataque

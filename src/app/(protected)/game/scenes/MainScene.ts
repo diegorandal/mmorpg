@@ -46,6 +46,8 @@ export class MainScene extends Phaser.Scene {
     private attackPointerId: number | null = null;
     public isJoystickDragging = false;
     private weaponSelectorRing?: Phaser.GameObjects.Arc;
+    private currentTargetId: string | null = null;
+    private targetCircle?: Phaser.GameObjects.Arc;
 
     //private isAttacking: boolean = false;
     private myCurrentWeaponType: number = 0;
@@ -253,6 +255,19 @@ export class MainScene extends Phaser.Scene {
         this.playersText = this.add.text(this.scale.width - 20, 20, `👥 ${this.room.state.players.size}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }}).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
 
         this.setupJoystick();
+
+        //target circle
+        this.targetCircle = this.add.circle(0, 0, 40)
+            .setStrokeStyle(2, 0xff0000, 0.8)
+            .setVisible(false)
+            .setDepth(5); // Debajo de los nombres pero sobre el terreno
+
+        this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            // Solo permitimos apuntar si tenemos el arma 2 y ataque 2 seleccionado
+            if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2) {
+                this.checkTargetSelection(pointer);
+            }
+        });
 
     }
     
@@ -563,6 +578,33 @@ export class MainScene extends Phaser.Scene {
         // 🖥 UI
         if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
         if (this.potText) this.potText.setText(`💰 ${myState?.pot || 0}`);
+        // 🎯 TARGET
+
+        if (this.currentTargetId) {
+            const target = this.playerEntities[this.currentTargetId];
+
+            // 1. Validar que el objetivo exista y esté vivo
+            if (!target || target.isDead) {
+                this.currentTargetId = null;
+                this.targetCircle?.setVisible(false);
+            } else {
+                // 2. Validar visibilidad en cámara
+                const isVisible = this.cameras.main.worldView.contains(target.sprite.x, target.sprite.y);
+
+                // 3. Validar que sigas con el arma/ataque correcto (opcional, por si cambias)
+                const hasRightEquip = (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2);
+
+                if (!isVisible || !hasRightEquip) {
+                    this.currentTargetId = null;
+                    this.targetCircle?.setVisible(false);
+                } else {
+                    // 4. Actualizar posición del círculo
+                    this.targetCircle?.setPosition(target.sprite.x, target.sprite.y + 10);
+                    this.targetCircle?.setVisible(true);
+                }
+            }
+        }
+
         // 🚶 MOVEMENT SYSTEM
         this.movementSystem.update(delta);
 
@@ -577,6 +619,33 @@ export class MainScene extends Phaser.Scene {
     private updatePlayerCountUI() {
         const count = this.room.state.players.size;
         this.playersText?.setText(`👥 ${count}`);
+    }
+
+    private checkTargetSelection(pointer: Phaser.Input.Pointer) {
+        const worldPoint = pointer.positionToCamera(this.cameras.main) as Phaser.Math.Vector2;
+        let foundTarget = false;
+
+        for (const sessionId in this.playerEntities) {
+            if (sessionId === this.room.sessionId) continue; // No apuntarse a uno mismo
+
+            const entity = this.playerEntities[sessionId];
+            if (entity.isDead) continue;
+
+            // Comprobar si el clic está dentro del sprite del jugador
+            if (entity.sprite.getBounds().contains(worldPoint.x, worldPoint.y)) {
+                this.currentTargetId = sessionId;
+                this.targetCircle?.setVisible(true);
+                foundTarget = true;
+                console.log(`Target: ${entity.label.text}`);
+                break;
+            }
+        }
+
+        // Si clicamos en el suelo (y no en un jugador), quitamos el target
+        if (!foundTarget) {
+            this.currentTargetId = null;
+            this.targetCircle?.setVisible(false);
+        }
     }
 
     private showDeathScreen() {
