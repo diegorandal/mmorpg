@@ -47,8 +47,6 @@ export class PlayerVisualSystem {
 
     playAttackOnce(entity: any, msg: any) {
         
-        console.log('msg:', msg);
-        
         const dir = entity.currentDir || "down";
         const weaponMap: any = {
             1: "sword-attack",
@@ -61,6 +59,7 @@ export class PlayerVisualSystem {
         entity.sprite.anims.play(animKey, true);
 
         // FX
+        if (msg.weaponType === 1 && msg.attackNumber === 2) this.playRapierFX(entity);
         if (msg.weaponType === 2 && msg.attackNumber === 1) this.playArrowFX(entity);
         if (msg.weaponType === 3 && msg.attackNumber === 1) this.playWandFX(entity);
         if (msg.weaponType === 4 && msg.attackNumber === 1) this.playSpellFX(entity);
@@ -127,6 +126,55 @@ export class PlayerVisualSystem {
             duration: 800,
             ease: "Cubic.out",
             onComplete: () => damageLabel.destroy(),
+        });
+    }
+    
+    private playRapierFX(entity: any) {
+
+        const length = 80;
+
+        const startX = entity.sprite.x;
+        const startY = entity.sprite.y;
+
+        const endX = startX + entity.lookDir.x * length;
+        const endY = startY + entity.lookDir.y * length;
+
+        // Línea principal
+        const slash = this.scene.add.graphics()
+            .setDepth(entity.sprite.depth + 20);
+
+        slash.lineStyle(4, 0xffffff, 1);
+        slash.beginPath();
+        slash.moveTo(startX, startY);
+        slash.lineTo(endX, endY);
+        slash.strokePath();
+
+        // Glow extra (línea interior más fina)
+        slash.lineStyle(2, 0xb0f0ff, 1);
+        slash.beginPath();
+        slash.moveTo(startX, startY);
+        slash.lineTo(endX, endY);
+        slash.strokePath();
+
+        // Destello en la punta
+        const spark = this.scene.add.circle(
+            endX,
+            endY,
+            6,
+            0xffffff,
+            0.8
+        ).setDepth(entity.sprite.depth + 21);
+
+        // Animación rápida
+        this.scene.tweens.add({
+            targets: [slash, spark],
+            alpha: 0,
+            duration: 120,
+            ease: "Cubic.out",
+            onComplete: () => {
+                slash.destroy();
+                spark.destroy();
+            }
         });
     }
 

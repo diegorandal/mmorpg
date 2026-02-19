@@ -387,7 +387,6 @@ export class MainScene extends Phaser.Scene {
         // --- LÓGICA PARA JOYSTICK ---
         this.joystickBase.setInteractive();
         this.joystickThumb.setInteractive();     
-
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 
             if (pointer.x > window.innerWidth / 2) return;
@@ -518,9 +517,7 @@ export class MainScene extends Phaser.Scene {
 
         const myState = this.room.state.players.get(myId);
 
-        // =========================
         // 🧠 STATE SYNC (Health / Death)
-        // =========================
         if (myState) {
             if (myState.hp < myEntity.hp) {
                 this.visualSystem.showDamageText(
@@ -538,9 +535,7 @@ export class MainScene extends Phaser.Scene {
             myEntity.hp = myState.hp;
         }
 
-        // =========================
         // ⚔ ATAQUE
-        // =========================
         if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
 
             handleAttack({
@@ -560,23 +555,15 @@ export class MainScene extends Phaser.Scene {
             });
         }
 
-        // =========================
         // 🗡 CAMBIO DE ARMA
-        // =========================
         if (Phaser.Input.Keyboard.JustDown(this.key1Key)) this.selectWeapon(1);
         if (Phaser.Input.Keyboard.JustDown(this.key2Key)) this.selectWeapon(2);
         if (Phaser.Input.Keyboard.JustDown(this.key3Key)) this.selectWeapon(3);
         if (Phaser.Input.Keyboard.JustDown(this.key4Key)) this.selectWeapon(4);
-
-        // =========================
         // 🖥 UI
-        // =========================
         if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
         if (this.potText) this.potText.setText(`💰 ${myState?.pot || 0}`);
-
-        // =========================
         // 🚶 MOVEMENT SYSTEM
-        // =========================
         this.movementSystem.update(delta);
 
     }
@@ -596,32 +583,12 @@ export class MainScene extends Phaser.Scene {
         const { width, height } = this.scale;
 
         // 🕶 overlay oscuro
-        this.deathOverlay = this.add.rectangle(
-            width / 2,
-            height / 2,
-            width,
-            height,
-            0x000000,
-            0.6
-        )
-            .setScrollFactor(0)
-            .setDepth(10009);
+        this.deathOverlay = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.6).setScrollFactor(0).setDepth(10009);
 
         this.deathButton = this.add.text(
-            width / 2,
-            height / 2,
-            'VOLVER',
-            {
-                fontSize: '32px',
-                color: '#ffffff',
-                backgroundColor: '#222222',
-                padding: { x: 24, y: 14 },
-            }
-        )
-            .setOrigin(0.5)
-            .setScrollFactor(0)
-            .setDepth(10010)
-            .setInteractive({ useHandCursor: true });
+            width / 2, height / 2, 'VOLVER',
+            { fontSize: '32px', color: '#ffffff', backgroundColor: '#222222', padding: { x: 24, y: 14 },}
+        ).setOrigin(0.5).setScrollFactor(0).setDepth(10010).setInteractive({ useHandCursor: true });
 
         // hover feedback
         this.deathButton.on('pointerover', () => {

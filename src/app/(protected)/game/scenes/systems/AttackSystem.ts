@@ -12,17 +12,7 @@ interface AttackContext {
     time: Phaser.Time.Clock;
     playAttackOnce: (entity: any, msg: any) => void;
 }
-/*
-interface AttackSelection {
-    entity: any;
-    selectedAttack: number;
-}
-export function selectAttack(ctx: AttackSelection) {
-    const { entity, selectedAttack } = ctx;
-    if (!entity) return;
-    entity.attack = selectedAttack;
-}
-*/
+
 export function handleAttack(ctx: AttackContext) {
     const {room, playerEntities, myCurrentWeaponType, attackNumber, attackCooldowns, attackSpeeds, time, playAttackOnce} = ctx;
 
@@ -64,6 +54,53 @@ export function handleAttack(ctx: AttackContext) {
             const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
             if (dist <= attackRadius) {targets.push(id);}
         }
+
+    }
+    
+    // SWORD ATTACK 2 — ESTOCADA EXTENDIDA (360°)
+    if (myCurrentWeaponType === 1 && attackNumber === 2) {
+
+        const stabLength = 80;   // largo del rectángulo
+        const stabWidth = 24;    // ancho del rectángulo
+
+        const originX = myEntity.sprite.x;
+        const originY = myEntity.sprite.y;
+
+        const dirX = myEntity.lookDir.x;
+        const dirY = myEntity.lookDir.y;
+
+        // Seguridad: si por alguna razón lookDir es 0,0 no atacamos
+        if (dirX === 0 && dirY === 0) return;
+
+        // Ángulo real del vector de dirección
+        const angle = Math.atan2(dirY, dirX);
+
+        for (const id in playerEntities) {
+            if (id === room.sessionId) continue;
+
+            const enemy = playerEntities[id];
+
+            // Vector jugador → enemigo
+            const dx = enemy.sprite.x - originX;
+            const dy = enemy.sprite.y - originY;
+
+            // Rotamos el punto al sistema local del ataque
+            const localX = dx * Math.cos(-angle) - dy * Math.sin(-angle);
+            const localY = dx * Math.sin(-angle) + dy * Math.cos(-angle);
+
+            // Rectángulo alineado al eje X positivo
+            if (
+                localX >= 0 &&
+                localX <= stabLength &&
+                Math.abs(localY) <= stabWidth / 2
+            ) {
+                targets.push(id);
+            }
+        }
+
+        // Punto final visual del ataque
+        attackX = originX + dirX * stabLength;
+        attackY = originY + dirY * stabLength;
 
     }
     
