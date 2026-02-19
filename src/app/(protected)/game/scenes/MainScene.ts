@@ -373,7 +373,7 @@ export class MainScene extends Phaser.Scene {
         });
 
         this.attackButton.on('pointerup', () => {
-            handleAttack({ room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackNumber: this.attackDragSelect, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem), clearTarget: this.clearTarget.bind(this)});
+            handleAttack({ room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackNumber: this.attackDragSelect, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem), clearTarget: this.clearTarget.bind(this), currentTargetId: this.currentTargetId});
         });
 
         // --- Botones seleccion weapon y pocion ---
@@ -520,6 +520,11 @@ export class MainScene extends Phaser.Scene {
     private removePlayer(sessionId: string) {
         const entity = this.playerEntities[sessionId];
         if (entity) {
+            // Si el jugador eliminado es el que tengo como target, limpio el target
+            if (this.currentTargetId === sessionId) {
+                this.currentTargetId = null;
+                this.targetCircle?.setVisible(false);
+            }
             entity.sprite.destroy();
             entity.label.destroy();
             entity.hpBar.destroy();
@@ -569,6 +574,7 @@ export class MainScene extends Phaser.Scene {
                 time: this.time,
                 playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem),
                 clearTarget: this.clearTarget.bind(this),
+                currentTargetId: this.currentTargetId,
             });
 
             this.attackButton?.setFillStyle(0xff0000, 0.6);
