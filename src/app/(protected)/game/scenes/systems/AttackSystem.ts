@@ -95,6 +95,7 @@ export function handleAttack(ctx: AttackContext) {
                 Math.abs(localY) <= stabWidth / 2
             ) {
                 targets.push(id);
+                console.log(`Enemy ${id} hit by stab attack!`);
             }
             
         }
