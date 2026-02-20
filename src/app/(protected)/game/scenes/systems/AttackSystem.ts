@@ -233,7 +233,9 @@ export function handleAttack(ctx: AttackContext) {
     playAttackOnce(myEntity, {
         weaponType: myCurrentWeaponType,
         attackNumber: myEntity.attack,
-        position: { x: Math.floor(attackX), y: Math.floor(attackY) }
+        position: { x: Math.floor(attackX), y: Math.floor(attackY) },
+        direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y }, 
+        targets: targets
     });
 
 }
