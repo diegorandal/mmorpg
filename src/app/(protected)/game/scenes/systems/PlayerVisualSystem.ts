@@ -157,7 +157,7 @@ export class PlayerVisualSystem {
 
     private playSword3FX(entity: any) {
 
-        const radius = 80;
+        const radius = 50;
         const gapDeg = 60;
 
         const start = Phaser.Math.DegToRad(90 + gapDeg / 2);
@@ -188,7 +188,7 @@ export class PlayerVisualSystem {
             targets: [backArc, frontArc],
             angle: 360,
             alpha: 0,
-            duration: 250,
+            duration: 2500,
             ease: "Cubic.out",
             onComplete: () => {
                 backArc.destroy();
