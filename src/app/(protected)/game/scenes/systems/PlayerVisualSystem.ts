@@ -184,9 +184,12 @@ export class PlayerVisualSystem {
         // 1. Obtener el ID del objetivo desde el mensaje del servidor
         const targetId = msg.targets && msg.targets[0];
         const targetEntity = this.scene.playerEntities[targetId];
+        
+        console.log("Arrow2FX targetId:", targetId);
 
         // Si no hay objetivo válido, disparamos hacia adelante por defecto
         if (!targetEntity) {
+            console.log("No valid target for Arrow2FX, firing straight");
             this.playArrowFX(entity, msg);
             return;
         }
@@ -243,6 +246,7 @@ export class PlayerVisualSystem {
 
     private playWand2FX(entity: any, msg: any) {
 
+        console.log("Playing Wand2FX with msg:", msg); 
         // 1. Obtener el ID del objetivo desde el mensaje del servidor
         const targetId = msg.targets && msg.targets[0];
         const targetEntity = this.scene.playerEntities[targetId];
