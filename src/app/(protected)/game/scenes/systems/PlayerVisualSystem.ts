@@ -65,6 +65,7 @@ export class PlayerVisualSystem {
         if (msg.weaponType === 3 && msg.attackNumber === 1) this.playWandFX(entity);
         if (msg.weaponType === 3 && msg.attackNumber === 2) this.playWand2FX(entity, msg);
         if (msg.weaponType === 4 && msg.attackNumber === 1) this.playSpellFX(entity);
+        if (msg.weaponType === 4 && msg.attackNumber === 2) this.playSpell2FX(entity, msg);
         
     }
 
@@ -185,11 +186,8 @@ export class PlayerVisualSystem {
         const targetId = msg.targets && msg.targets[0];
         const targetEntity = this.scene.playerEntities[targetId];
         
-        console.log("Arrow2FX targetId:", targetId);
-
         // Si no hay objetivo válido, disparamos hacia adelante por defecto
         if (!targetEntity) {
-            console.log("No valid target for Arrow2FX, firing straight");
             this.playArrowFX(entity, msg);
             return;
         }
@@ -246,15 +244,11 @@ export class PlayerVisualSystem {
 
     private playWand2FX(entity: any, msg: any) {
 
-        console.log("Playing Wand2FX with msg:", msg); 
         // 1. Obtener el ID del objetivo desde el mensaje del servidor
         const targetId = msg.targets && msg.targets[0];
         const targetEntity = this.scene.playerEntities[targetId];
 
-        console.log("Wand2FX targetId:", targetId);
-
         if (!targetEntity) {
-            console.log("No valid target for Wand2FX");
             return;
         }
 
@@ -280,7 +274,6 @@ export class PlayerVisualSystem {
         });
 
     }
-
     
     private playSpellFX(entity: any) {
         const aura = this.scene.add.circle(
@@ -299,6 +292,39 @@ export class PlayerVisualSystem {
             ease: "Cubic.out",
             onComplete: () => aura.destroy(),
         });
+    }
+
+    private playSpell2FX(entity: any, msg: any) {
+
+        // 1. Obtener el ID del objetivo desde el mensaje del servidor
+        const targetId = msg.targets && msg.targets[0];
+        const targetEntity = this.scene.playerEntities[targetId];
+
+        if (!targetEntity) {
+            return;
+        }
+
+        const targetSprite = targetEntity.sprite;
+
+        // 1. Creamos un círculo simple en la posición del objetivo
+        const spark = this.scene.add.circle(
+            targetSprite.x,
+            targetSprite.y,
+            20,      // Radio inicial
+            0xbf40bf, // Color Cian
+            0.8       // Opacidad
+        ).setDepth(targetSprite.depth + 1);
+
+        // 2. Animación de "destello de impacto"
+        this.scene.tweens.add({
+            targets: spark,
+            radius: 50,       // Se expande
+            alpha: 0,        // Se desvanece
+            duration: 300,   // Rápido
+            ease: 'Cubic.out',
+            onComplete: () => spark.destroy()
+        });
+
     }
 
     private getDirectionName(dx: number, dy: number): string {
