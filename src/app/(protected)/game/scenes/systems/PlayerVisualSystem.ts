@@ -242,11 +242,12 @@ export class PlayerVisualSystem {
     }
 
     private playWand2FX(entity: any, msg: any) {
+
         // 1. Obtener el ID del objetivo desde el mensaje del servidor
         const targetId = msg.targets && msg.targets[0];
         const targetEntity = this.scene.playerEntities[targetId];
 
-        console.log("Wand2FX targetId:", targetId, "Entity.label:", targetEntity.label?.text);
+        console.log("Wand2FX targetId:", targetId);
 
         if (!targetEntity) {
             console.log("No valid target for Wand2FX");
