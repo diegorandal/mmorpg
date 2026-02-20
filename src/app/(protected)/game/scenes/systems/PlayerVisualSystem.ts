@@ -157,54 +157,29 @@ export class PlayerVisualSystem {
 
     private playSword3FX(entity: any) {
 
-        const radius = 50;
-        const gapDeg = 60;
+        const radius = 40;
+        const gapDeg = 70; // hueco arriba
 
         const start = Phaser.Math.DegToRad(90 + gapDeg / 2);
         const end = Phaser.Math.DegToRad(450 - gapDeg / 2);
 
-        // arco trasero
-        const backArc = this.scene.add.graphics()
-            .setDepth(entity.sprite.depth - 1);
+        const arc = this.scene.add.graphics()
+            .setDepth(entity.sprite.depth + 1)
+            .setAlpha(1);
 
-        backArc.lineStyle(6, 0xffffff, 1);
-        backArc.beginPath();
-        backArc.arc(0, 0, radius, start, Math.PI * 2);
-        backArc.strokePath();
+        arc.lineStyle(10, 0xffffff, 1); // línea más gruesa
+        arc.beginPath();
+        arc.arc(
+            entity.sprite.x,
+            entity.sprite.y,
+            radius,
+            start,
+            end
+        );
+        arc.strokePath();
 
-        // arco frontal
-        const frontArc = this.scene.add.graphics()
-            .setDepth(entity.sprite.depth + 1);
-
-        frontArc.lineStyle(6, 0xffffff, 1);
-        frontArc.beginPath();
-        frontArc.arc(0, 0, radius, 0, end - Math.PI * 2);
-        frontArc.strokePath();
-
-        backArc.setPosition(entity.sprite.x, entity.sprite.y);
-        frontArc.setPosition(entity.sprite.x, entity.sprite.y);
-
-        this.scene.tweens.add({
-            targets: [backArc, frontArc],
-            angle: 360,
-            alpha: 0,
-            duration: 2500,
-            ease: "Cubic.out",
-            onComplete: () => {
-                backArc.destroy();
-                frontArc.destroy();
-            }
-        });
-
-        const updateFollow = () => {
-            backArc.setPosition(entity.sprite.x, entity.sprite.y);
-            frontArc.setPosition(entity.sprite.x, entity.sprite.y);
-        };
-
-        this.scene.events.on("update", updateFollow);
-
-        this.scene.time.delayedCall(250, () => {
-            this.scene.events.off("update", updateFollow);
+        this.scene.time.delayedCall(1000, () => {
+            arc.destroy();
         });
     }
 
