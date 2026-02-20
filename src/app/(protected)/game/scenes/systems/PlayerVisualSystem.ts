@@ -154,9 +154,11 @@ export class PlayerVisualSystem {
         this.scene.tweens.add({targets: slash, alpha: 0.5, duration: 100, ease: "Cubic.out", onComplete: () => {slash.destroy();}});
 
     }
-    
+
     private playSword3FX(entity: any) {
 
+        console.log("Sword 3 FX");
+        
         const radius = 80;
         const gapDeg = 60;
 
