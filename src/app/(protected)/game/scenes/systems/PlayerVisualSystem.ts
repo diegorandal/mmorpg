@@ -157,28 +157,15 @@ export class PlayerVisualSystem {
 
     private playSword3FX(entity: any) {
 
-        const radius = 30;
-        const gapDeg = 70; // hueco arriba
-
-        const startAngle = Phaser.Math.DegToRad(305);
-        const endAngle = Phaser.Math.DegToRad(595);
-
-        const arc = this.scene.add.graphics()
-            .setDepth(entity.sprite.depth + 1)
-            .setAlpha(1);
-
-        arc.lineStyle(15, 0xffffff, 0.5); // línea más gruesa
+        const radius = 32;
+        const startAngle = 305 * Math.PI / 180;
+        const endAngle = 595 * Math.PI / 180;
+        const arc = this.scene.add.graphics().setDepth(entity.sprite.depth + 1).setAlpha(0.5);
+        arc.lineStyle(15, 0xffffff, 0.5);
         arc.beginPath();
-        arc.arc(
-            entity.sprite.x,
-            entity.sprite.y,
-            radius,
-            startAngle,
-            endAngle
-        );
+        arc.arc(entity.sprite.x, entity.sprite.y, radius, startAngle, endAngle);
         arc.strokePath();
-
-        this.scene.time.delayedCall(1000, () => {
+        this.scene.time.delayedCall(50, () => {
             arc.destroy();
         });
     }

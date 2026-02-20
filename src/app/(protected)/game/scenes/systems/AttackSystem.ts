@@ -99,7 +99,7 @@ export function handleAttack(ctx: AttackContext) {
     // SWORD ATTACK 3 — SPINNING SLASH
     if (myCurrentWeaponType === 1 && attackNumber === 3) {
 
-        attackRadius = 80;   // Radio del área de impacto
+        attackRadius = 50;   // Radio del área de impacto
         attackX = myEntity.sprite.x; // El centro del ataque es el jugador
         attackY = myEntity.sprite.y;
 
