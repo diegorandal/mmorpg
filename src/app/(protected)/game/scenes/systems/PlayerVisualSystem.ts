@@ -326,17 +326,17 @@ export class PlayerVisualSystem {
         const spark = this.scene.add.circle(
             targetSprite.x,
             targetSprite.y,
-            20,      // Radio inicial
+            4,      // Radio inicial
             0xbf40bf, // Color Cian
-            0.8       // Opacidad
+            0.4       // Opacidad
         ).setDepth(targetSprite.depth + 1);
 
         // 2. Animación de "destello de impacto"
         this.scene.tweens.add({
             targets: spark,
-            radius: 40,       // Se expande
+            radius: 32,       // Se expande
             alpha: 0,        // Se desvanece
-            duration: 500,   // Rápido
+            duration: 500,  
             ease: 'Expo.in',
             onComplete: () => spark.destroy()
         });
