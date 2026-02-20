@@ -59,9 +59,10 @@ export class PlayerVisualSystem {
         entity.sprite.anims.play(animKey, true);
 
         // FX
-        if (msg.weaponType === 1 && msg.attackNumber === 2) this.playRapierFX(entity);
-        if (msg.weaponType === 2 && msg.attackNumber === 1) this.playArrowFX(entity, msg);
-        if (msg.weaponType === 2 && msg.attackNumber === 2) this.playArrow2FX(entity, msg);
+        if (msg.weaponType === 1 && msg.attackNumber === 2) this.playSword2FX(entity);
+        if (msg.weaponType === 1 && msg.attackNumber === 3) this.playSword3FX(entity);
+        if (msg.weaponType === 2 && msg.attackNumber === 1) this.playBowFX(entity, msg);
+        if (msg.weaponType === 2 && msg.attackNumber === 2) this.playBow2FX(entity, msg);
         if (msg.weaponType === 3 && msg.attackNumber === 1) this.playWandFX(entity);
         if (msg.weaponType === 3 && msg.attackNumber === 2) this.playWand2FX(entity, msg);
         if (msg.weaponType === 4 && msg.attackNumber === 1) this.playSpellFX(entity);
@@ -132,7 +133,7 @@ export class PlayerVisualSystem {
         });
     }
     
-    private playRapierFX(entity: any) {
+    private playSword2FX(entity: any) {
 
         const length = 60;
         const startX = entity.sprite.x;
@@ -153,8 +154,57 @@ export class PlayerVisualSystem {
         this.scene.tweens.add({targets: slash, alpha: 0.5, duration: 100, ease: "Cubic.out", onComplete: () => {slash.destroy();}});
 
     }
+    
+    private playSword3FX(entity: any) {
 
-    private playArrowFX(entity: any, msg: any) {
+        const radius = 80;
+        const gapDeg = 60;
+
+        const start = Phaser.Math.DegToRad(90 + gapDeg / 2);
+        const end = Phaser.Math.DegToRad(450 - gapDeg / 2);
+
+        // arco trasero
+        const backArc = this.scene.add.graphics()
+            .setDepth(entity.sprite.depth - 1)
+            .lineStyle(6, 0xffffff, 1)
+            .arc(0, 0, radius, start, Math.PI * 2);
+
+        // arco frontal
+        const frontArc = this.scene.add.graphics()
+            .setDepth(entity.sprite.depth + 1)
+            .lineStyle(6, 0xffffff, 1)
+            .arc(0, 0, radius, 0, end - Math.PI * 2);
+
+        backArc.setPosition(entity.sprite.x, entity.sprite.y);
+        frontArc.setPosition(entity.sprite.x, entity.sprite.y);
+
+        // rotación
+        this.scene.tweens.add({
+            targets: [backArc, frontArc],
+            angle: 360,
+            alpha: 0,
+            duration: 250,
+            ease: "Cubic.out",
+            onComplete: () => {
+                backArc.destroy();
+                frontArc.destroy();
+            }
+        });
+
+        // seguir al jugador
+        const updateFollow = () => {
+            backArc.setPosition(entity.sprite.x, entity.sprite.y);
+            frontArc.setPosition(entity.sprite.x, entity.sprite.y);
+        };
+
+        this.scene.events.on("update", updateFollow);
+
+        this.scene.time.delayedCall(250, () => {
+            this.scene.events.off("update", updateFollow);
+        });
+    }
+
+    private playBowFX(entity: any, msg: any) {
         // Usamos la posición final enviada por el servidor (donde ocurrió el impacto)
         const endX = msg.position.x;
         const endY = msg.position.y;
@@ -181,14 +231,14 @@ export class PlayerVisualSystem {
         });
     }
 
-    private playArrow2FX(entity: any, msg: any) {
+    private playBow2FX(entity: any, msg: any) {
         // 1. Obtener el ID del objetivo desde el mensaje del servidor
         const targetId = msg.targets && msg.targets[0];
         const targetEntity = this.scene.playerEntities[targetId];
         
         // Si no hay objetivo válido, disparamos hacia adelante por defecto
         if (!targetEntity) {
-            this.playArrowFX(entity, msg);
+            this.playBowFX(entity, msg);
             return;
         }
 
@@ -318,10 +368,10 @@ export class PlayerVisualSystem {
         // 2. Animación de "destello de impacto"
         this.scene.tweens.add({
             targets: spark,
-            radius: 50,       // Se expande
+            radius: 40,       // Se expande
             alpha: 0,        // Se desvanece
-            duration: 300,   // Rápido
-            ease: 'Cubic.out',
+            duration: 500,   // Rápido
+            ease: 'Expo.in',
             onComplete: () => spark.destroy()
         });
 

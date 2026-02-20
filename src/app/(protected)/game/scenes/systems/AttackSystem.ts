@@ -96,6 +96,22 @@ export function handleAttack(ctx: AttackContext) {
 
     }
     
+    // SWORD ATTACK 3 — SPINNING SLASH
+    if (myCurrentWeaponType === 1 && attackNumber === 3) {
+
+        attackRadius = 80;   // Radio del área de impacto
+        attackX = myEntity.sprite.x; // El centro del ataque es el jugador
+        attackY = myEntity.sprite.y;
+
+        for (const id in playerEntities) {
+            if (id === room.sessionId) continue;
+            const enemy = playerEntities[id];
+            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+            if (dist <= attackRadius) { targets.push(id); }
+        }
+
+    }
+
     // BOW ATTACK 1
     if (myCurrentWeaponType === 2 && attackNumber === 1) {
         const arrowRange = 300; // Alcance máximo de la flecha
@@ -243,8 +259,6 @@ export function handleAttack(ctx: AttackContext) {
         // Esto ayuda a que la animación de disparo coincida visualmente
         myEntity.lookDir.x = Math.cos(angle);
         myEntity.lookDir.y = Math.sin(angle);
-        // 4. Limpiar el apuntado
-        ctx.clearTarget?.();
     }
 
     // ENVÍO AL SERVIDOR
