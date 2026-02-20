@@ -157,8 +157,6 @@ export class PlayerVisualSystem {
 
     private playSword3FX(entity: any) {
 
-        console.log("Sword 3 FX");
-        
         const radius = 80;
         const gapDeg = 60;
 
@@ -167,20 +165,25 @@ export class PlayerVisualSystem {
 
         // arco trasero
         const backArc = this.scene.add.graphics()
-            .setDepth(entity.sprite.depth - 1)
-            .lineStyle(6, 0xffffff, 1)
-            .arc(0, 0, radius, start, Math.PI * 2);
+            .setDepth(entity.sprite.depth - 1);
+
+        backArc.lineStyle(6, 0xffffff, 1);
+        backArc.beginPath();
+        backArc.arc(0, 0, radius, start, Math.PI * 2);
+        backArc.strokePath();
 
         // arco frontal
         const frontArc = this.scene.add.graphics()
-            .setDepth(entity.sprite.depth + 1)
-            .lineStyle(6, 0xffffff, 1)
-            .arc(0, 0, radius, 0, end - Math.PI * 2);
+            .setDepth(entity.sprite.depth + 1);
+
+        frontArc.lineStyle(6, 0xffffff, 1);
+        frontArc.beginPath();
+        frontArc.arc(0, 0, radius, 0, end - Math.PI * 2);
+        frontArc.strokePath();
 
         backArc.setPosition(entity.sprite.x, entity.sprite.y);
         frontArc.setPosition(entity.sprite.x, entity.sprite.y);
 
-        // rotación
         this.scene.tweens.add({
             targets: [backArc, frontArc],
             angle: 360,
@@ -193,7 +196,6 @@ export class PlayerVisualSystem {
             }
         });
 
-        // seguir al jugador
         const updateFollow = () => {
             backArc.setPosition(entity.sprite.x, entity.sprite.y);
             frontArc.setPosition(entity.sprite.x, entity.sprite.y);
