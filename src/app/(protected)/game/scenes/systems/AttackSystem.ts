@@ -248,6 +248,37 @@ export function handleAttack(ctx: AttackContext) {
         ctx.clearTarget?.();
     }
 
+    // WAND ATTACK 3 — AUTO NEAREST (W3 A3)
+    if (myCurrentWeaponType === 3 && attackNumber === 3) {
+
+        const maxRange = 400;
+        const maxRangeSq = maxRange * maxRange;
+        const originX = myEntity.sprite.x;
+        const originY = myEntity.sprite.y;
+        let closestId: string | null = null;
+        let closestDistSq = Infinity;
+
+        for (const id in playerEntities) {
+            if (id === room.sessionId) continue;
+            const enemy = playerEntities[id];
+            if (!enemy || enemy.isDead) continue;
+            const dx = enemy.sprite.x - originX;
+            const dy = enemy.sprite.y - originY;
+            const distSq = dx * dx + dy * dy;
+            if (distSq < closestDistSq && distSq <= maxRangeSq) {
+                closestDistSq = distSq;
+                closestId = id;
+            }
+        }
+
+        if (!closestId) return;
+
+        const target = playerEntities[closestId];
+        targets.push(closestId);
+        attackX = target.sprite.x;
+        attackY = target.sprite.y;
+        
+    }
 
     // SPELL ATTACK 1
     if (myCurrentWeaponType === 4 && attackNumber === 1) {

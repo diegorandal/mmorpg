@@ -634,9 +634,8 @@ export class MainScene extends Phaser.Scene {
                         this.targetCircle?.setRadius(25);
                         this.targetCircle?.setFillStyle(0xff0000, 0.5)
                     }
-
-
                 }
+
             }
         }
 

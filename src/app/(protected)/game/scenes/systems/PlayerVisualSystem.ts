@@ -66,6 +66,7 @@ export class PlayerVisualSystem {
         if (msg.weaponType === 2 && msg.attackNumber === 3) this.playBow3FX(entity, msg);
         if (msg.weaponType === 3 && msg.attackNumber === 1) this.playWandFX(entity);
         if (msg.weaponType === 3 && msg.attackNumber === 2) this.playWand2FX(entity, msg);
+        if (msg.weaponType === 3 && msg.attackNumber === 2) this.playWand3FX(entity, msg);
         if (msg.weaponType === 4 && msg.attackNumber === 1) this.playSpellFX(entity);
         if (msg.weaponType === 4 && msg.attackNumber === 2) this.playSpell2FX(entity, msg);
         
@@ -298,6 +299,35 @@ export class PlayerVisualSystem {
 
     }
     
+    private playWand3FX(entity: any, msg: any) {
+
+        // 1. Obtener el ID del objetivo desde el mensaje del servidor
+        const targetId = msg.targets && msg.targets[0];
+        const targetEntity = this.scene.playerEntities[targetId];
+        if (!targetEntity) return;
+        const targetSprite = targetEntity.sprite;
+
+        // 1. Creamos un círculo simple en la posición del objetivo
+        const spark = this.scene.add.circle(
+            targetSprite.x,
+            targetSprite.y,
+            10,      // Radio inicial
+            0x00ffff, // Color Cian
+            0.6       // Opacidad
+        ).setDepth(targetSprite.depth + 1);
+
+        // 2. Animación de "destello de impacto"
+        this.scene.tweens.add({
+            targets: spark,
+            radius: 75,       // Se expande
+            alpha: 0,        // Se desvanece
+            duration: 75,   // Rápido
+            ease: 'Expo.inOut',
+            onComplete: () => spark.destroy()
+        });
+
+    }
+
     private playSpellFX(entity: any) {
         const aura = this.scene.add.circle(
             entity.sprite.x,
