@@ -269,6 +269,8 @@ export class MainScene extends Phaser.Scene {
             // 2. Solo permitimos apuntar si tenemos el arma 2 y ataque 2
             if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2) {
                 this.checkTargetSelection(pointer);
+            } else if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 3) {
+                this.checkTargetSelection(pointer);
             } else if (this.myCurrentWeaponType === 3 && this.attackDragSelect === 2) {
                 this.checkTargetSelection(pointer);
             } else if (this.myCurrentWeaponType === 4 && this.attackDragSelect === 2) {

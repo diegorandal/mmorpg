@@ -63,6 +63,7 @@ export class PlayerVisualSystem {
         if (msg.weaponType === 1 && msg.attackNumber === 3) this.playSword3FX(entity);
         if (msg.weaponType === 2 && msg.attackNumber === 1) this.playBowFX(entity, msg);
         if (msg.weaponType === 2 && msg.attackNumber === 2) this.playBow2FX(entity, msg);
+        if (msg.weaponType === 2 && msg.attackNumber === 3) this.playBow3FX(entity, msg);
         if (msg.weaponType === 3 && msg.attackNumber === 1) this.playWandFX(entity);
         if (msg.weaponType === 3 && msg.attackNumber === 2) this.playWand2FX(entity, msg);
         if (msg.weaponType === 4 && msg.attackNumber === 1) this.playSpellFX(entity);
@@ -201,12 +202,8 @@ export class PlayerVisualSystem {
         // 1. Obtener el ID del objetivo desde el mensaje del servidor
         const targetId = msg.targets && msg.targets[0];
         const targetEntity = this.scene.playerEntities[targetId];
-        
         // Si no hay objetivo válido, disparamos hacia adelante por defecto
-        if (!targetEntity) {
-            this.playBowFX(entity, msg);
-            return;
-        }
+        if (!targetEntity) return;
 
         const startX = entity.sprite.x;
         const startY = entity.sprite.y;
@@ -214,25 +211,35 @@ export class PlayerVisualSystem {
         const endY = targetEntity.sprite.y;
 
         // 2. Crear el sprite de la flecha
-        const arrow = this.scene.add
-            .image(startX, startY, "arrow")
-            .setOrigin(0.5)
-            .setDepth(entity.sprite.depth + 10)
-            .setScale(3);
-
+        const arrow = this.scene.add.image(startX, startY, "arrow").setOrigin(0.5).setDepth(entity.sprite.depth + 10).setScale(3);
         // 3. Orientar la flecha hacia el objetivo
         arrow.rotation = Phaser.Math.Angle.Between(startX, startY, endX, endY);
-
         // 4. Tween hacia la posición actual del enemigo
-        this.scene.tweens.add({
-            targets: arrow,
-            x: endX,
-            y: endY,
-            duration: 250,
-            ease: "Linear",
-            onComplete: () => {
-                arrow.destroy();
-            },
+        this.scene.tweens.add({targets: arrow, x: endX, y: endY, duration: 250, ease: "Linear", onComplete: () => {arrow.destroy();}});
+
+}
+
+    private playBow3FX(entity: any, msg: any) {
+
+        if (!msg.targets || msg.targets.length === 0) return;
+
+        const startX = entity.sprite.x;
+        const startY = entity.sprite.y;
+
+        msg.targets.forEach((targetId: string) => {
+
+            const targetEntity = this.scene.playerEntities[targetId];
+            if (!targetEntity) return;
+            const endX = targetEntity.sprite.x;
+            const endY = targetEntity.sprite.y;
+
+            // Crear flecha
+            const arrow = this.scene.add.image(startX, startY, "arrow").setOrigin(0.5).setDepth(entity.sprite.depth + 10).setScale(3);
+            // Orientar hacia el target
+            arrow.rotation = Phaser.Math.Angle.Between(startX, startY, endX, endY);
+            // Tween independiente
+            this.scene.tweens.add({targets: arrow, x: endX, y: endY, duration: 250, ease: "Linear", onComplete: () => {arrow.destroy();}});
+
         });
     }
 

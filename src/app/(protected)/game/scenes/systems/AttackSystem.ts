@@ -187,6 +187,28 @@ export function handleAttack(ctx: AttackContext) {
         ctx.clearTarget?.();
     }
 
+    // BOW ATTACK 3 — TARGET AOE (W2 A3)
+    if (myCurrentWeaponType === 2 && attackNumber === 3) {
+
+        const target = playerEntities[currentTargetId];
+        const aoeRadius = 75;
+        // 1. Validar objetivo
+        if (!currentTargetId || !target || target.isDead) return;
+        // 2. Centro del área = posición del target
+        attackX = target.sprite.x;
+        attackY = target.sprite.y;
+        // 3. Buscar todos los enemigos dentro del radio
+        for (const id in playerEntities) {
+            if (id === room.sessionId) continue;
+            const enemy = playerEntities[id];
+            if (enemy.isDead) continue;
+            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+            if (dist <= aoeRadius) targets.push(id);
+        }
+        // 5. Limpiar apuntado
+        ctx.clearTarget?.();
+    }
+
     // WAND ATTACK 1
     if (myCurrentWeaponType === 3 && attackNumber === 1) {
 
