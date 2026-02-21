@@ -328,7 +328,7 @@ export class PlayerVisualSystem {
             targetSprite.y,
             4,      // Radio inicial
             0xbf40bf, // Color Cian
-            0.4       // Opacidad
+            0.6       // Opacidad
         ).setDepth(targetSprite.depth + 1);
 
         // 2. Animación de "destello de impacto"

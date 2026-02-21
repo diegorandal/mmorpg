@@ -6,6 +6,8 @@ import { MovementSystem } from "./systems/MovementSystem";
 import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
 
 export class MainScene extends Phaser.Scene {
+    
+    // #region declaraciones
     public room!: Room<MyRoomState>;
     private movementSystem!: MovementSystem;
     private visualSystem!: PlayerVisualSystem;
@@ -48,14 +50,11 @@ export class MainScene extends Phaser.Scene {
     private weaponSelectorRing?: Phaser.GameObjects.Arc;
     private currentTargetId: string | null = null;
     private targetCircle?: Phaser.GameObjects.Arc;
-
-    //private isAttacking: boolean = false;
     private myCurrentWeaponType: number = 0;
     public readonly SEND_RATE = 100;
     private potText?: Phaser.GameObjects.Text;
     private hpText?: Phaser.GameObjects.Text;
     private playersText?: Phaser.GameObjects.Text;
-
     private attackCooldowns: { [key: string]: number } = {};
     private attackSpeeds: { [key: string]: number } = {
         "1-1": 250,
@@ -64,6 +63,8 @@ export class MainScene extends Phaser.Scene {
         "4-1": 750,
     };
 
+
+    // #region preload
     preload(): void {
 
         //PROGRESO
@@ -125,6 +126,7 @@ export class MainScene extends Phaser.Scene {
         this.load.image('arrow', `${BASE_URL}/arrow.png?v=${version}`);
     }
 
+    // #region Create
     create(): void {
 
         const roomInstance = this.registry.get('room') as Room<MyRoomState>;
@@ -322,6 +324,7 @@ export class MainScene extends Phaser.Scene {
         this.weaponSelectorRing?.setVisible(false);
     }
 
+    // #region Inputs
     private setupJoystick() {
 
         const x = 120;
@@ -454,6 +457,7 @@ export class MainScene extends Phaser.Scene {
         this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
     }
 
+    // #region addPlayer
     private addPlayer(data: any, sessionId: string) {
         // 3. Obtenemos el ID del character y asignamos su textura
         const charId = data.character || 1;
@@ -486,6 +490,7 @@ export class MainScene extends Phaser.Scene {
         
     }
 
+    // #region updatePlayer
     private updatePlayer(data: any, sessionId: string) {
         const entity = this.playerEntities[sessionId];
         if (!entity) return;
@@ -517,6 +522,7 @@ export class MainScene extends Phaser.Scene {
         }
     }
 
+    // #region removePlayer
     private removePlayer(sessionId: string) {
         const entity = this.playerEntities[sessionId];
         if (entity) {
@@ -533,6 +539,7 @@ export class MainScene extends Phaser.Scene {
         }
     }
 
+    // #region update
     update(time: number, delta: number): void {
 
         if (!this.room) return;
@@ -592,7 +599,6 @@ export class MainScene extends Phaser.Scene {
         if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
         if (this.potText) this.potText.setText(`💰 ${myState?.pot || 0}`);
         // 🎯 TARGET
-
         if (this.currentTargetId) {
             const target = this.playerEntities[this.currentTargetId];
 
@@ -606,7 +612,9 @@ export class MainScene extends Phaser.Scene {
 
                 // 3. Validar que sigas con el arma/ataque correcto (opcional, por si cambias)
                 const hasRightEquip = (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2) ||
+                    (this.myCurrentWeaponType === 2 && this.attackDragSelect === 3) ||
                     (this.myCurrentWeaponType === 3 && this.attackDragSelect === 2) ||
+                    (this.myCurrentWeaponType === 3 && this.attackDragSelect === 3) ||
                     (this.myCurrentWeaponType === 4 && this.attackDragSelect === 2);
 
                 if (!isVisible || !hasRightEquip) {
@@ -616,6 +624,16 @@ export class MainScene extends Phaser.Scene {
                     // 4. Actualizar posición del círculo
                     this.targetCircle?.setPosition(target.sprite.x, target.sprite.y + 10);
                     this.targetCircle?.setVisible(true);
+                    // 5. W2A3 agranda circulo
+                    if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 3){
+                        this.targetCircle?.setRadius(75);
+                        this.targetCircle?.setFillStyle(0xff0000, 0.25)
+                    } else {
+                        this.targetCircle?.setRadius(25);
+                        this.targetCircle?.setFillStyle(0xff0000, 0.5)
+                    }
+
+
                 }
             }
         }
