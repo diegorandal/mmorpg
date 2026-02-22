@@ -290,6 +290,7 @@ export function handleAttack(ctx: AttackContext) {
         for (const id in playerEntities) {
             if (id === room.sessionId) continue;
             const enemy = playerEntities[id];
+            if (enemy.isDead) continue;
             const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
             if (dist <= attackRadius) targets.push(id);
         }
@@ -312,6 +313,22 @@ export function handleAttack(ctx: AttackContext) {
         // Esto ayuda a que la animación de disparo coincida visualmente
         myEntity.lookDir.x = Math.cos(angle);
         myEntity.lookDir.y = Math.sin(angle);
+    }
+
+    // SPELL ATTACK 3
+    if (myCurrentWeaponType === 4 && attackNumber === 3) {
+
+        attackRadius = 500; // Radio amplio alrededor del jugador
+        attackX = myEntity.sprite.x;
+        attackY = myEntity.sprite.y;
+        for (const id in playerEntities) {
+            if (id === room.sessionId) continue;
+            const enemy = playerEntities[id];
+            if (enemy.isDead) continue;
+            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+            if (dist <= attackRadius) targets.push(id);
+        }
+
     }
 
     // ENVÍO AL SERVIDOR

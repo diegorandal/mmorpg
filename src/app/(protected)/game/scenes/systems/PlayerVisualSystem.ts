@@ -69,6 +69,7 @@ export class PlayerVisualSystem {
         if (msg.weaponType === 3 && msg.attackNumber === 2) this.playWand3FX(entity, msg);
         if (msg.weaponType === 4 && msg.attackNumber === 1) this.playSpellFX(entity);
         if (msg.weaponType === 4 && msg.attackNumber === 2) this.playSpell2FX(entity, msg);
+        if (msg.weaponType === 4 && msg.attackNumber === 3) this.playSpell3FX(entity);
         
     }
 
@@ -378,6 +379,25 @@ export class PlayerVisualSystem {
             onComplete: () => spark.destroy()
         });
 
+    }
+
+    private playSpell3FX(entity: any) {
+        const aura = this.scene.add.circle(
+            entity.sprite.x,
+            entity.sprite.y,
+            5,
+            0xbf40bf,
+            0.3
+        );
+
+        this.scene.tweens.add({
+            targets: aura,
+            radius: 500,
+            alpha: 0,
+            duration: 750,
+            ease: "Circ.out",
+            onComplete: () => aura.destroy(),
+        });
     }
 
     private getDirectionName(dx: number, dy: number): string {
