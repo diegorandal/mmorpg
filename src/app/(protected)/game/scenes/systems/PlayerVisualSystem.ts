@@ -387,14 +387,14 @@ export class PlayerVisualSystem {
             entity.sprite.y,
             5,
             0xbf40bf,
-            0.3
+            0.15
         );
 
         this.scene.tweens.add({
             targets: aura,
             radius: 500,
             alpha: 0,
-            duration: 750,
+            duration: 1000,
             ease: "Circ.out",
             onComplete: () => aura.destroy(),
         });
