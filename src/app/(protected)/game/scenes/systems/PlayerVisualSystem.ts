@@ -112,25 +112,16 @@ export class PlayerVisualSystem {
 
     showDamageText(x: number, y: number, amount: number) {
         const damageLabel = this.scene.add.text(
-            x,
-            y - 20,
+            x, y - 20,
             `-${amount}`,
-            {
-                fontSize: "20px",
-                color: "#ff0000",
-                fontStyle: "bold",
-                stroke: "#000000",
-                strokeThickness: 4,
-            }
-        )
-            .setOrigin(0.5)
-            .setDepth(3000);
+            {fontSize: "20px", color: "#ff0000", fontStyle: "bold", stroke: "#000000", strokeThickness: 4}
+        ) .setOrigin(0.5).setDepth(3000);
 
         this.scene.tweens.add({
             targets: damageLabel,
             y: y - 80,
             alpha: 0,
-            duration: 800,
+            duration: 750,
             ease: "Cubic.out",
             onComplete: () => damageLabel.destroy(),
         });
@@ -138,27 +129,42 @@ export class PlayerVisualSystem {
     
     playDefence(entity: any) {
 
-        const sprite = entity.sprite;
-
-        const aura = this.scene.add.graphics()
-            .setDepth(sprite.depth - 1)
-            .setAlpha(0.6);
-
-        aura.setBlendMode(Phaser.BlendModes.ADD);
-
-        const radius = sprite.displayWidth * 0.7;
-
-        aura.lineStyle(8, 0x00ff88, 0.8);
-        aura.strokeCircle(sprite.x, sprite.y, radius);
+        const damageLabel = this.scene.add.text(
+            entity.x, entity.y - 20,
+            'def',
+            { fontSize: "20px", color: "#003cff", fontStyle: "bold", stroke: "#000000", strokeThickness: 4 }
+        ).setOrigin(0.5).setDepth(entity.sprite.depth);
 
         this.scene.tweens.add({
-            targets: aura,
+            targets: damageLabel,
+            y: entity.y - 80,
             alpha: 0,
-            duration: 100,
-            ease: "Sine.out",
-            onComplete: () => aura.destroy()
+            duration: 750,
+            ease: "Cubic.out",
+            onComplete: () => damageLabel.destroy(),
         });
+
     }
+
+    playPotion(entity: any) {
+
+        const damageLabel = this.scene.add.text(
+            entity.x, entity.y - 20,
+            '+10', // harcodeado y bueno...
+            { fontSize: "20px", color: "#2bff00f8", fontStyle: "bold", stroke: "#000000", strokeThickness: 4 }
+        ).setOrigin(0.5).setDepth(entity.sprite.depth);
+
+        this.scene.tweens.add({
+            targets: damageLabel,
+            y: entity.y - 80,
+            alpha: 0,
+            duration: 750,
+            ease: "Cubic.out",
+            onComplete: () => damageLabel.destroy(),
+        });
+
+    }
+
 
     private playSword2FX(entity: any) {
 

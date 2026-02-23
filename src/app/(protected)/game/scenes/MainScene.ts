@@ -528,6 +528,11 @@ export class MainScene extends Phaser.Scene {
             this.visualSystem.playDefence(entity);
         }
 
+        // -- POCION ---
+        if (data.hp !== undefined && data.hp > entity.hp) {
+            this.visualSystem.playPotion(entity);
+        }
+
 
         // --- DETECCIÓN DE MUERTE ---
         if (data.hp !== undefined && data.hp <= 0 && entity.hp > 0) {
