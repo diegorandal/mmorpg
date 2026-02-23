@@ -136,6 +136,30 @@ export class PlayerVisualSystem {
         });
     }
     
+    playDefence(entity: any) {
+
+        const sprite = entity.sprite;
+
+        const aura = this.scene.add.graphics()
+            .setDepth(sprite.depth - 1)
+            .setAlpha(0.6);
+
+        aura.setBlendMode(Phaser.BlendModes.ADD);
+
+        const radius = sprite.displayWidth * 0.7;
+
+        aura.lineStyle(8, 0x00ff88, 0.8);
+        aura.strokeCircle(sprite.x, sprite.y, radius);
+
+        this.scene.tweens.add({
+            targets: aura,
+            alpha: 0,
+            duration: 100,
+            ease: "Sine.out",
+            onComplete: () => aura.destroy()
+        });
+    }
+
     private playSword2FX(entity: any) {
 
         const length = 60;
