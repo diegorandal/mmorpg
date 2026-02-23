@@ -56,13 +56,18 @@ export class MainScene extends Phaser.Scene {
     private hpText?: Phaser.GameObjects.Text;
     private playersText?: Phaser.GameObjects.Text;
     private attackCooldowns: { [key: string]: number } = {};
+    private attackPressStart: number = 0;
+    private attackCharging: boolean = false;
+    private attackChargeMs: number = 0;
+    private maxChargeMs: number = 1500; // 1.5 segundos para carga máxima
+    private attackChargePercent: number = 0; // 0 → 1
     private attackSpeeds: { [key: string]: number } = {
         "1-1": 250,
         "2-1": 250,
         "3-1": 500,
         "4-1": 750,
     };
-
+    // #endregion
 
     // #region preload
     preload(): void {
@@ -282,8 +287,8 @@ export class MainScene extends Phaser.Scene {
     }
     
     private handleDeath(entity: any, sessionId: string) {
-        if (entity.isDead) return;
 
+        if (entity.isDead) return;
         entity.isDead = true;
 
         const dir = entity.currentDir || 'down';
@@ -292,9 +297,14 @@ export class MainScene extends Phaser.Scene {
         entity.sprite.setVelocity(0, 0);
         entity.sprite.anims.play(animKey, true);
 
+        //quitar label y hpbar
+        if (!entity?.label || !entity?.hpBar) return;
+        const { label, hpBar, hp } = entity;
+        label?.setVisible(false);
+        hpBar?.setVisible(false);
+        hp?.setVisible(false);
         // Opcional: que no colisione más
         entity.sprite.body.enable = false;
-
         // Si soy yo → deshabilitar controles
         if (sessionId === this.room.sessionId) {
             this.disableControls();
@@ -351,6 +361,11 @@ export class MainScene extends Phaser.Scene {
 
         this.attackText = this.add.text(xAttack, y, 'ATK', {fontSize: '20px', color: '#fff'}).setOrigin(0.5).setScrollFactor(0).setDepth(10001);
 
+        this.attackButton.on('pointerdown', () => {
+            this.attackPressStart = this.time.now;
+            this.attackCharging = true;
+        });
+
         this.attackButton.on('dragstart', (pointer: Phaser.Input.Pointer) => {
             this.attackPointerId = pointer.id;
             this.isDragging = true;
@@ -378,7 +393,16 @@ export class MainScene extends Phaser.Scene {
         });
 
         this.attackButton.on('pointerup', () => {
+
+            this.attackCharging = false;
+            const finalCharge = this.attackChargePercent; // valor 0 → 1
+            // Reset visual
+            this.attackButton.setFillStyle(0xff0000, 0.3);
+            this.attackChargeMs = 0;
+            this.attackChargePercent = 0;
+
             handleAttack({ room: this.room, playerEntities: this.playerEntities, myCurrentWeaponType: this.myCurrentWeaponType, attackNumber: this.attackDragSelect, attackCooldowns: this.attackCooldowns, attackSpeeds: this.attackSpeeds, time: this.time, playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem), clearTarget: this.clearTarget.bind(this), currentTargetId: this.currentTargetId});
+            
         });
 
         // --- Botones seleccion weapon y pocion ---
@@ -637,6 +661,16 @@ export class MainScene extends Phaser.Scene {
                 }
 
             }
+        }
+
+        if (((this.myCurrentWeaponType === 2 && this.attackDragSelect === 2) || 
+            (this.myCurrentWeaponType === 4 && this.attackDragSelect === 1)) && this.attackCharging) {
+            this.attackChargeMs = this.time.now - this.attackPressStart;
+            // Clamp al máximo
+            if (this.attackChargeMs > this.maxChargeMs) this.attackChargeMs = this.maxChargeMs;
+            this.attackChargePercent = this.attackChargeMs / this.maxChargeMs;
+            // ejemplo: cambiar escala o alpha del botón
+            this.attackButton.setFillStyle(0xff0000, this.attackChargePercent)
         }
 
         // 🚶 MOVEMENT SYSTEM
