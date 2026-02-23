@@ -16,7 +16,7 @@ export class MainScene extends Phaser.Scene {
     private collisionLayer?: Phaser.Tilemaps.TilemapLayer;
     public joystickBase?: Phaser.GameObjects.Arc;
     public joystickThumb?: Phaser.GameObjects.Arc;
-    private attackText?: Phaser.GameObjects.Text;
+    private attackArc?: Phaser.GameObjects.Graphics;
     private weaponButton?: Phaser.GameObjects.Arc;
     private weaponLabel?: Phaser.GameObjects.Text;
     private deathOverlay?: Phaser.GameObjects.Rectangle;
@@ -310,7 +310,7 @@ export class MainScene extends Phaser.Scene {
     private disableControls() {
         this.isDragging = false;
         this.joystickBase?.setVisible(false);
-        this.attackText?.setVisible(false);
+        //this.attackText?.setVisible(false);
         this.joystickThumb?.setVisible(false);
         this.attackButton?.setVisible(false);
         this.weaponButton?.setVisible(false);
@@ -354,7 +354,7 @@ export class MainScene extends Phaser.Scene {
         
         this.input.setDraggable(this.attackButton);
 
-        this.attackText = this.add.text(xAttack, y, 'ATK', {fontSize: '20px', color: '#fff'}).setOrigin(0.5).setScrollFactor(0).setDepth(10001);
+        //this.attackText = this.add.text(xAttack, y, 'ATK', {fontSize: '20px', color: '#fff'}).setOrigin(0.5).setScrollFactor(0).setDepth(10001);
 
         this.attackButton.on('dragstart', (pointer: Phaser.Input.Pointer) => {
             this.attackPointerId = pointer.id;
@@ -372,6 +372,9 @@ export class MainScene extends Phaser.Scene {
             if (Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
             if (Math.abs(dx) > Math.abs(dy)) {this.attackDragSelect = dx > 0 ? 3 : 2;
             } else {this.attackDragSelect = dy < 0 ? 1 : 4;}
+
+            this.updateAttackArc();
+
         });
         
         this.attackButton.on('dragend', (pointer: Phaser.Input.Pointer) => {
@@ -379,7 +382,7 @@ export class MainScene extends Phaser.Scene {
             this.attackPointerId = null;
             this.attackButton?.setFillStyle(0xff0000, 0.3);
             this.isDragging = false;
-            this.attackText?.setText('ATK' + this.attackDragSelect);
+            //this.attackText?.setText('ATK' + this.attackDragSelect);
         });
 
         this.attackButton.on('pointerup', () => {
@@ -395,6 +398,8 @@ export class MainScene extends Phaser.Scene {
                  clearTarget: this.clearTarget.bind(this), 
                  currentTargetId: this.currentTargetId});
         });
+
+        this.attackArc = this.add.graphics().setScrollFactor(0).setDepth(10002);
 
         // --- Botones seleccion weapon y pocion ---
 
@@ -662,6 +667,44 @@ export class MainScene extends Phaser.Scene {
     private updatePlayerCountUI() {
         const count = this.room.state.players.size;
         this.playersText?.setText(`👥 ${count}`);
+    }
+
+
+    private updateAttackArc() {
+
+        if (!this.attackArc) return;
+
+        this.attackArc.clear();
+
+        const radius = 55; // un poco más grande que el botón
+        const centerX = this.attackButton.x;
+        const centerY = this.attackButton.y;
+
+        const quarter = Math.PI / 2;
+
+        let startAngle = 0;
+
+        switch (this.attackDragSelect) {
+            case 1: // arriba
+                startAngle = -Math.PI * 3 / 4;
+                break;
+            case 2: // izquierda
+                startAngle = Math.PI * 3 / 4;
+                break;
+            case 3: // derecha
+                startAngle = -Math.PI / 4;
+                break;
+            case 4: // abajo
+                startAngle = Math.PI / 4;
+                break;
+            default:
+                return;
+        }
+
+        this.attackArc.lineStyle(6, 0xffff00, 0.9);
+        this.attackArc.beginPath();
+        this.attackArc.arc(centerX, centerY, radius, startAngle, startAngle + quarter);
+        this.attackArc.strokePath();
     }
 
     private clearTarget(): void {
