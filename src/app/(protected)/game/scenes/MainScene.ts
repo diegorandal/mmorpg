@@ -672,18 +672,13 @@ export class MainScene extends Phaser.Scene {
 
     private updateAttackArc() {
 
-        if (!this.attackArc) return;
-
+        if (!this.attackArc || !this.attackButton) return;
         this.attackArc.clear();
-
-        const radius = 55; // un poco más grande que el botón
         const centerX = this.attackButton.x;
         const centerY = this.attackButton.y;
-
+        const radius = 50;
         const quarter = Math.PI / 2;
-
         let startAngle = 0;
-
         switch (this.attackDragSelect) {
             case 1: // arriba
                 startAngle = -Math.PI * 3 / 4;
@@ -701,10 +696,10 @@ export class MainScene extends Phaser.Scene {
                 return;
         }
 
-        this.attackArc.lineStyle(6, 0xffff00, 0.9);
-        this.attackArc.beginPath();
-        this.attackArc.arc(centerX, centerY, radius, startAngle, startAngle + quarter);
-        this.attackArc.strokePath();
+        this.attackArc.fillStyle(0xff5555, 0.25).beginPath().moveTo(centerX, centerY);
+        this.attackArc.arc(centerX, centerY, radius, startAngle, startAngle + quarter, false);
+        this.attackArc.closePath().fillPath();
+        
     }
 
     private clearTarget(): void {
