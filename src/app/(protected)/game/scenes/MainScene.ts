@@ -365,7 +365,6 @@ export class MainScene extends Phaser.Scene {
 
         this.attackButton.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
             if (pointer.id !== this.attackPointerId) return;
-            this.attackButton?.setFillStyle(0x0000ff, 0.6);
             const dx = pointer.x - this.attackDragStartX;
             const dy = pointer.y - this.attackDragStartY;
             const threshold = 25;
@@ -523,6 +522,12 @@ export class MainScene extends Phaser.Scene {
             this.visualSystem.showDamageText(entity.sprite.x, entity.sprite.y, damageTaken);
             this.visualSystem.updateHealthBar(entity);
         }
+        
+        // -- DEFIENDE ---
+        if (!data.isDefending && entity.isDefending) {
+            console.log('defendio ', entity.name);
+        }
+
 
         // --- DETECCIÓN DE MUERTE ---
         if (data.hp !== undefined && data.hp <= 0 && entity.hp > 0) {
@@ -680,26 +685,17 @@ export class MainScene extends Phaser.Scene {
         const quarter = Math.PI / 2;
         let startAngle = 0;
         switch (this.attackDragSelect) {
-            case 1: // arriba
-                startAngle = -Math.PI * 3 / 4;
-                break;
-            case 2: // izquierda
-                startAngle = Math.PI * 3 / 4;
-                break;
-            case 3: // derecha
-                startAngle = -Math.PI / 4;
-                break;
-            case 4: // abajo
-                startAngle = Math.PI / 4;
-                break;
-            default:
-                return;
+            case 1: startAngle = -Math.PI * 3 / 4; break;
+            case 2: startAngle = Math.PI * 3 / 4; break;
+            case 3: startAngle = -Math.PI / 4; break;
+            case 4: startAngle = Math.PI / 4; break;
+            default: return;
         }
 
-        this.attackArc.fillStyle(0xff5555, 0.25).beginPath().moveTo(centerX, centerY);
+        this.attackArc.fillStyle(0xff5555, 0.4).beginPath().moveTo(centerX, centerY);
         this.attackArc.arc(centerX, centerY, radius, startAngle, startAngle + quarter, false);
         this.attackArc.closePath().fillPath();
-        
+
     }
 
     private clearTarget(): void {
