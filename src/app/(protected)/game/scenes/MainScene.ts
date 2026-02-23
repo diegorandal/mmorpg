@@ -541,6 +541,7 @@ export class MainScene extends Phaser.Scene {
         entity.weapon = data.weapon;
         entity.lookDir.x = data.lookx;
         entity.lookDir.y = data.looky;
+        entity.isDefending = data.isDefending;
 
         if (data.name) entity.label.setText(data.name);
         if (sessionId !== this.room.sessionId) {
