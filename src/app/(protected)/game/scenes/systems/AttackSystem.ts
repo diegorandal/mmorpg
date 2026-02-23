@@ -340,7 +340,7 @@ export function handleAttack(ctx: AttackContext) {
         attackNumber: myEntity.attack,
         position: { x: Math.floor(attackX), y: Math.floor(attackY) },
         direction: { x: myEntity.lookDir.x, y: myEntity.lookDir.y }, 
-        targets: targets
+        targets: targets,
     });
 
 }
