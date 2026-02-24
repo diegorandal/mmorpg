@@ -443,6 +443,9 @@ export class MainScene extends Phaser.Scene {
             if (dist <= 60) {
                 this.joystickPointerId = pointer.id;
             }
+
+            this.potion?.setVisible(false);
+
         });
         
         this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
@@ -467,6 +470,9 @@ export class MainScene extends Phaser.Scene {
 
             this.joystickThumb.x = x;
             this.joystickThumb.y = y;
+
+            this.potion?.setVisible(true);
+
         });
 
     }
@@ -532,10 +538,8 @@ export class MainScene extends Phaser.Scene {
 
         // -- POCION ---
         if (data.hp !== undefined && data.hp > entity.hp) {
-            console.log('pota:', data.name)
             this.visualSystem.playPotion(entity);
         }
-
 
         // --- DETECCIÓN DE MUERTE ---
         if (data.hp !== undefined && data.hp <= 0 && entity.hp > 0) {
