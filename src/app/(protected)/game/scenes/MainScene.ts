@@ -429,8 +429,6 @@ export class MainScene extends Phaser.Scene {
         // usar pocion
         this.potion.on('pointerdown', () => {
             this.room.send("useItem", { item: 1 });
-            this.potion?.setVisible(true);
-            this.potionText?.setVisible(true);
         });
 
         // --- LÓGICA PARA JOYSTICK ---
@@ -441,8 +439,6 @@ export class MainScene extends Phaser.Scene {
             if (pointer.x > window.innerWidth / 2) return;
             const dist = Phaser.Math.Distance.Between(pointer.x, pointer.y, x, y);
             if (dist <= 60) this.joystickPointerId = pointer.id;
-            this.potion?.setVisible(false);
-            this.potionText?.setVisible(false);
 
         });
         
@@ -455,6 +451,9 @@ export class MainScene extends Phaser.Scene {
             const angle = Math.atan2(dy, dx);
             this.joystickThumb.x = x + Math.cos(angle) * distance;
             this.joystickThumb.y = y + Math.sin(angle) * distance;
+
+            this.potion?.setVisible(false);
+            this.potionText?.setVisible(false);
 
         });
 
