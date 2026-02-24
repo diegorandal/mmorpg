@@ -330,6 +330,8 @@ export class MainScene extends Phaser.Scene {
         this.weapon4Text?.setVisible(false);
         this.potionText?.setVisible(false);
         this.weaponSelectorRing?.setVisible(false);
+        this.attackArc?.setVisible(false);
+
     }
 
     // #region Inputs
@@ -503,7 +505,7 @@ export class MainScene extends Phaser.Scene {
         // 4. Guardamos el characterId para saber qué animación llamar después
         this.playerEntities[sessionId] = { sprite, label, hpBar, glow,  characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
         if (sessionId === this.room.sessionId) this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
-        
+
     }
 
     // #region updatePlayer

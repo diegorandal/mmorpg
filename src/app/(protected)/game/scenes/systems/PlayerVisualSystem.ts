@@ -301,35 +301,29 @@ export class PlayerVisualSystem {
 
     private playWand2FX(entity: any, msg: any) {
 
-        // 1. Obtener el ID del objetivo desde el mensaje del servidor
         const targetId = msg.targets && msg.targets[0];
         const targetEntity = this.scene.playerEntities[targetId];
+        if (!targetEntity) return;
 
-        if (!targetEntity) {
-            return;
-        }
+        const startX = entity.sprite.x;
+        const startY = entity.sprite.y;
+        const endX = targetEntity.sprite.x;
+        const endY = targetEntity.sprite.y;
 
-        const targetSprite = targetEntity.sprite;
+        // 🔥 Bola de fuego (círculo simple)
+        const fireball = this.scene.add.circle(startX, startY, 8, 0xff6600, 0.8).setDepth(entity.sprite.depth + 10);
+        // Glow simple opcional
+        fireball.setBlendMode(Phaser.BlendModes.ADD);
 
-        // 1. Creamos un círculo simple en la posición del objetivo
-        const spark = this.scene.add.circle(
-            targetSprite.x,
-            targetSprite.y,
-            20,      // Radio inicial
-            0x00ffff, // Color Cian
-            0.8       // Opacidad
-        ).setDepth(targetSprite.depth + 1);
-
-        // 2. Animación de "destello de impacto"
+        // Movimiento hacia el target
         this.scene.tweens.add({
-            targets: spark,
-            radius: 50,       // Se expande
-            alpha: 0,        // Se desvanece
-            duration: 100,   // Rápido
-            ease: 'Cubic.out',
-            onComplete: () => spark.destroy()
+            targets: fireball,
+            x: endX,
+            y: endY,
+            duration: 150,
+            ease: "Linear",
+            onComplete: () => fireball.destroy()
         });
-
     }
     
     private playWand3FX(entity: any, msg: any) {
