@@ -409,7 +409,7 @@ export class MainScene extends Phaser.Scene {
         this.weapon2 = this.add.circle(ax + r, ay + r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
         this.weapon3 = this.add.circle(ax, ay + (r * 1.31), wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
         this.weapon4 = this.add.circle(ax - r, ay + r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
-        this.potion = this.add.circle(35, this.weapon4.y, wsize, 0xff0000, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
+        this.potion = this.add.circle(35, this.weapon4.y, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
 
         this.weapon0Text = this.add.text(this.weapon0.x, this.weapon0.y, '🏃‍♂️', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
         this.weapon1Text = this.add.text(this.weapon1.x, this.weapon1.y, '🗡', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
@@ -429,6 +429,8 @@ export class MainScene extends Phaser.Scene {
         // usar pocion
         this.potion.on('pointerdown', () => {
             this.room.send("useItem", { item: 1 });
+            this.potion?.setVisible(true);
+            this.potionText?.setVisible(true);
         });
 
         // --- LÓGICA PARA JOYSTICK ---
@@ -437,41 +439,33 @@ export class MainScene extends Phaser.Scene {
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 
             if (pointer.x > window.innerWidth / 2) return;
-
             const dist = Phaser.Math.Distance.Between(pointer.x, pointer.y, x, y);
-
-            if (dist <= 60) {
-                this.joystickPointerId = pointer.id;
-            }
-
+            if (dist <= 60) this.joystickPointerId = pointer.id;
             this.potion?.setVisible(false);
+            this.potionText?.setVisible(false);
 
         });
         
         this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
 
             if (pointer.id !== this.joystickPointerId) return;
-
             const dx = pointer.x - x;
             const dy = pointer.y - y;
-
             const distance = Math.min(Math.hypot(dx, dy), 50);
             const angle = Math.atan2(dy, dx);
-
             this.joystickThumb.x = x + Math.cos(angle) * distance;
             this.joystickThumb.y = y + Math.sin(angle) * distance;
+
         });
 
         this.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
 
             if (pointer.id !== this.joystickPointerId) return;
-
             this.joystickPointerId = null;
-
             this.joystickThumb.x = x;
             this.joystickThumb.y = y;
-
             this.potion?.setVisible(true);
+            this.potionText?.setVisible(true);
 
         });
 
