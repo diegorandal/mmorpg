@@ -279,6 +279,13 @@ export class MainScene extends Phaser.Scene {
 
         });
 
+        // UI inicial
+
+        this.selectWeapon(0);
+        this.attackDragSelect = 1;
+        this.updateAttackArc();
+
+
     }
     
     private handleDeath(entity: any, sessionId: string) {
@@ -421,13 +428,13 @@ export class MainScene extends Phaser.Scene {
         this.weapon4Text = this.add.text(this.weapon4.x, this.weapon4.y, '🗣', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
         this.potionText = this.add.text(this.potion.x, this.potion.y, '♥', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
 
+        this.weaponSelectorRing = this.add.circle(-100, -100, wsize + 5).setStrokeStyle(4, 0xffff00, 0.4).setScrollFactor(0).setDepth(10001);
+
         this.weapon0.on('pointerdown', () => this.selectWeapon(0));
         this.weapon1.on('pointerdown', () => this.selectWeapon(1));
         this.weapon2.on('pointerdown', () => this.selectWeapon(2));
         this.weapon3.on('pointerdown', () => this.selectWeapon(3));
         this.weapon4.on('pointerdown', () => this.selectWeapon(4));
-        
-        this.weaponSelectorRing = this.add.circle(-100, -100, wsize + 5).setStrokeStyle(4, 0xffff00, 0.4).setScrollFactor(0).setDepth(10001);
 
         // --- LÓGICA PARA JOYSTICK ---
         this.joystickBase.setInteractive();
@@ -698,6 +705,7 @@ export class MainScene extends Phaser.Scene {
             default: return;
         }
 
+        this.attackArc.lineStyle(3, 0xffff00, 0.4);
         this.attackArc.fillStyle(0xff5555, 0.4).beginPath().moveTo(centerX, centerY);
         this.attackArc.arc(centerX, centerY, radius, startAngle, startAngle + quarter, false);
         this.attackArc.closePath().fillPath();
