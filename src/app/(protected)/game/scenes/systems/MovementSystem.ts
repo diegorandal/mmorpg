@@ -78,11 +78,8 @@ export class MovementSystem {
         // 🎞 ANIMACIÓN
         myEntity.sprite.setDepth(myEntity.sprite.y);
         myEntity.label.setDepth(myEntity.sprite.y + 1);
-
         this.visualSystem.updatePlayerAnimation(myEntity, dx, dy);
-
         myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 55);
-
         this.visualSystem.updateHealthBar(myEntity);
         this.visualSystem.updateAura(myEntity);
 

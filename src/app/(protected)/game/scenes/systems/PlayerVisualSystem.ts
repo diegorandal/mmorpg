@@ -108,8 +108,8 @@ export class PlayerVisualSystem {
 
         hpBar.fillStyle(color, 0.2);
         hpBar.fillRect(barX, barY, currentWidth, label.displayHeight);
-
         hpBar.setDepth(label.depth - 1);
+        
     }
 
     showDamageText(x: number, y: number, amount: number) {

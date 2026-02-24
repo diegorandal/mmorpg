@@ -586,6 +586,7 @@ export class MainScene extends Phaser.Scene {
         // 🧠 STATE SYNC (Health / Death)
         if (myState) {
             if (myState.hp < myEntity.hp) {
+                this.visualSystem.updateHealthBar(myEntity);
                 this.visualSystem.showDamageText(
                     myEntity.sprite.x,
                     myEntity.sprite.y,
