@@ -309,18 +309,14 @@ export class PlayerVisualSystem {
         const startY = entity.sprite.y;
         const endX = targetEntity.sprite.x;
         const endY = targetEntity.sprite.y;
-
-        // 🔥 Bola de fuego (círculo simple)
-        const fireball = this.scene.add.circle(startX, startY, 8, 0xff6600, 0.8).setDepth(entity.sprite.depth + 10);
-        // Glow simple opcional
+        const fireball = this.scene.add.circle(startX, startY, 8, 0xff7700, 0.8).setDepth(entity.sprite.depth + 10);
         fireball.setBlendMode(Phaser.BlendModes.ADD);
 
-        // Movimiento hacia el target
         this.scene.tweens.add({
             targets: fireball,
             x: endX,
             y: endY,
-            duration: 150,
+            duration: 250,
             ease: "Linear",
             onComplete: () => fireball.destroy()
         });

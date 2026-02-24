@@ -426,6 +426,11 @@ export class MainScene extends Phaser.Scene {
         this.weapon3.on('pointerdown', () => this.selectWeapon(3));
         this.weapon4.on('pointerdown', () => this.selectWeapon(4));
 
+        // usar pocion
+        this.potion.on('pointerdown', () => {
+            this.room.send("useItem", { item: 1 });
+        });
+
         // --- LÓGICA PARA JOYSTICK ---
         this.joystickBase.setInteractive();
         this.joystickThumb.setInteractive();     
