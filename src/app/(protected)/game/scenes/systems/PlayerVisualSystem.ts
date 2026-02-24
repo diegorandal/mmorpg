@@ -132,10 +132,9 @@ export class PlayerVisualSystem {
     playDefence(entity: any) {
 
         const damageLabel = this.scene.add.text(
-            entity.sprite.x, entity.sprite.y - 20,
-            'def',
+            entity.sprite.x, entity.sprite.y - 20, 'def',
             { fontSize: "20px", color: "#003cff", fontStyle: "bold", stroke: "#000000", strokeThickness: 4 }
-        ).setOrigin(0.5).setDepth(entity.sprite.depth);
+            ).setOrigin(0.5).setDepth(entity.sprite.depth);
 
         this.scene.tweens.add({
             targets: damageLabel,
@@ -151,14 +150,13 @@ export class PlayerVisualSystem {
     playPotion(entity: any) {
 
         const damageLabel = this.scene.add.text(
-            entity.x, entity.y - 20,
-            'pot',
+            entity.sprite.x, entity.sprite.y - 20, 'pot',
             { fontSize: "20px", color: "#2bff00d8", fontStyle: "bold", stroke: "#000000", strokeThickness: 4 }
-        ).setOrigin(0.5).setDepth(entity.sprite.depth);
+            ).setOrigin(0.5).setDepth(entity.sprite.depth);
 
         this.scene.tweens.add({
             targets: damageLabel,
-            y: entity.y - 80,
+            y: entity.sprite.y - 80,
             alpha: 0,
             duration: 750,
             ease: "Cubic.out",
