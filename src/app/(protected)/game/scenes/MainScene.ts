@@ -298,11 +298,10 @@ export class MainScene extends Phaser.Scene {
         entity.sprite.anims.play(animKey, true);
 
         //quitar label y hpbar
-        if (!entity?.label || !entity?.hpBar) return;
-        const { label, hpBar, hp } = entity;
-        label?.setVisible(false);
-        hpBar?.setVisible(false);
-        hp?.setVisible(false);
+        entity.label?.setVisible(false);
+        entity.hpBar?.setVisible(false);
+        entity.hp?.setVisible(false);
+
         // Opcional: que no colisione más
         entity.sprite.body.enable = false;
         // Si soy yo → deshabilitar controles
@@ -351,7 +350,7 @@ export class MainScene extends Phaser.Scene {
         this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(10001);
         
         // --- BOTÓN DE ATAQUE ---
-        this.attackButton = this.add.circle(xAttack, y, 50, 0xff0000, 0.3)
+        this.attackButton = this.add.circle(xAttack, y, 50, 0xffffff, 0.3)
             .setScrollFactor(0).setDepth(10000)
             .setInteractive();
         
@@ -702,7 +701,7 @@ export class MainScene extends Phaser.Scene {
         }
 
         this.attackArc.lineStyle(3, 0xffff00, 0.4);
-        this.attackArc.fillStyle(0xff5555, 0.4).beginPath().moveTo(centerX, centerY);
+        this.attackArc.fillStyle(0xff0000, 0.75).beginPath().moveTo(centerX, centerY);
         this.attackArc.arc(centerX, centerY, radius, startAngle, startAngle + quarter, false);
         this.attackArc.closePath().fillPath().strokePath();
 
