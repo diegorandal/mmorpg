@@ -300,7 +300,6 @@ export class MainScene extends Phaser.Scene {
         //quitar label y hpbar
         entity.label?.setVisible(false);
         entity.hpBar?.setVisible(false);
-        entity.hp?.setVisible(false);
 
         // Opcional: que no colisione más
         entity.sprite.body.enable = false;
