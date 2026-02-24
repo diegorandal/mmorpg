@@ -129,6 +129,8 @@ export class PlayerVisualSystem {
     
     playDefence(entity: any) {
 
+        console.log('llega hasta aca');
+
         const damageLabel = this.scene.add.text(
             entity.x, entity.y - 20,
             'def',
