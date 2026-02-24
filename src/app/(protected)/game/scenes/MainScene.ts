@@ -349,10 +349,7 @@ export class MainScene extends Phaser.Scene {
         this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(10001);
         
         // --- BOTÓN DE ATAQUE ---
-        this.attackButton = this.add.circle(xAttack, y, 50, 0xffffff, 0.3)
-            .setScrollFactor(0).setDepth(10000)
-            .setInteractive();
-        
+        this.attackButton = this.add.circle(xAttack, y, 50, 0xffffff, 0.3).setScrollFactor(0).setDepth(10000).setInteractive();
         this.input.setDraggable(this.attackButton);
 
         this.attackButton.on('dragstart', (pointer: Phaser.Input.Pointer) => {
@@ -378,7 +375,6 @@ export class MainScene extends Phaser.Scene {
         this.attackButton.on('dragend', (pointer: Phaser.Input.Pointer) => {
             if (pointer.id !== this.attackPointerId) return;
             this.attackPointerId = null;
-            this.attackButton?.setFillStyle(0xff0000, 0.3);
             this.isDragging = false;
             //this.attackText?.setText('ATK' + this.attackDragSelect);
         });
@@ -617,21 +613,19 @@ export class MainScene extends Phaser.Scene {
             });
 
             this.attackButton?.setFillStyle(0xffffff, 0.3);
-            /*
-            this.time.delayedCall(100, () => {
-                this.attackButton?.setFillStyle(0xff0000, 0.3);
-            });
-            */
+
         }
 
-        // 🗡 CAMBIO DE ARMA
+        // CAMBIO DE ARMA
         if (Phaser.Input.Keyboard.JustDown(this.key1Key)) this.selectWeapon(1);
         if (Phaser.Input.Keyboard.JustDown(this.key2Key)) this.selectWeapon(2);
         if (Phaser.Input.Keyboard.JustDown(this.key3Key)) this.selectWeapon(3);
         if (Phaser.Input.Keyboard.JustDown(this.key4Key)) this.selectWeapon(4);
+
         // 🖥 UI
         if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
         if (this.potText) this.potText.setText(`💰 ${myState?.pot || 0}`);
+
         // 🎯 TARGET
         if (this.currentTargetId) {
             const target = this.playerEntities[this.currentTargetId];
@@ -648,7 +642,6 @@ export class MainScene extends Phaser.Scene {
                 const hasRightEquip = (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2) ||
                     (this.myCurrentWeaponType === 2 && this.attackDragSelect === 3) ||
                     (this.myCurrentWeaponType === 3 && this.attackDragSelect === 2) ||
-                    (this.myCurrentWeaponType === 3 && this.attackDragSelect === 3) ||
                     (this.myCurrentWeaponType === 4 && this.attackDragSelect === 2);
 
                 if (!isVisible || !hasRightEquip) {
@@ -700,7 +693,7 @@ export class MainScene extends Phaser.Scene {
         }
 
         this.attackArc.lineStyle(3, 0xffff00, 0.4);
-        this.attackArc.fillStyle(0xffffff, 0.75).beginPath().moveTo(centerX, centerY);
+        this.attackArc.fillStyle(0xffffff, 0.5).beginPath().moveTo(centerX, centerY);
         this.attackArc.arc(centerX, centerY, radius, startAngle, startAngle + quarter, false);
         this.attackArc.closePath().fillPath().strokePath();
 

@@ -55,8 +55,10 @@ export class PlayerVisualSystem {
             4: "spell-attack",
         };
 
-        const animKey = `${weaponMap[msg.weaponType]}-${dir}-${entity.characterId}`;
-        entity.sprite.anims.play(animKey, true);
+        if (msg.attackNumber != 4){ // defensa
+            const animKey = `${weaponMap[msg.weaponType]}-${dir}-${entity.characterId}`;
+            entity.sprite.anims.play(animKey, true);
+        }
 
         // FX
         if (msg.weaponType === 1 && msg.attackNumber === 2) this.playSword2FX(entity);
@@ -66,10 +68,10 @@ export class PlayerVisualSystem {
         if (msg.weaponType === 2 && msg.attackNumber === 3) this.playBow3FX(entity, msg);
         if (msg.weaponType === 3 && msg.attackNumber === 1) this.playWandFX(entity);
         if (msg.weaponType === 3 && msg.attackNumber === 2) this.playWand2FX(entity, msg);
-        if (msg.weaponType === 3 && msg.attackNumber === 2) this.playWand3FX(entity, msg);
+        if (msg.weaponType === 3 && msg.attackNumber === 3) this.playWand3FX(entity, msg);
         if (msg.weaponType === 4 && msg.attackNumber === 1) this.playSpellFX(entity);
         if (msg.weaponType === 4 && msg.attackNumber === 2) this.playSpell2FX(entity, msg);
-        if (msg.weaponType === 4 && msg.attackNumber === 3) this.playSpell3FX(entity);
+        if (msg.weaponType === 4 && msg.attackNumber === 3) this.playSpell3FX(entity, msg);
         
     }
 
@@ -411,22 +413,54 @@ export class PlayerVisualSystem {
 
     }
 
-    private playSpell3FX(entity: any) {
-        const aura = this.scene.add.circle(
-            entity.sprite.x,
-            entity.sprite.y,
-            5,
-            0xbf40bf,
-            0.15
-        );
+    private playSpell3FX(entity: any, msg: any) {
 
-        this.scene.tweens.add({
-            targets: aura,
-            radius: 500,
-            alpha: 0,
-            duration: 1000,
-            ease: "Circ.out",
-            onComplete: () => aura.destroy(),
+        if (!msg.targets || msg.targets.length === 0) return;
+
+        const startX = entity.sprite.x;
+        const startY = entity.sprite.y;
+
+        msg.targets.forEach((targetId: string) => {
+
+            const targetEntity = this.scene.playerEntities[targetId];
+            if (!targetEntity) return;
+
+            const endX = targetEntity.sprite.x;
+            const endY = targetEntity.sprite.y;
+
+            const lightning = this.scene.add.graphics()
+                .setDepth(entity.sprite.depth);
+
+            lightning.lineStyle(2, 0x66ccff, 1);
+            lightning.beginPath();
+            lightning.moveTo(startX, startY);
+
+            const segments = 6;
+
+            for (let i = 1; i < segments; i++) {
+
+                const t = i / segments;
+
+                const x = Phaser.Math.Linear(startX, endX, t);
+                const y = Phaser.Math.Linear(startY, endY, t);
+
+                const offsetX = Phaser.Math.Between(-8, 8);
+                const offsetY = Phaser.Math.Between(-8, 8);
+
+                lightning.lineTo(x + offsetX, y + offsetY);
+            }
+
+            lightning.lineTo(endX, endY);
+            lightning.strokePath();
+
+            this.scene.tweens.add({
+                targets: lightning,
+                alpha: 0,
+                duration: 70,
+                ease: "Linear",
+                onComplete: () => lightning.destroy()
+            });
+
         });
     }
 
