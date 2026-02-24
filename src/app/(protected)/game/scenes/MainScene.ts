@@ -524,7 +524,7 @@ export class MainScene extends Phaser.Scene {
         }
         
         // -- DEFIENDE ---
-        if (!data.isDefending && entity.isDefending) {
+        if (data.isDefending === false && entity.isDefending === true) {
             this.visualSystem.playDefence(entity);
         }
 
