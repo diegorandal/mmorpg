@@ -355,8 +355,6 @@ export class MainScene extends Phaser.Scene {
         
         this.input.setDraggable(this.attackButton);
 
-        //this.attackText = this.add.text(xAttack, y, 'ATK', {fontSize: '20px', color: '#fff'}).setOrigin(0.5).setScrollFactor(0).setDepth(10001);
-
         this.attackButton.on('dragstart', (pointer: Phaser.Input.Pointer) => {
             this.attackPointerId = pointer.id;
             this.isDragging = true;
@@ -618,10 +616,12 @@ export class MainScene extends Phaser.Scene {
                 currentTargetId: this.currentTargetId,
             });
 
-            this.attackButton?.setFillStyle(0xff0000, 0.6);
+            this.attackButton?.setFillStyle(0xffffff, 0.3);
+            /*
             this.time.delayedCall(100, () => {
                 this.attackButton?.setFillStyle(0xff0000, 0.3);
             });
+            */
         }
 
         // 🗡 CAMBIO DE ARMA
@@ -700,7 +700,7 @@ export class MainScene extends Phaser.Scene {
         }
 
         this.attackArc.lineStyle(3, 0xffff00, 0.4);
-        this.attackArc.fillStyle(0xff0000, 0.75).beginPath().moveTo(centerX, centerY);
+        this.attackArc.fillStyle(0xffffff, 0.75).beginPath().moveTo(centerX, centerY);
         this.attackArc.arc(centerX, centerY, radius, startAngle, startAngle + quarter, false);
         this.attackArc.closePath().fillPath().strokePath();
 
