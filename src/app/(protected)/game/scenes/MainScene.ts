@@ -532,6 +532,7 @@ export class MainScene extends Phaser.Scene {
 
         // -- POCION ---
         if (data.hp !== undefined && data.hp > entity.hp) {
+            console.log('pota:', data.name)
             this.visualSystem.playPotion(entity);
         }
 
@@ -593,6 +594,10 @@ export class MainScene extends Phaser.Scene {
                     myEntity.sprite.y,
                     myEntity.hp - myState.hp
                 );
+            }
+
+            if(myState.hp > myEntity.hp){
+                this.visualSystem.playPotion(myEntity);
             }
 
             if (myState.hp <= 0 && myEntity.hp > 0) {
