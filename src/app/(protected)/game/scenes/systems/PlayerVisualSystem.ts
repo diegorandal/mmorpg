@@ -129,8 +129,6 @@ export class PlayerVisualSystem {
     
     playDefence(entity: any) {
 
-        console.log('llega hasta aca');
-
         const damageLabel = this.scene.add.text(
             entity.sprite.x, entity.sprite.y - 20,
             'def',
@@ -152,8 +150,8 @@ export class PlayerVisualSystem {
 
         const damageLabel = this.scene.add.text(
             entity.x, entity.y - 20,
-            '+10', // harcodeado y bueno...
-            { fontSize: "20px", color: "#2bff00f8", fontStyle: "bold", stroke: "#000000", strokeThickness: 4 }
+            'pot',
+            { fontSize: "20px", color: "#2bff00d8", fontStyle: "bold", stroke: "#000000", strokeThickness: 4 }
         ).setOrigin(0.5).setDepth(entity.sprite.depth);
 
         this.scene.tweens.add({

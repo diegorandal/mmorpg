@@ -17,8 +17,6 @@ export class MainScene extends Phaser.Scene {
     public joystickBase?: Phaser.GameObjects.Arc;
     public joystickThumb?: Phaser.GameObjects.Arc;
     private attackArc?: Phaser.GameObjects.Graphics;
-    private weaponButton?: Phaser.GameObjects.Arc;
-    private weaponLabel?: Phaser.GameObjects.Text;
     private deathOverlay?: Phaser.GameObjects.Rectangle;
     private deathButton?: Phaser.GameObjects.Text;
     private spaceKey!: Phaser.Input.Keyboard.Key;
@@ -320,8 +318,6 @@ export class MainScene extends Phaser.Scene {
         //this.attackText?.setVisible(false);
         this.joystickThumb?.setVisible(false);
         this.attackButton?.setVisible(false);
-        this.weaponButton?.setVisible(false);
-        this.weaponLabel?.setVisible(false);
         this.input.keyboard?.removeAllKeys(true);
         this.weapon0?.setVisible(false);
         this.weapon1?.setVisible(false);
@@ -708,7 +704,7 @@ export class MainScene extends Phaser.Scene {
         this.attackArc.lineStyle(3, 0xffff00, 0.4);
         this.attackArc.fillStyle(0xff5555, 0.4).beginPath().moveTo(centerX, centerY);
         this.attackArc.arc(centerX, centerY, radius, startAngle, startAngle + quarter, false);
-        this.attackArc.closePath().fillPath();
+        this.attackArc.closePath().fillPath().strokePath();
 
     }
 
