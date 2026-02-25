@@ -764,7 +764,7 @@ export class MainScene extends Phaser.Scene {
         if (!myEntity) return;
 
         // Cooldown anti spam (3000ms)
-        if (time > this.portalCheckCooldown) {
+        if (time < this.portalCheckCooldown) {
             console.log(`time: ${time} || pccd: ${this.portalCheckCooldown}`);
             return;
         }
