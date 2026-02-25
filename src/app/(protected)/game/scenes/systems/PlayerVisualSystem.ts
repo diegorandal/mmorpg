@@ -124,9 +124,9 @@ export class PlayerVisualSystem {
             const radius = 23;
 
             circle.fillStyle(0x00ff00, 0.15);
-            circle.lineStyle(2, 0x00ff00, 0.25);
-            circle.fillCircle(entity.sprite.x, entity.sprite.y + 2, radius);
-            circle.strokeCircle(entity.sprite.x, entity.sprite.y + 2, radius);
+            circle.lineStyle(1, 0x00ff00, 0.25);
+            circle.fillCircle(entity.sprite.x, entity.sprite.y + 8, radius);
+            circle.strokeCircle(entity.sprite.x, entity.sprite.y + 8, radius);
 
             circle.setDepth(entity.sprite.depth - 1);
         } else {
