@@ -777,7 +777,7 @@ export class MainScene extends Phaser.Scene {
             const portal = this.portalEntities[id];
             portal.setAlpha(1);
             const dx = px - portal.x;
-            const dy = py - (portal.y - 12);
+            const dy = py - (portal.y - 24);
             const distSq = dx * dx + dy * dy;
             if (distSq <= radiusSq) {
                 foundPortal = id;
