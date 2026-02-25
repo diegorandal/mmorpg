@@ -12,6 +12,7 @@ export class MainScene extends Phaser.Scene {
     private movementSystem!: MovementSystem;
     private visualSystem!: PlayerVisualSystem;
     public playerEntities: { [sessionId: string]: any } = {};
+    private portalEntities: { [id: string]: Phaser.GameObjects.Container } = {};
     public cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private collisionLayer?: Phaser.Tilemaps.TilemapLayer;
     public joystickBase?: Phaser.GameObjects.Arc;
@@ -247,6 +248,22 @@ export class MainScene extends Phaser.Scene {
                     this.removePlayer(sessionId);
                 }
             }
+            
+            // 1. Agregar nuevos portales
+            state.portals.forEach((portal, id) => {
+                if (!this.portalEntities[id]) {
+                    this.addPortal(portal, id);
+                }
+            });
+
+            // 2. Eliminar portales que ya no existen
+            for (const id in this.portalEntities) {
+                if (!state.portals.has(id)) {
+                    this.portalEntities[id].destroy();
+                    delete this.portalEntities[id];
+                }
+            }
+
         });
 
         // hud 
@@ -680,6 +697,66 @@ export class MainScene extends Phaser.Scene {
         // 🚶 MOVEMENT SYSTEM
         this.movementSystem.update(delta);
 
+    }
+
+    // #region addPortal
+    private addPortal(portal: any, id: string) {
+
+        const radius = 30;
+        const sides = 5;
+
+        const container = this.add.container(portal.x, portal.y);
+        container.setDepth(2);
+
+        const graphics = this.add.graphics();
+
+        // Color según tipo
+        if (portal.type === "exit") {
+            graphics.fillStyle(0xff4444, 0.8);
+        } else {
+            graphics.fillStyle(0x6a5acd, 0.8);
+        }
+
+        graphics.lineStyle(3, 0xffffff, 1);
+        graphics.beginPath();
+
+        for (let i = 0; i < sides; i++) {
+            const angle = Phaser.Math.DegToRad((360 / sides) * i - 90);
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+
+            if (i === 0) graphics.moveTo(x, y);
+            else graphics.lineTo(x, y);
+        }
+
+        graphics.closePath();
+        graphics.fillPath();
+        graphics.strokePath();
+
+        graphics.setBlendMode(Phaser.BlendModes.ADD);
+
+        container.add(graphics);
+
+        // 🔄 Rotación infinita
+        this.tweens.add({
+            targets: container,
+            angle: 360,
+            duration: 4000,
+            repeat: -1,
+            ease: "Linear"
+        });
+
+        // ✨ Pulso mágico
+        this.tweens.add({
+            targets: container,
+            scale: 1.1,
+            duration: 800,
+            yoyo: true,
+            repeat: -1,
+            ease: "Sine.easeInOut"
+        });
+
+        this.portalEntities[id] = container;
     }
 
     private updatePlayerCountUI() {
