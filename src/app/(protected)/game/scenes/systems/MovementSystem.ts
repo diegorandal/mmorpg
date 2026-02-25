@@ -79,10 +79,11 @@ export class MovementSystem {
         myEntity.sprite.setDepth(myEntity.sprite.y);
         myEntity.label.setDepth(myEntity.sprite.y + 1);
         this.visualSystem.updatePlayerAnimation(myEntity, dx, dy);
-        myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 55);
+        myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 45);
         this.visualSystem.updateHealthBar(myEntity);
         this.visualSystem.updateAura(myEntity);
-
+        this.visualSystem.updateDefenceCircle(myEntity);
+    
         // 📡 ENVÍO AL SERVER
         this.scene.moveTimer += delta;
 
@@ -130,6 +131,7 @@ export class MovementSystem {
             entity.label.setPosition(entity.sprite.x, entity.sprite.y - 55);
 
             this.visualSystem.updateHealthBar(entity);
+            this.visualSystem.updateDefenceCircle(entity);
         }
     }
 }

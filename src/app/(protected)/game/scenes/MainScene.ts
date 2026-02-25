@@ -257,14 +257,14 @@ export class MainScene extends Phaser.Scene {
         this.setupJoystick();
 
         //target circle
-        this.targetCircle = this.add.circle(0, 0, 25).setStrokeStyle(2, 0xff0000, 0.5).setVisible(false).setDepth(5);
+        this.targetCircle = this.add.circle(0, 0, 25).setStrokeStyle(1, 0xff0000, 0.25).setVisible(false).setDepth(5);
 
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
             const objectsUnderPointer = this.input.hitTestPointer(pointer);
             // Si hay objetos y alguno es de la interfaz (profundidad alta), no procesamos el target
             const isUI = objectsUnderPointer.some((obj: any) => obj.depth >= 10000);
             if (isUI) return;
-            // 2. Solo permitimos apuntar si tenemos el arma 2 y ataque 2
+            // 2. Solo permitimos apuntar si tenemos ciertos ataques
             if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2) {
                 this.checkTargetSelection(pointer);
             } else if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 3) {
@@ -278,7 +278,6 @@ export class MainScene extends Phaser.Scene {
         });
 
         // UI inicial
-
         this.selectWeapon(0);
         this.attackDragSelect = 1;
         this.updateAttackArc();
@@ -505,9 +504,13 @@ export class MainScene extends Phaser.Scene {
         const hpBar = this.add.graphics();
         // aura
         const glow = sprite.postFX.addGlow(0x00aaff, 0, 0, false);
+        // circulo indica defensa
+        const defenceCircle = this.add.graphics();
+        defenceCircle.setVisible(false);
+        defenceCircle.setDepth(sprite.depth - 1);
 
         // 4. Guardamos el characterId para saber qué animación llamar después
-        this.playerEntities[sessionId] = { sprite, label, hpBar, glow,  characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
+        this.playerEntities[sessionId] = { sprite, label, hpBar, defenceCircle, glow,  characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
         if (sessionId === this.room.sessionId) this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
 
     }
@@ -664,10 +667,10 @@ export class MainScene extends Phaser.Scene {
                     // 5. W2A3 agranda circulo
                     if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 3){
                         this.targetCircle?.setRadius(75);
-                        this.targetCircle?.setFillStyle(0xff0000, 0.25)
+                        this.targetCircle?.setFillStyle(0xff0000, 0.15)
                     } else {
                         this.targetCircle?.setRadius(25);
-                        this.targetCircle?.setFillStyle(0xff0000, 0.5)
+                        this.targetCircle?.setFillStyle(0xff0000, 0.15)
                     }
                 }
 

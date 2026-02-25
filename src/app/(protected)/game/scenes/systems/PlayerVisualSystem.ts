@@ -91,6 +91,7 @@ export class PlayerVisualSystem {
         if (!entity?.label || !entity?.hpBar) return;
         
         const { label, hpBar, hp } = entity;
+
         const fullWidth = label.displayWidth + 2;
         const hpPercent = Phaser.Math.Clamp(hp / 100, 0, 1);
         const currentWidth = fullWidth * hpPercent;
@@ -110,6 +111,28 @@ export class PlayerVisualSystem {
         hpBar.fillRect(barX, barY, currentWidth, label.displayHeight);
         hpBar.setDepth(label.depth - 1);
         
+    }
+    updateDefenceCircle(entity: any) {
+        if (!entity?.sprite || !entity?.defenceCircle) return;
+
+        const circle = entity.defenceCircle;
+
+        if (entity.defence === 1 && !entity.isDead) {
+            circle.setVisible(true);
+            circle.clear();
+
+            const radius = 28;
+
+            circle.fillStyle(0x00ff00, 0.20);
+            circle.lineStyle(2, 0x00ff00, 0.8);
+
+            circle.fillCircle(entity.sprite.x, entity.sprite.y + 2, radius);
+            circle.strokeCircle(entity.sprite.x, entity.sprite.y + 2, radius);
+
+            circle.setDepth(entity.sprite.depth - 1);
+        } else {
+            circle.setVisible(false);
+        }
     }
 
     showDamageText(x: number, y: number, amount: number) {
