@@ -525,7 +525,7 @@ export class MainScene extends Phaser.Scene {
         }
         
         // -- DEFIENDE ---
-        if (data.isDefending === false && entity.isDefending === true) {
+        if (entity.defence === 1 && data.defence === 2) {
             this.visualSystem.playDefence(entity);
         }
 
@@ -546,7 +546,7 @@ export class MainScene extends Phaser.Scene {
         entity.weapon = data.weapon;
         entity.lookDir.x = data.lookx;
         entity.lookDir.y = data.looky;
-        entity.isDefending = data.isDefending;
+        entity.defence = data.defence;
 
         if (data.name) entity.label.setText(data.name);
         if (sessionId !== this.room.sessionId) {

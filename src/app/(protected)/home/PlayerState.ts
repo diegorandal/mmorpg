@@ -11,7 +11,7 @@ export class Player extends Schema {
     @type("number") lookx: number = 0;
     @type("number") looky: number = 1;
     @type("number") pot: number = 0;
-    @type("boolean") isDefending: boolean = false;
+    @type("number") defence: number = 0;
 }
 
 export class MyRoomState extends Schema {

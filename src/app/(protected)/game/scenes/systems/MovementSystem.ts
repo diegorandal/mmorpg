@@ -129,7 +129,7 @@ export class MovementSystem {
             entity.label.setDepth(entity.sprite.y + 1);
             entity.label.setPosition(entity.sprite.x, entity.sprite.y - 55);
 
-            this.visualSystem.updateHealthBar(id);
+            this.visualSystem.updateHealthBar(entity);
         }
     }
 }
