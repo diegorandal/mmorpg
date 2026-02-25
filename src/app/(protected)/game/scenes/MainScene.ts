@@ -768,7 +768,7 @@ export class MainScene extends Phaser.Scene {
 
         const px = myEntity.sprite.x;
         const py = myEntity.sprite.y;
-        const radius = 32; // mismo que el server (o un poco menor)
+        const radius = 24; // mismo que el server (o un poco menor)
         const radiusSq = radius * radius;
 
         let foundPortal: string | null = null;
@@ -777,7 +777,7 @@ export class MainScene extends Phaser.Scene {
             const portal = this.portalEntities[id];
             portal.setAlpha(1);
             const dx = px - portal.x;
-            const dy = py - (portal.y - 24);
+            const dy = py - (portal.y - 16);
             const distSq = dx * dx + dy * dy;
             if (distSq <= radiusSq) {
                 foundPortal = id;
