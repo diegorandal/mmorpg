@@ -764,7 +764,10 @@ export class MainScene extends Phaser.Scene {
         if (!myEntity) return;
 
         // Cooldown anti spam (300ms)
-        if (time < this.portalCheckCooldown) return;
+        if (time < this.portalCheckCooldown) {
+            console.log('salida por checkcooldown');
+            return;
+        }
 
         const px = myEntity.sprite.x;
         const py = myEntity.sprite.y;
@@ -787,6 +790,7 @@ export class MainScene extends Phaser.Scene {
         }
 
         if (foundPortal) {
+            console.log('foundportal');
             // Solo enviamos si es un portal nuevo
             if (this.currentPortalId !== foundPortal) {
                 this.currentPortalId = foundPortal;
@@ -794,6 +798,7 @@ export class MainScene extends Phaser.Scene {
                 this.room.send("enterPortal", { portalId: foundPortal });
             }
         } else {
+            console.log('else por current=found');
             this.currentPortalId = null;
         }
     }
