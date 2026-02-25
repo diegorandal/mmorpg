@@ -775,6 +775,7 @@ export class MainScene extends Phaser.Scene {
                 this.currentPortalId = foundPortal;
                 this.portalCheckCooldown = time + 300;
                 this.room.send("enterPortal", { portalId: foundPortal });
+                console.log('portal:', foundPortal);
             }
         } else {
             this.currentPortalId = null;
