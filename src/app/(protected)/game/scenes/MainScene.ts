@@ -726,7 +726,7 @@ export class MainScene extends Phaser.Scene {
 
         const radius = 24;
         const sides = 7;
-        const container = this.add.container(portal.x, portal.y + 12);
+        const container = this.add.container(portal.x, portal.y - 12);
         container.setDepth(2);
         const graphics = this.add.graphics();
 
