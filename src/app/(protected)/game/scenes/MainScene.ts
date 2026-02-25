@@ -237,6 +237,10 @@ export class MainScene extends Phaser.Scene {
         // 1. Escuchar eventos de ataque desde el servidor
         this.room.onMessage("playerTeleport", (msg) => {
 
+            if(msg.portalType === 'exit'){
+                window.dispatchEvent(new Event('exit-game'));
+            }
+
             const entity = this.playerEntities[msg.sessionId];
             if (!entity || entity.isDead) return;
             entity.serverX = msg.newX;
@@ -247,7 +251,6 @@ export class MainScene extends Phaser.Scene {
             if (msg.sessionId === this.room.sessionId) {
                 this.cameras.main.centerOn(entity.sprite.x, entity.sprite.y);
             }
-
 
         });
 
@@ -293,7 +296,7 @@ export class MainScene extends Phaser.Scene {
         this.setupJoystick();
 
         //target circle
-        this.targetCircle = this.add.circle(0, 0, 25).setStrokeStyle(1, 0xff0000, 0.25).setVisible(false).setDepth(5);
+        this.targetCircle = this.add.circle(0, 0, 25).setVisible(false).setDepth(5);
 
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
             const objectsUnderPointer = this.input.hitTestPointer(pointer);
@@ -704,13 +707,12 @@ export class MainScene extends Phaser.Scene {
                     // 5. W2A3 agranda circulo
                     if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 3){
                         this.targetCircle?.setRadius(75);
-                        this.targetCircle?.setFillStyle(0xff0000, 0.15)
+                        this.targetCircle?.setFillStyle(0xff0000, 0.10)
                     } else {
                         this.targetCircle?.setRadius(25);
-                        this.targetCircle?.setFillStyle(0xff0000, 0.15)
+                        this.targetCircle?.setFillStyle(0xff0000, 0.10)
                     }
                 }
-
             }
         }
 
