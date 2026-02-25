@@ -763,8 +763,8 @@ export class MainScene extends Phaser.Scene {
         const myEntity = this.playerEntities[myId];
         if (!myEntity) return;
 
-        // Cooldown anti spam (300ms)
-        if (time < this.portalCheckCooldown) {
+        // Cooldown anti spam (3000ms)
+        if (time > this.portalCheckCooldown) {
             console.log(`time: ${time} || pccd: ${this.portalCheckCooldown}`);
             return;
         }
@@ -790,16 +790,10 @@ export class MainScene extends Phaser.Scene {
         }
 
         if (foundPortal) {
-            console.log('foundportal');
             // Solo enviamos si es un portal nuevo
-            if (this.currentPortalId !== foundPortal) {
-                this.currentPortalId = foundPortal;
-                this.portalCheckCooldown = time + 300;
-                this.room.send("enterPortal", { portalId: foundPortal });
-            }
-        } else {
-            this.currentPortalId = null;
-        }
+            this.portalCheckCooldown = time + 3000;
+            this.room.send("enterPortal", { portalId: foundPortal });
+        } 
     }
 
     private updatePlayerCountUI() {
