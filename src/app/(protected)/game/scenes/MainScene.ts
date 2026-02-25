@@ -241,8 +241,8 @@ export class MainScene extends Phaser.Scene {
             if (!entity || entity.isDead) return;
             entity.serverX = msg.newX;
             entity.serverY = msg.newY;
-            entity.sprite.x = msg.newX;
-            entity.sprite.y = msg.newY;
+            
+            entity.sprite.setPosition(msg.newX, msg.newY);
 
             if (msg.sessionId === this.room.sessionId) {
                 this.cameras.main.centerOn(entity.sprite.x, entity.sprite.y);
