@@ -55,6 +55,8 @@ export class MainScene extends Phaser.Scene {
     private hpText?: Phaser.GameObjects.Text;
     private playersText?: Phaser.GameObjects.Text;
     private attackCooldowns: { [key: string]: number } = {};
+    private currentPortalId: string | null = null;
+    private portalCheckCooldown = 0;
     private attackSpeeds: { [key: string]: number } = {
         "1-1": 250,
         "2-1": 250,
@@ -694,6 +696,9 @@ export class MainScene extends Phaser.Scene {
             }
         }
 
+        // --- PORTAL PROXIMITY CHECK ---
+        this.checkPortalCollision(time);
+
         // 🚶 MOVEMENT SYSTEM
         this.movementSystem.update(delta);
 
@@ -704,19 +709,14 @@ export class MainScene extends Phaser.Scene {
 
         const radius = 24;
         const sides = 7;
-
         const container = this.add.container(portal.x, portal.y);
         container.setDepth(2);
-
         const graphics = this.add.graphics();
 
-        // Color según tipo
         if (portal.type === "exit") {
-            graphics.fillStyle(0xff4444, 0.3);
-            graphics.lineStyle(2, 0xff4444, 0.5);
+            graphics.fillStyle(0xff4444, 0.3); graphics.lineStyle(2, 0xff4444, 0.5);
         } else {
-            graphics.fillStyle(0x6a5acd, 0.3);
-            graphics.lineStyle(2, 0x6a5acd, 0.5);
+            graphics.fillStyle(0x6a5acd, 0.3); graphics.lineStyle(2, 0x6a5acd, 0.5);
         }
 
         graphics.beginPath();
@@ -732,31 +732,53 @@ export class MainScene extends Phaser.Scene {
         graphics.closePath();
         graphics.fillPath();
         graphics.strokePath();
-
         graphics.setBlendMode(Phaser.BlendModes.ADD);
-
         container.add(graphics);
-
-        // 🔄 Rotación infinita
-        this.tweens.add({
-            targets: container,
-            angle: 360,
-            duration: 2000,
-            repeat: -1,
-            ease: "Linear"
-        });
-
-        // ✨ Pulso mágico
-        this.tweens.add({
-            targets: container,
-            scale: 1.1,
-            duration: 800,
-            yoyo: true,
-            repeat: -1,
-            ease: "Sine.easeInOut"
-        });
-
+        this.tweens.add({targets: container, angle: 360, duration: 2000, repeat: -1, ease: "Linear"});
+        this.tweens.add({targets: container, scale: 1.1, duration: 800, yoyo: true, repeat: -1, ease: "Sine.easeInOut"});
         this.portalEntities[id] = container;
+
+    }
+
+    private checkPortalCollision(time: number) {
+
+        const myId = this.room.sessionId;
+        const myEntity = this.playerEntities[myId];
+        if (!myEntity) return;
+
+        // Cooldown anti spam (300ms)
+        if (time < this.portalCheckCooldown) return;
+
+        const px = myEntity.sprite.x;
+        const py = myEntity.sprite.y;
+
+        const radius = 50; // mismo que el server (o un poco menor)
+        const radiusSq = radius * radius;
+
+        let foundPortal: string | null = null;
+
+        for (const id in this.portalEntities) {
+            const portal = this.portalEntities[id];
+            const dx = px - portal.x;
+            const dy = py - portal.y;
+            const distSq = dx * dx + dy * dy;
+
+            if (distSq <= radiusSq) {
+                foundPortal = id;
+                break;
+            }
+        }
+
+        if (foundPortal) {
+            // Solo enviamos si es un portal nuevo
+            if (this.currentPortalId !== foundPortal) {
+                this.currentPortalId = foundPortal;
+                this.portalCheckCooldown = time + 300;
+                this.room.send("enterPortal", { portalId: foundPortal });
+            }
+        } else {
+            this.currentPortalId = null;
+        }
     }
 
     private updatePlayerCountUI() {
