@@ -765,7 +765,7 @@ export class MainScene extends Phaser.Scene {
 
         // Cooldown anti spam (300ms)
         if (time < this.portalCheckCooldown) {
-            console.log('salida por checkcooldown');
+            console.log(`time: ${time} || pccd: ${this.portalCheckCooldown}`);
             return;
         }
 
@@ -798,7 +798,6 @@ export class MainScene extends Phaser.Scene {
                 this.room.send("enterPortal", { portalId: foundPortal });
             }
         } else {
-            console.log('else por current=found');
             this.currentPortalId = null;
         }
     }
