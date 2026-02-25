@@ -428,6 +428,7 @@ export class MainScene extends Phaser.Scene {
                  playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem), 
                  clearTarget: this.clearTarget.bind(this), 
                  currentTargetId: this.currentTargetId});
+            
         });
 
         this.attackArc = this.add.graphics().setScrollFactor(0).setDepth(10002);
@@ -622,6 +623,8 @@ export class MainScene extends Phaser.Scene {
 
         const myState = this.room.state.players.get(myId);
 
+        console.log(`player x${myEntity.sprite.x} y${myEntity.sprite.y}`);
+
         // 🧠 STATE SYNC (Health / Death)
         if (myState) {
             if (myState.hp < myEntity.hp) {
@@ -768,7 +771,7 @@ export class MainScene extends Phaser.Scene {
 
         const px = myEntity.sprite.x;
         const py = myEntity.sprite.y;
-        const radius = 24; // mismo que el server (o un poco menor)
+        const radius = 24;
         const radiusSq = radius * radius;
 
         let foundPortal: string | null = null;
@@ -802,7 +805,6 @@ export class MainScene extends Phaser.Scene {
         const count = this.room.state.players.size;
         this.playersText?.setText(`👥 ${count}`);
     }
-
 
     private updateAttackArc() {
 
