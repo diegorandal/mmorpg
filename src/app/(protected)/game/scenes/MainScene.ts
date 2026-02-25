@@ -702,8 +702,8 @@ export class MainScene extends Phaser.Scene {
     // #region addPortal
     private addPortal(portal: any, id: string) {
 
-        const radius = 30;
-        const sides = 5;
+        const radius = 24;
+        const sides = 12;
 
         const container = this.add.container(portal.x, portal.y);
         container.setDepth(2);
@@ -712,19 +712,18 @@ export class MainScene extends Phaser.Scene {
 
         // Color según tipo
         if (portal.type === "exit") {
-            graphics.fillStyle(0xff4444, 0.8);
+            graphics.fillStyle(0xff4444, 0.3);
         } else {
-            graphics.fillStyle(0x6a5acd, 0.8);
+            graphics.fillStyle(0x6a5acd, 0.3);
         }
 
-        graphics.lineStyle(3, 0xffffff, 1);
+        graphics.lineStyle(1, 0x000000, 0.5);
         graphics.beginPath();
 
         for (let i = 0; i < sides; i++) {
             const angle = Phaser.Math.DegToRad((360 / sides) * i - 90);
             const x = Math.cos(angle) * radius;
             const y = Math.sin(angle) * radius;
-
             if (i === 0) graphics.moveTo(x, y);
             else graphics.lineTo(x, y);
         }
@@ -741,7 +740,7 @@ export class MainScene extends Phaser.Scene {
         this.tweens.add({
             targets: container,
             angle: 360,
-            duration: 4000,
+            duration: 1000,
             repeat: -1,
             ease: "Linear"
         });
