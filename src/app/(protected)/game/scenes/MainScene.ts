@@ -234,6 +234,23 @@ export class MainScene extends Phaser.Scene {
             this.visualSystem.playAttackOnce(entity, msg);
         });
 
+        // 1. Escuchar eventos de ataque desde el servidor
+        this.room.onMessage("playerTeleport", (msg) => {
+
+            //if (msg.sessionId === this.room.sessionId) return;
+
+            const entity = this.playerEntities[msg.sessionId];
+
+            if (!entity || entity.isDead) return;
+
+            entity.serverX = msg.newX;
+            entity.serverY = msg.newY;
+
+            entity.sprite.x = msg.newX;
+            entity.sprite.y = msg.newY;
+
+        });
+
         // 2. Sincronización en Tiempo Real:
         this.room.onStateChange((state) => {
             // Detectar nuevos
@@ -775,7 +792,6 @@ export class MainScene extends Phaser.Scene {
                 this.currentPortalId = foundPortal;
                 this.portalCheckCooldown = time + 300;
                 this.room.send("enterPortal", { portalId: foundPortal });
-                console.log('portal:', foundPortal);
             }
         } else {
             this.currentPortalId = null;
@@ -834,7 +850,6 @@ export class MainScene extends Phaser.Scene {
                 this.currentTargetId = sessionId;
                 this.targetCircle?.setVisible(true);
                 foundTarget = true;
-                console.log(`Target: ${entity.label.text}`);
                 break;
             }
         }
