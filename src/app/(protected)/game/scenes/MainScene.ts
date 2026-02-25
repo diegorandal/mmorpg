@@ -764,25 +764,21 @@ export class MainScene extends Phaser.Scene {
         if (!myEntity) return;
 
         // Cooldown anti spam (3000ms)
-        if (time < this.portalCheckCooldown) {
-            console.log(`time: ${time} || pccd: ${this.portalCheckCooldown}`);
-            return;
-        }
+        if (time < this.portalCheckCooldown) return;
 
         const px = myEntity.sprite.x;
         const py = myEntity.sprite.y;
-
-        const radius = 50; // mismo que el server (o un poco menor)
+        const radius = 32; // mismo que el server (o un poco menor)
         const radiusSq = radius * radius;
 
         let foundPortal: string | null = null;
 
         for (const id in this.portalEntities) {
             const portal = this.portalEntities[id];
+            portal.setAlpha(1);
             const dx = px - portal.x;
             const dy = py - portal.y;
             const distSq = dx * dx + dy * dy;
-
             if (distSq <= radiusSq) {
                 foundPortal = id;
                 break;
@@ -790,10 +786,16 @@ export class MainScene extends Phaser.Scene {
         }
 
         if (foundPortal) {
-            // Solo enviamos si es un portal nuevo
             this.portalCheckCooldown = time + 3000;
             this.room.send("enterPortal", { portalId: foundPortal });
+
+            for (const id in this.portalEntities) {
+                const portal = this.portalEntities[id];
+                portal.setAlpha(0.1);
+            }
+
         } 
+
     }
 
     private updatePlayerCountUI() {
