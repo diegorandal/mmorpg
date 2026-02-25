@@ -237,17 +237,17 @@ export class MainScene extends Phaser.Scene {
         // 1. Escuchar eventos de ataque desde el servidor
         this.room.onMessage("playerTeleport", (msg) => {
 
-            //if (msg.sessionId === this.room.sessionId) return;
-
             const entity = this.playerEntities[msg.sessionId];
-
             if (!entity || entity.isDead) return;
-
             entity.serverX = msg.newX;
             entity.serverY = msg.newY;
-
             entity.sprite.x = msg.newX;
             entity.sprite.y = msg.newY;
+
+            if (msg.sessionId === this.room.sessionId) {
+                this.cameras.main.centerOn(entity.sprite.x, entity.sprite.y);
+            }
+
 
         });
 
@@ -622,8 +622,6 @@ export class MainScene extends Phaser.Scene {
         if (!myEntity) return;
 
         const myState = this.room.state.players.get(myId);
-
-        console.log(`player x${myEntity.sprite.x} y${myEntity.sprite.y}`);
 
         // 🧠 STATE SYNC (Health / Death)
         if (myState) {
