@@ -121,11 +121,10 @@ export class PlayerVisualSystem {
             circle.setVisible(true);
             circle.clear();
 
-            const radius = 28;
+            const radius = 23;
 
-            circle.fillStyle(0x00ff00, 0.20);
-            circle.lineStyle(2, 0x00ff00, 0.8);
-
+            circle.fillStyle(0x00ff00, 0.15);
+            circle.lineStyle(2, 0x00ff00, 0.25);
             circle.fillCircle(entity.sprite.x, entity.sprite.y + 2, radius);
             circle.strokeCircle(entity.sprite.x, entity.sprite.y + 2, radius);
 
