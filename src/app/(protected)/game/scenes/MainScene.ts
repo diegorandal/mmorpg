@@ -421,6 +421,7 @@ export class MainScene extends Phaser.Scene {
 
         this.attackButton.on('pointerup', () => {
 
+
             handleAttack({ room: this.room,
                  playerEntities: this.playerEntities, 
                  myCurrentWeaponType: this.myCurrentWeaponType, 
@@ -651,6 +652,8 @@ export class MainScene extends Phaser.Scene {
 
         // ⚔ ATAQUE
         if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+
+            console.log(`x: ${myEntity.sprite.x} y: ${myEntity.sprite.y}`);
 
             handleAttack({
                 room: this.room,
