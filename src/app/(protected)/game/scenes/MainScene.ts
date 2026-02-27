@@ -271,14 +271,16 @@ export class MainScene extends Phaser.Scene {
                 }
             }
             
-            // 1. Agregar nuevos portales
+            // 1️⃣ Agregar nuevos y actualizar existentes
             state.portals.forEach((portal, id) => {
                 if (!this.portalEntities[id]) {
                     this.addPortal(portal, id);
+                } else {
+                    this.updatePortalVisual(portal, id);
                 }
             });
 
-            // 2. Eliminar portales que ya no existen
+            // 2️⃣ Eliminar los que ya no existen
             for (const id in this.portalEntities) {
                 if (!state.portals.has(id)) {
                     this.portalEntities[id].destroy();
@@ -653,8 +655,6 @@ export class MainScene extends Phaser.Scene {
         // ⚔ ATAQUE
         if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
 
-            console.log(`x: ${myEntity.sprite.x} y: ${myEntity.sprite.y}`);
-
             handleAttack({
                 room: this.room,
                 playerEntities: this.playerEntities,
@@ -727,20 +727,76 @@ export class MainScene extends Phaser.Scene {
 
     }
 
-    // #region addPortal
+    // #region Portals
+
     private addPortal(portal: any, id: string) {
 
-        const radius = 24;
-        const sides = 7;
         const container = this.add.container(portal.x, portal.y);
         container.setDepth(2);
-        const graphics = this.add.graphics();
 
-        if (portal.type === "exit") {
-            graphics.fillStyle(0xff4444, 0.3); graphics.lineStyle(2, 0xff4444, 0.5);
-        } else {
-            graphics.fillStyle(0x6a5acd, 0.3); graphics.lineStyle(2, 0x6a5acd, 0.5);
-        }
+        const graphics = this.add.graphics();
+        graphics.setBlendMode(Phaser.BlendModes.ADD);
+
+        container.add(graphics);
+
+        // Dibujar por primera vez
+        const color = portal.type === 'exit'
+            ? 0xff4444
+            : 0x6a5acd;
+
+        this.drawPortal(graphics, color);
+
+        // Guardamos el tipo actual para detectar cambios futuros
+        container.setData("type", portal.type);
+
+        // Animaciones
+        this.tweens.add({
+            targets: container,
+            angle: 360,
+            duration: 2000,
+            repeat: -1,
+            ease: "Linear"
+        });
+
+        this.tweens.add({
+            targets: container,
+            scale: 1.1,
+            duration: 800,
+            yoyo: true,
+            repeat: -1,
+            ease: "Sine.easeInOut"
+        });
+
+        this.portalEntities[id] = container;
+    }
+
+    private updatePortalVisual(portal: any, id: string) {
+
+        const container = this.portalEntities[id];
+        if (!container) return;
+
+        // Si no cambió el tipo → no redibujamos
+        if (container.getData("type") === portal.type) return;
+
+        container.setData("type", portal.type);
+
+        const graphics = container.list[0] as Phaser.GameObjects.Graphics;
+        if (!graphics) return;
+
+        const color = portal.type === "exit"
+            ? 0xff4444
+            : 0x6a5acd;
+
+        this.drawPortal(graphics, color);
+    }
+
+    private drawPortal(graphics: Phaser.GameObjects.Graphics, color: number) {
+        const radius = 24;
+        const sides = 7;
+
+        graphics.clear();
+        graphics.fillStyle(color, 0.3);
+        graphics.lineStyle(2, color, 0.5);
 
         graphics.beginPath();
 
@@ -755,12 +811,6 @@ export class MainScene extends Phaser.Scene {
         graphics.closePath();
         graphics.fillPath();
         graphics.strokePath();
-        graphics.setBlendMode(Phaser.BlendModes.ADD);
-        container.add(graphics);
-        this.tweens.add({targets: container, angle: 360, duration: 2000, repeat: -1, ease: "Linear"});
-        this.tweens.add({targets: container, scale: 1.1, duration: 800, yoyo: true, repeat: -1, ease: "Sine.easeInOut"});
-        this.portalEntities[id] = container;
-
     }
 
     private checkPortalCollision(time: number) {
