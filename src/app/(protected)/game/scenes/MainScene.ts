@@ -125,6 +125,8 @@ export class MainScene extends Phaser.Scene {
         this.load.image('tileset-image', `${BASE_URL}/tileset.png?v=${version}`);
         this.load.json('mapData', `${BASE_URL}/map.json?v=${version}`);
         this.load.image('arrow', `${BASE_URL}/arrow.png?v=${version}`);
+        this.load.audioSprite('sfx', `${BASE_URL}/sounds.json?v=${version}`, [`${BASE_URL}/sounds.mp3?v=${version}`]
+        );
     }
 
     // #region Create
@@ -232,6 +234,10 @@ export class MainScene extends Phaser.Scene {
             const entity = this.playerEntities[msg.sessionId];
             if (!entity || entity.isDead) return;
             this.visualSystem.playAttackOnce(entity, msg);
+
+            // TEST
+            this.sound.playAudioSprite('sfx', 'attack');
+
         });
 
         // 1. Escuchar eventos de ataque desde el servidor
