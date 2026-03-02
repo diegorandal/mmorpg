@@ -126,6 +126,7 @@ export class MainScene extends Phaser.Scene {
         this.load.json('mapData', `${BASE_URL}/map.json?v=${version}`);
         this.load.image('arrow', `${BASE_URL}/arrow.png?v=${version}`);
         this.load.audioSprite('sfx', `${BASE_URL}/sounds.json?v=${version}`, `${BASE_URL}/sounds.mp3?v=${version}`);
+        
     }
 
     // #region Create
