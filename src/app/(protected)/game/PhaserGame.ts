@@ -25,6 +25,9 @@ export const getGameConfig = (containerId: string): Phaser.Types.Core.GameConfig
             debug: false
         },
     },
+    audio: {
+        disableWebAudio: false
+    },
     scene: [MainScene], // Aquí añades todas tus escenas
 
 });
