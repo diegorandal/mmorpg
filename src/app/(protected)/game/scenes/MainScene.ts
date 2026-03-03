@@ -238,17 +238,14 @@ export class MainScene extends Phaser.Scene {
             const entity = this.playerEntities[msg.sessionId];
             if (!entity || entity.isDead) return;
             this.visualSystem.playAttackOnce(entity, msg);
-
-            // TEST
-            //this.sfx.play("espada");
-
         });
 
-        // 1. Escuchar eventos de ataque desde el servidor
+        // 1. Escuchar teleports
         this.room.onMessage("playerTeleport", (msg) => {
 
             if(msg.portalType === 'exit'){
                 window.dispatchEvent(new Event('exit-game'));
+                return;
             }
 
             const entity = this.playerEntities[msg.sessionId];
@@ -261,6 +258,9 @@ export class MainScene extends Phaser.Scene {
             if (msg.sessionId === this.room.sessionId) {
                 this.cameras.main.centerOn(entity.sprite.x, entity.sprite.y);
             }
+
+            //sonido
+            this.playSfx("teleport");
 
         });
 
