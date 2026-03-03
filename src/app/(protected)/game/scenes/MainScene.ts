@@ -11,6 +11,7 @@ export class MainScene extends Phaser.Scene {
     public room!: Room<MyRoomState>;
     private movementSystem!: MovementSystem;
     private visualSystem!: PlayerVisualSystem;
+    private sfx!: Phaser.Sound.BaseSound;
     public playerEntities: { [sessionId: string]: any } = {};
     private portalEntities: { [id: string]: Phaser.GameObjects.Container } = {};
     public cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -135,6 +136,8 @@ export class MainScene extends Phaser.Scene {
     create(): void {
 
         const roomInstance = this.registry.get('room') as Room<MyRoomState>;
+        
+        this.sfx = this.sound.addAudioSprite('sfx');
 
         // configuramos el mapa
         const data = this.cache.json.get('mapData');
