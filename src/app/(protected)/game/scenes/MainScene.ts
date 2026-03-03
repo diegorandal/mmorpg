@@ -112,21 +112,23 @@ export class MainScene extends Phaser.Scene {
         });
 
         const BASE_URL = 'https://randalrpg.onepixperday.xyz';
+        const BASE_URL_SOUNDS = 'https://assets.onepixperday.xyz';
         const version = Date.now(); // Genera un número único basado en el tiempo
         // ?v=${version} << agregar para evitar cache --- IGNORE ---
         this.load.crossOrigin = 'anonymous';
-        // Dentro de preload()
+
         for (let i = 1; i <= 18; i++) {
             this.load.spritesheet(`char_${i}`, `${BASE_URL}/npc${i}.png?v=${version}`, {
                 frameWidth: 32, // Ancho de un frame
                 frameHeight: 32 // Alto de un frame
             });
         }
+
         this.load.image('tileset-image', `${BASE_URL}/tileset.png?v=${version}`);
         this.load.json('mapData', `${BASE_URL}/map.json?v=${version}`);
         this.load.image('arrow', `${BASE_URL}/arrow.png?v=${version}`);
-        this.load.audioSprite('sfx', `${BASE_URL}/sounds.json?v=${version}`, `${BASE_URL}/sounds.mp3?v=${version}`);
-        
+        this.load.audioSprite('sfx', `${BASE_URL_SOUNDS}/sounds.json?v=${version}`, [`${BASE_URL_SOUNDS}/sounds.mp3?v=${version}`]);
+
     }
 
     // #region Create
