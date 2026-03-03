@@ -128,7 +128,7 @@ export class MainScene extends Phaser.Scene {
         this.load.image('tileset-image', `${BASE_URL}/tileset.png?v=${version}`);
         this.load.json('mapData', `${BASE_URL}/map.json?v=${version}`);
         this.load.image('arrow', `${BASE_URL}/arrow.png?v=${version}`);
-        this.load.audioSprite('sfx', `${BASE_URL_SOUNDS}/sounds.json?v=${version}`);
+        this.load.audioSprite('sfx', `${BASE_URL}/sounds.json?v=${version}`);
 
     }
 
@@ -333,12 +333,6 @@ export class MainScene extends Phaser.Scene {
         this.selectWeapon(0);
         this.attackDragSelect = 1;
         this.updateAttackArc();
-
-        //test
-        console.log(this.cache.audio.entries);
-        console.log(this.sound.get('sfx'));
-
-
 
     }
     
