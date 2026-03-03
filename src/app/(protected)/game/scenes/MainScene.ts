@@ -656,14 +656,11 @@ export class MainScene extends Phaser.Scene {
                     myEntity.hp - myState.hp
                 );
 
-                navigator.vibrate(10);
-
             }
 
             if(myState.hp > myEntity.hp){
                 this.visualSystem.playPotion(myEntity);
-                navigator.vibrate(20);
-
+                navigator.vibrate(50);
             }
 
             if (myState.hp <= 0 && myEntity.hp > 0) {
