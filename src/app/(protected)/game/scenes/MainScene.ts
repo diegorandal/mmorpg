@@ -11,7 +11,7 @@ export class MainScene extends Phaser.Scene {
     public room!: Room<MyRoomState>;
     private movementSystem!: MovementSystem;
     private visualSystem!: PlayerVisualSystem;
-    private sfx!: Phaser.Sound.BaseSound;
+    public sfx!: Phaser.Sound.BaseSound;
     public playerEntities: { [sessionId: string]: any } = {};
     private portalEntities: { [id: string]: Phaser.GameObjects.Container } = {};
     public cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -113,7 +113,6 @@ export class MainScene extends Phaser.Scene {
         });
 
         const BASE_URL = 'https://randalrpg.onepixperday.xyz';
-        //const BASE_URL_SOUNDS = 'https://assets.onepixperday.xyz';
         const version = Date.now(); // Genera un número único basado en el tiempo
         // ?v=${version} << agregar para evitar cache --- IGNORE ---
         this.load.crossOrigin = 'anonymous';
@@ -241,7 +240,7 @@ export class MainScene extends Phaser.Scene {
             this.visualSystem.playAttackOnce(entity, msg);
 
             // TEST
-            this.sfx.play("espada");
+            //this.sfx.play("espada");
 
         });
 

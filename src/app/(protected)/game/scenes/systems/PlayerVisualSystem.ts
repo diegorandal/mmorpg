@@ -61,6 +61,7 @@ export class PlayerVisualSystem {
         }
 
         // FX
+        if (msg.weaponType === 1 && msg.attackNumber === 1) this.playSwordFX();
         if (msg.weaponType === 1 && msg.attackNumber === 2) this.playSword2FX(entity);
         if (msg.weaponType === 1 && msg.attackNumber === 3) this.playSword3FX(entity);
         if (msg.weaponType === 2 && msg.attackNumber === 1) this.playBowFX(entity, msg);
@@ -187,6 +188,14 @@ export class PlayerVisualSystem {
 
     }
 
+    private playSwordFX(entity?: any) {
+
+        // Sonido
+        this.scene.sfx.play("espada");
+
+    }
+
+
 
     private playSword2FX(entity: any) {
 
@@ -208,6 +217,9 @@ export class PlayerVisualSystem {
         // Animación rápida
         this.scene.tweens.add({targets: slash, alpha: 0.5, duration: 100, ease: "Cubic.out", onComplete: () => {slash.destroy();}});
 
+        // Sonido
+        this.scene.sfx.play("espadas");
+
     }
 
     private playSword3FX(entity: any) {
@@ -223,6 +235,10 @@ export class PlayerVisualSystem {
         this.scene.time.delayedCall(50, () => {
             arc.destroy();
         });
+
+        // Sonido
+        this.scene.sfx.play("espadas2");
+
     }
 
     private playBowFX(entity: any, msg: any) {
