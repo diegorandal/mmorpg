@@ -241,7 +241,7 @@ export class MainScene extends Phaser.Scene {
             this.visualSystem.playAttackOnce(entity, msg);
 
             // TEST
-            this.sound.playAudioSprite('espada', 'sfx');
+            this.sfx.play("espada");
 
         });
 
