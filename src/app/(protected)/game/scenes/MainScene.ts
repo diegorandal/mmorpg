@@ -129,6 +129,9 @@ export class MainScene extends Phaser.Scene {
         this.load.image('arrow', `${BASE_URL}/arrow.png?v=${version}`);
         this.load.audioSprite('sfx', `${BASE_URL_SOUNDS}/sounds.json?v=${version}`, [`${BASE_URL_SOUNDS}/sounds.mp3?v=${version}`]);
 
+        console.log(this.cache.audio.entries);
+        console.log(this.sound.get('sfx'));
+
     }
 
     // #region Create
