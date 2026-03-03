@@ -256,6 +256,10 @@ export class MainScene extends Phaser.Scene {
             entity.sprite.setPosition(msg.newX, msg.newY);
 
             if (msg.sessionId === this.room.sessionId) {
+                this.cameras.main.shake(300, 0.1);
+
+                navigator.vibrate(50);
+
                 this.cameras.main.centerOn(entity.sprite.x, entity.sprite.y);
             }
 
@@ -352,6 +356,10 @@ export class MainScene extends Phaser.Scene {
 
         // Opcional: que no colisione más
         entity.sprite.body.enable = false;
+
+        //sonido
+        this.playSfx("muerte");
+
         // Si soy yo → deshabilitar controles
         if (sessionId === this.room.sessionId) {
             this.disableControls();
