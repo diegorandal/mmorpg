@@ -256,7 +256,7 @@ export class MainScene extends Phaser.Scene {
             entity.sprite.setPosition(msg.newX, msg.newY);
 
             if (msg.sessionId === this.room.sessionId) {
-                this.cameras.main.shake(300, 0.1);
+                this.cameras.main.shake(150, 0.025);
 
                 navigator.vibrate(50);
 
@@ -655,14 +655,20 @@ export class MainScene extends Phaser.Scene {
                     myEntity.sprite.y,
                     myEntity.hp - myState.hp
                 );
+
+                navigator.vibrate(10);
+
             }
 
             if(myState.hp > myEntity.hp){
                 this.visualSystem.playPotion(myEntity);
+                navigator.vibrate(20);
+
             }
 
             if (myState.hp <= 0 && myEntity.hp > 0) {
                 this.handleDeath(myEntity, myId);
+                navigator.vibrate(50);
             }
 
             myEntity.weapon = myState.weapon;
