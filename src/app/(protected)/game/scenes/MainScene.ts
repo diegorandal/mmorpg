@@ -129,6 +129,14 @@ export class MainScene extends Phaser.Scene {
         this.load.image('arrow', `${BASE_URL}/arrow.png?v=${version}`);
         this.load.audioSprite('sfx', `${BASE_URL_SOUNDS}/sounds.json?v=${version}`, [`${BASE_URL_SOUNDS}/sounds.mp3?v=${version}`]);
 
+        this.load.on('complete', () => {
+            console.log('LOADER COMPLETE');
+        });
+
+        this.load.on('loaderror', (file: any) => {
+            console.error('LOAD ERROR', file);
+        });
+
     }
 
     // #region Create
@@ -238,7 +246,7 @@ export class MainScene extends Phaser.Scene {
             this.visualSystem.playAttackOnce(entity, msg);
 
             // TEST
-            this.sound.playAudioSprite('sfx', 'espada');
+            this.sound.play('espada');
 
         });
 
