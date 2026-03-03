@@ -951,4 +951,7 @@ export class MainScene extends Phaser.Scene {
         });
     }
 
+    playSfx(sprite: string, config?: Phaser.Types.Sound.SoundConfig) {
+        this.sound.playAudioSprite("sfx", sprite, config);
+    }
 }

@@ -113,6 +113,7 @@ export class PlayerVisualSystem {
         hpBar.setDepth(label.depth - 1);
         
     }
+
     updateDefenceCircle(entity: any) {
         if (!entity?.sprite || !entity?.defenceCircle) return;
 
@@ -218,7 +219,7 @@ export class PlayerVisualSystem {
         this.scene.tweens.add({targets: slash, alpha: 0.5, duration: 100, ease: "Cubic.out", onComplete: () => {slash.destroy();}});
 
         // Sonido
-        this.scene.sfx.play("espadas");
+        this.scene.playSfx("estocada");
 
     }
 
@@ -237,7 +238,7 @@ export class PlayerVisualSystem {
         });
 
         // Sonido
-        this.scene.sfx.play("espadas2");
+        this.scene.playSfx("espadas2");
 
     }
 
@@ -266,6 +267,10 @@ export class PlayerVisualSystem {
                 arrow.destroy();
             },
         });
+
+        // Sonido
+        this.scene.playSfx("flecha");
+
     }
 
     private playBow2FX(entity: any, msg: any) {
@@ -287,7 +292,10 @@ export class PlayerVisualSystem {
         // 4. Tween hacia la posición actual del enemigo
         this.scene.tweens.add({targets: arrow, x: endX, y: endY, duration: 250, ease: "Linear", onComplete: () => {arrow.destroy();}});
 
-}
+        // Sonido
+        this.scene.playSfx("flecha");
+
+    }
 
     private playBow3FX(entity: any, msg: any) {
 
@@ -311,6 +319,10 @@ export class PlayerVisualSystem {
             this.scene.tweens.add({targets: arrow, x: endX, y: endY, duration: 250, ease: "Linear", onComplete: () => {arrow.destroy();}});
 
         });
+
+        // Sonido
+        this.scene.playSfx("flechas");
+
     }
 
     private playWandFX(entity: any) {
@@ -333,6 +345,10 @@ export class PlayerVisualSystem {
             ease: "Cubic.out",
             onComplete: () => magicCircle.destroy(),
         });
+
+        // Sonido
+        this.scene.playSfx("magia2");
+
     }
 
     private playWand2FX(entity: any, msg: any) {
@@ -356,6 +372,10 @@ export class PlayerVisualSystem {
             ease: "Linear",
             onComplete: () => fireball.destroy()
         });
+
+        // Sonido
+        this.scene.playSfx("bolafuego");
+
     }
     
     private playWand3FX(entity: any, msg: any) {
@@ -385,6 +405,9 @@ export class PlayerVisualSystem {
             onComplete: () => spark.destroy()
         });
 
+        // Sonido
+        this.scene.playSfx("magia3");
+
     }
 
     private playSpellFX(entity: any) {
@@ -404,6 +427,10 @@ export class PlayerVisualSystem {
             ease: "Cubic.out",
             onComplete: () => aura.destroy(),
         });
+
+        // Sonido
+        this.scene.playSfx("hechizo");
+
     }
 
     private playSpell2FX(entity: any, msg: any) {
@@ -436,6 +463,9 @@ export class PlayerVisualSystem {
             ease: 'Expo.in',
             onComplete: () => spark.destroy()
         });
+
+        // Sonido
+        this.scene.playSfx("hechizo2");
 
     }
 
@@ -488,6 +518,10 @@ export class PlayerVisualSystem {
             });
 
         });
+
+        // Sonido
+        this.scene.playSfx("hechizo3");
+
     }
 
     private getDirectionName(dx: number, dy: number): string {
