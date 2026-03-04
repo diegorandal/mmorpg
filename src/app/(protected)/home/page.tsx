@@ -54,7 +54,7 @@ export default function Home() {
     const fetchProfile = async () => {
 
       try {
-        
+
         setLoadingProfile(true);
 
         const wallet = session.user.walletAddress.toLowerCase();
@@ -81,7 +81,7 @@ export default function Home() {
 
     fetchProfile();
 
-  }, [session]);
+  }, [status]);
 
   // CANTIDAD DE USUARIOS ONLINE
   useEffect(() => {
