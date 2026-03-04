@@ -16,14 +16,11 @@ export default function Home() {
   const [playerName, setPlayerName] = useState('');
   const characters = Array.from({ length: 18 }, (_, i) => i + 1);
 
-
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      // El usuario cerró la app o la minimizó
-      console.log("Guardando estado...");
-      
-      room.send('minimizo',"sape");
-
+    if (document.visibilityState === 'hidden') {
+      room.send("hidden");
+    } else {
+      room.send("unhidden");
     }
   });
 
