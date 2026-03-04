@@ -242,8 +242,8 @@ export class MainScene extends Phaser.Scene {
 
         // 1. Escuchar teleports
         this.room.onMessage("playerTeleport", (msg) => {
-
-            if(msg.portalType === 'exit'){
+            
+            if (msg.portalType === 'exit' && msg.sessionId === this.room.sessionId){
                 window.dispatchEvent(new Event('exit-game'));
                 return;
             }
@@ -795,7 +795,7 @@ export class MainScene extends Phaser.Scene {
         if (!container) return;
         
         container.setVisible(portal.active);
-        
+
         // Si no cambió el tipo → no redibujamos
         if (container.getData("type") === portal.type) return;
 
