@@ -84,7 +84,7 @@ export default function Home() {
 
     fetchProfile();
 
-  }, [status]);
+  }, [status, session]);
 
   // CANTIDAD DE USUARIOS ONLINE
   useEffect(() => {
