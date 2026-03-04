@@ -31,13 +31,25 @@ export default function Home() {
   const [loadingProfile, setLoadingProfile] = useState(false);
   const characters = Array.from({ length: 18 }, (_, i) => i + 1);
 
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-      room.send("hidden");
-    } else {
-      room.send("unhidden");
-    }
-  });
+  useEffect(() => {
+
+    if (!room) return;
+
+    const handler = () => {
+      if (document.visibilityState === 'hidden') {
+        room.send("hidden");
+      } else {
+        room.send("unhidden");
+      }
+    };
+
+    document.addEventListener('visibilitychange', handler);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handler);
+    };
+
+  }, [room]);
 
   useEffect(() => {
 
@@ -84,7 +96,7 @@ export default function Home() {
 
     fetchProfile();
 
-  }, [status, session]);
+  }, [status]);
 
   // CANTIDAD DE USUARIOS ONLINE
   useEffect(() => {
