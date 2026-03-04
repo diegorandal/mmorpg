@@ -16,6 +16,17 @@ export default function Home() {
   const [playerName, setPlayerName] = useState('');
   const characters = Array.from({ length: 18 }, (_, i) => i + 1);
 
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      // El usuario cerró la app o la minimizó
+      console.log("Guardando estado...");
+      
+      room.send('minimizo',"sape");
+
+    }
+  });
+
   useEffect(() => {
     if (session?.user?.username) {
       setPlayerName(session.user.username);
@@ -38,7 +49,6 @@ export default function Home() {
 
     fetchUsersOnline();
 
-    // 👇 opcional: actualizar cada 10 segundos
     const interval = setInterval(fetchUsersOnline, 5000);
 
     return () => clearInterval(interval);
