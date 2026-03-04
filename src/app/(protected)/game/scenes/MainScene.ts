@@ -257,10 +257,10 @@ export class MainScene extends Phaser.Scene {
 
             if (msg.sessionId === this.room.sessionId) {
                 this.cameras.main.shake(150, 0.025);
-
                 navigator.vibrate(50);
-
                 this.cameras.main.centerOn(entity.sprite.x, entity.sprite.y);
+            } else {
+                this.visualSystem.playTeleportFade(entity.sprite);
             }
 
             //sonido

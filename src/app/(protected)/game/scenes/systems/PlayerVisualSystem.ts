@@ -524,6 +524,24 @@ export class PlayerVisualSystem {
 
     }
 
+    playTeleportFade(playerContainer: Phaser.GameObjects.Container) {
+
+        // fade in
+
+        playerContainer.setAlpha(0);
+
+        this.scene.tweens.add({
+            targets: playerContainer,
+            alpha: 1,
+            duration: 1000,
+            repeat: -1,
+            hold: 200,
+            repeatDelay: 200,
+            ease: 'bounce.out'
+        });
+
+    }
+
     private getDirectionName(dx: number, dy: number): string {
         if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) return "";
 
