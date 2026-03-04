@@ -53,18 +53,8 @@ export default function Home() {
 
   useEffect(() => {
 
-    if (status !== "authenticated") {
-      console.log("esperando autenticación...");
-      return;
-    }
-
-    console.log('walletaddress:', session.user.walletAddress);
-    console.log('userid:', session.user.id);
-
-    if (!session.user.walletAddress) {
-      console.log("session sin wallet");
-      return;
-    }
+    if (status !== "authenticated") return;
+    if (!session.user.id) return;
 
     const fetchProfile = async () => {
 
@@ -72,7 +62,7 @@ export default function Home() {
 
         setLoadingProfile(true);
 
-        const wallet = session.user.walletAddress.toLowerCase();
+        const wallet = session.user.id.toLowerCase();
 
         const res = await fetch(
           `https://randal.onepixperday.xyz/api/profile?wallet=${wallet}`
