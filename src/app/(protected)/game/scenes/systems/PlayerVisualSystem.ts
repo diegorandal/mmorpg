@@ -533,6 +533,7 @@ export class PlayerVisualSystem {
         this.scene.tweens.add({
             targets: playerContainer,
             alpha: 1,
+            delay: 500, 
             duration: 1500,
             ease: "Linear"
         });
