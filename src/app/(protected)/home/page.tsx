@@ -46,6 +46,9 @@ export default function Home() {
       return;
     }
 
+    console.log('walletaddress:', session.user.walletAddress);
+    console.log('userid:', session.user.id);
+
     if (!session.user.walletAddress) {
       console.log("session sin wallet");
       return;
