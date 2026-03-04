@@ -24,7 +24,7 @@ export default function Home() {
   const [selectedCharacter, setSelectedCharacter] = useState(1);
   const [usersOnline, setUsersOnline] = useState<number | null>(null);
   const [error, setError] = useState('');
-  const {data: session} = useSession();
+  const { data: session, status } = useSession();
   const [playerName, setPlayerName] = useState('');
   const [playerWallet, setPlayerWallet] = useState('');
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
@@ -41,14 +41,20 @@ export default function Home() {
 
   useEffect(() => {
 
+    if (status !== "authenticated") {
+      console.log("esperando autenticación...");
+      return;
+    }
+
+    if (!session.user.walletAddress) {
+      console.log("session sin wallet");
+      return;
+    }
+
     const fetchProfile = async () => {
 
-      if (!session?.user?.walletAddress) {
-        console.log('no hay wallet');
-        return;
-      }
-
       try {
+        
         setLoadingProfile(true);
 
         const wallet = session.user.walletAddress.toLowerCase();
