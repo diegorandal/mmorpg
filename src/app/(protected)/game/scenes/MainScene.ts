@@ -285,7 +285,7 @@ export class MainScene extends Phaser.Scene {
                 }
             }
             
-            // 1️⃣ Agregar nuevos y actualizar existentes
+            // PORTALES Agregar nuevos y actualizar existentes
             state.portals.forEach((portal, id) => {
                 if (!this.portalEntities[id]) {
                     this.addPortal(portal, id);
@@ -294,7 +294,7 @@ export class MainScene extends Phaser.Scene {
                 }
             });
 
-            // 2️⃣ Eliminar los que ya no existen
+            // Eliminar los que ya no existen
             for (const id in this.portalEntities) {
                 if (!state.portals.has(id)) {
                     this.portalEntities[id].destroy();
