@@ -101,6 +101,14 @@ export class PlayerVisualSystem {
 
         hpBar.clear();
 
+        if(entity.sprite.alpha < 1){
+            hpBar.setVisible(false);
+            label.setVisible(false);
+        } else {
+            hpBar.setVisible(true);
+            label.setVisible(true);
+        }
+
         hpBar.fillStyle(0x888888, 0.2);
         hpBar.fillRect(barX, barY, fullWidth, label.displayHeight);
 
