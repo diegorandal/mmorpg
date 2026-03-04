@@ -224,6 +224,23 @@ export class MainScene extends Phaser.Scene {
             });
         }
 
+        this.room.onLeave((code) => {
+
+            console.log(`Has salido de la sala. Código de cierre: ${code}`);
+
+            if (code === 1000) {
+                console.log("Cierre limpio (voluntario o expulsión controlada)");
+            } else {
+                console.log("Cierre por error de red o crash del servidor");
+            }
+
+            // Aquí es donde deberías redirigir al usuario al menú principal 
+            // o mostrar un mensaje de "Desconectado por inactividad"
+            this.disableControls();
+            this.showDeathScreen();
+            
+        });
+
         this.room.state.players.forEach((player, sessionId) => {
             this.addPlayer(player, sessionId);
         });
