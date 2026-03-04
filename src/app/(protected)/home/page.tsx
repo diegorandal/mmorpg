@@ -43,7 +43,10 @@ export default function Home() {
 
     const fetchProfile = async () => {
 
-      if (!session?.user?.walletAddress) return;
+      if (!session?.user?.walletAddress) {
+        console.log('no hay wallet');
+        return;
+      }
 
       try {
         setLoadingProfile(true);
