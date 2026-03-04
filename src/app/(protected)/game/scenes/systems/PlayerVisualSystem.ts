@@ -101,14 +101,6 @@ export class PlayerVisualSystem {
 
         hpBar.clear();
 
-        if(entity.sprite.alpha < 1){
-            hpBar.setVisible(false);
-            label.setVisible(false);
-        } else {
-            hpBar.setVisible(true);
-            label.setVisible(true);
-        }
-
         hpBar.fillStyle(0x888888, 0.2);
         hpBar.fillRect(barX, barY, fullWidth, label.displayHeight);
 
@@ -119,7 +111,15 @@ export class PlayerVisualSystem {
         hpBar.fillStyle(color, 0.2);
         hpBar.fillRect(barX, barY, currentWidth, label.displayHeight);
         hpBar.setDepth(label.depth - 1);
-        
+
+        if (entity.sprite.alpha < 1) {
+            hpBar.setVisible(false);
+            label.setVisible(false);
+        } else {
+            hpBar.setVisible(true);
+            label.setVisible(true);
+        }
+
     }
 
     updateDefenceCircle(entity: any) {
@@ -534,15 +534,12 @@ export class PlayerVisualSystem {
 
     playTeleportFade(playerContainer: Phaser.GameObjects.Container) {
 
-        // fade in
-
         playerContainer.setAlpha(0);
-
         this.scene.tweens.add({
             targets: playerContainer,
             alpha: 1,
-            delay: 500, 
-            duration: 1500,
+            delay: 400, 
+            duration: 1100,
             ease: "Linear"
         });
 
