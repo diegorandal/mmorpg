@@ -25,6 +25,7 @@ export class Portal extends Schema {
     @type("number") x: number = 0;
     @type("number") y: number = 0;
     @type("string") targetPortalId: string = "";
+    @type("boolean") active: boolean = true;
 
 }
 

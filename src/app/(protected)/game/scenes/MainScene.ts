@@ -660,12 +660,11 @@ export class MainScene extends Phaser.Scene {
 
             if(myState.hp > myEntity.hp){
                 this.visualSystem.playPotion(myEntity);
-                navigator.vibrate(50);
             }
 
             if (myState.hp <= 0 && myEntity.hp > 0) {
+                navigator.vibrate(100);
                 this.handleDeath(myEntity, myId);
-                navigator.vibrate(50);
             }
 
             myEntity.weapon = myState.weapon;
@@ -794,7 +793,9 @@ export class MainScene extends Phaser.Scene {
 
         const container = this.portalEntities[id];
         if (!container) return;
-
+        
+        container.setVisible(portal.active);
+        
         // Si no cambió el tipo → no redibujamos
         if (container.getData("type") === portal.type) return;
 
