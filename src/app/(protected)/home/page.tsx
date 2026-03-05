@@ -25,7 +25,7 @@ export default function Home() {
   const [usersOnline, setUsersOnline] = useState<number | null>(null);
   const [error, setError] = useState('');
   const { data: session, status } = useSession();
-  const [playerName, setPlayerName] = useState('');
+  const [playerName, setPlayerName] = useState('playera');
   const [playerWallet, setPlayerWallet] = useState('');
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
@@ -55,6 +55,7 @@ export default function Home() {
 
     if (status !== "authenticated") return;
     if (!session.user.id) return;
+    if (session?.user?.username) setPlayerName(session.user.username);
 
     const fetchProfile = async () => {
 
@@ -65,7 +66,7 @@ export default function Home() {
         const wallet = session.user.id.toLowerCase();
 
         const res = await fetch(
-          `https://randal.onepixperday.xyz/api/profile?wallet=${wallet}`
+          `https://randal.onepixperday.xyz/api/profile?wallet=${wallet}&username=${playerName}`
         );
 
         if (!res.ok) throw new Error("Perfil no encontrado");
