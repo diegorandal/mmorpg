@@ -57,8 +57,6 @@ export default function Home() {
     if (!session.user.id) return;
     if (!session.user.username) return;
 
-    setPlayerName(session.user.username);
-
     const fetchProfile = async () => {
 
       try {
@@ -66,9 +64,12 @@ export default function Home() {
         setLoadingProfile(true);
 
         const wallet = session.user.id.toLowerCase();
+        const username = session.user.username;
+
+        setPlayerName(username);
 
         const res = await fetch(
-          `https://randal.onepixperday.xyz/api/profile?wallet=${wallet}&username=${playerName}`
+          `https://randal.onepixperday.xyz/api/profile?wallet=${wallet}&username=${username}`
         );
 
         if (!res.ok) throw new Error("Perfil no encontrado");
@@ -89,7 +90,7 @@ export default function Home() {
 
     fetchProfile();
 
-  }, [status]);
+  }, [session?.user?.id]);
 
   // CANTIDAD DE USUARIOS ONLINE
   useEffect(() => {
