@@ -206,15 +206,13 @@ export default function Home() {
                   bottom: 0,
                   right: 0,
                   fontSize: "12px",
-                  background: "#4CAF50",
+                  background: "#477fe7",
                   padding: "2px 6px",
                   borderRadius: "6px",
                   textDecoration: "none",
                   color: "white"
                 }}
-              >
-                tienda
-              </a>
+              >🔄</a>
 
             </div>
 
@@ -224,14 +222,6 @@ export default function Home() {
               <h3 style={{ margin: 0 }}>
                 {profile.username}
               </h3>
-
-              <p style={{
-                fontSize: "12px",
-                opacity: 0.6,
-                margin: "4px 0"
-              }}>
-                {profile.wallet}
-              </p>
 
               <p style={{ margin: "6px 0" }}>
                 Balance: {profile.balance} wld
