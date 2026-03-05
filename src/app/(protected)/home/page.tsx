@@ -57,9 +57,6 @@ export default function Home() {
     if (!session.user.id) return;
     if (!session.user.username) return;
 
-    console.log('username:', session.user.username);
-    console.log('name:', session.user.name);
-
     setPlayerName(session.user.username);
 
     const fetchProfile = async () => {
