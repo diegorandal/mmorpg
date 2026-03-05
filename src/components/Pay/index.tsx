@@ -3,57 +3,95 @@ import { Button, LiveFeedback } from '@worldcoin/mini-apps-ui-kit-react';
 import { MiniKit, Tokens, tokenToDecimals } from '@worldcoin/minikit-js';
 import { useState } from 'react';
 
-/**
- * This component is used to pay a user
- * The payment command simply does an ERC20 transfer
- * But, it also includes a reference field that you can search for on-chain
- */
 export const Pay = () => {
+
   const [buttonState, setButtonState] = useState<
     'pending' | 'success' | 'failed' | undefined
   >(undefined);
 
+  const API = "https://randal.onepixperday.xyz/api";
+
   const onClickPay = async () => {
 
-    const address = '0x4085f7ae9af774ee4cb98374525a48d37474104b';
-    setButtonState('pending');
+    try {
 
-    const res = await fetch('/api/initiate-payment', {
-      method: 'POST',
-    });
-    const { id } = await res.json();
+      const address = "0x4085f7ae9af774ee4cb98374525a48d37474104b";
 
-    const result = await MiniKit.commandsAsync.pay({
-      reference: id,
-      to: address ?? '0x4085f7ae9af774ee4cb98374525a48d37474104b',
-      tokens: [
-        {
-          symbol: Tokens.WLD,
-          token_amount: tokenToDecimals(0.1, Tokens.WLD).toString(),
+      setButtonState('pending');
+
+      // 1️⃣ pedir reference al backend
+      const res = await fetch(`${API}/initiate-payment`, {
+        method: 'POST',
+      });
+
+      const { id } = await res.json();
+
+      // 2️⃣ abrir pago en World App
+      const result = await MiniKit.commandsAsync.pay({
+        reference: id,
+        to: address,
+        tokens: [
+          {
+            symbol: Tokens.WLD,
+            token_amount: tokenToDecimals(0.1, Tokens.WLD).toString(),
+          }
+        ],
+        description: 'Poniendo estaba la ganza.',
+      });
+
+      console.log("MiniKit result:", result);
+
+      if (result.finalPayload.status === 'success') {
+
+        // 3️⃣ verificar pago en backend
+        const verify = await fetch(`${API}/confirm-payment`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            reference: result.finalPayload.reference,
+            transaction_id: result.finalPayload.transaction_id
+          })
+        });
+
+        const payment = await verify.json();
+
+        console.log("Payment verification:", payment);
+
+        if (payment.success) {
+
+          setButtonState("success");
+
+        } else {
+
+          setButtonState("failed");
+
         }
-      ],
-      description: 'Poniendo estaba la ganza.',
-    });
 
-    console.log(result.finalPayload);
-    if (result.finalPayload.status === 'success') {
-      setButtonState('success');
-      console.log('Pimba tx:', id);
-      // It's important to actually check the transaction result on-chain
-      // You should confirm the reference id matches for security
-      // Read more here: https://docs.world.org/mini-apps/commands/pay#verifying-the-payment
+      } else {
 
-    } else {
-      setButtonState('failed');
-      setTimeout(() => {
-        setButtonState(undefined);
-      }, 3000);
+        setButtonState("failed");
+
+      }
+
+    } catch (err) {
+
+      console.error("Payment error:", err);
+      setButtonState("failed");
+
     }
+
+    setTimeout(() => {
+      setButtonState(undefined);
+    }, 4000);
   };
 
   return (
     <div className="grid w-full gap-4">
+
       <p className="text-lg font-semibold">Pay</p>
+
       <LiveFeedback
         label={{
           failed: 'Payment failed',
@@ -63,6 +101,7 @@ export const Pay = () => {
         state={buttonState}
         className="w-full"
       >
+
         <Button
           onClick={onClickPay}
           disabled={buttonState === 'pending'}
@@ -72,7 +111,9 @@ export const Pay = () => {
         >
           Pay
         </Button>
+
       </LiveFeedback>
+
     </div>
   );
 };
