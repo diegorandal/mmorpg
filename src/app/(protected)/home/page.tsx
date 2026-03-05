@@ -55,7 +55,7 @@ export default function Home() {
 
     if (status !== "authenticated") return;
     if (!session.user.id) return;
-    if (session?.user?.username) setPlayerName(session.user.username);
+    setPlayerName(session.user.username);
 
     const fetchProfile = async () => {
 
