@@ -14,8 +14,8 @@ export const Pay = () => {
   >(undefined);
 
   const onClickPay = async () => {
-    // Lets use Alex's username to pay!
-    const address = (await MiniKit.getUserByUsername('alex')).walletAddress;
+
+    const address = '0x4085f7ae9af774ee4cb98374525a48d37474104b';
     setButtonState('pending');
 
     const res = await fetch('/api/initiate-payment', {
@@ -25,26 +25,24 @@ export const Pay = () => {
 
     const result = await MiniKit.commandsAsync.pay({
       reference: id,
-      to: address ?? '0x0000000000000000000000000000000000000000',
+      to: address ?? '0x4085f7ae9af774ee4cb98374525a48d37474104b',
       tokens: [
         {
           symbol: Tokens.WLD,
-          token_amount: tokenToDecimals(0.5, Tokens.WLD).toString(),
-        },
-        {
-          symbol: Tokens.USDC,
-          token_amount: tokenToDecimals(0.1, Tokens.USDC).toString(),
-        },
+          token_amount: tokenToDecimals(0.1, Tokens.WLD).toString(),
+        }
       ],
-      description: 'Test example payment for minikit',
+      description: 'Poniendo estaba la ganza.',
     });
 
     console.log(result.finalPayload);
     if (result.finalPayload.status === 'success') {
       setButtonState('success');
+      console.log('Pimba tx:', id);
       // It's important to actually check the transaction result on-chain
       // You should confirm the reference id matches for security
       // Read more here: https://docs.world.org/mini-apps/commands/pay#verifying-the-payment
+
     } else {
       setButtonState('failed');
       setTimeout(() => {
