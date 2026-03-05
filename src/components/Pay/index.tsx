@@ -39,7 +39,7 @@ export const Pay = () => {
         description: 'Poniendo estaba la ganza.',
       });
 
-      console.log("MiniKit result:", result);
+      console.log('MiniKit finalPayload completo:', JSON.stringify(result.finalPayload, null, 2));
 
       if (result.finalPayload.status === 'success') {
 
