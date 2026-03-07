@@ -6,6 +6,7 @@ import { MyRoomState } from '@/app/(protected)/home/PlayerState';
 import './global.css';
 import { useSession } from "next-auth/react"
 import { Pay } from '@/components/Pay';
+import { Withdraw } from '@/components/Withdraw';
 
 // respuesta de la api: https://randal.onepixperday.xyz/api/profile?wallet=0x123&username=Diego
 // {"wallet":"0x123","username":"Diego","balance":"0","xp":0,"characterid":5,"characters":[5,6,10,11]}
@@ -265,6 +266,11 @@ export default function Home() {
         <p>
           <Pay />
         </p>
+        
+        <p>
+          <Withdraw onSuccess={() => {console.log('sape');}} />
+        </p>
+
 
         {error && (
           <p style={{ color: '#ff5555', marginTop: '20px' }}>

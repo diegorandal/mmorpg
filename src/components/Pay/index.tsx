@@ -15,7 +15,7 @@ export const Pay = () => {
 
     try {
 
-      const address = "0x4085f7ae9af774ee4cb98374525a48d37474104b";
+      const address = "0x2CBD6A60069B95C85f3b230164A0a166b0576dE7";
 
       setButtonState('pending');
 
