@@ -75,8 +75,6 @@ export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
             if (!session?.user?.id) return;
             const address = session.user.id.toLowerCase();
 
-            console.log(`wallet ${address} quiere retirar`);
-
             // pedir firma al backend
             const response = await fetch(`${API}/initiate-withdraw`, {
                 method: 'POST',
@@ -96,6 +94,8 @@ export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
             }
 
             const { amount, signature, uuid } = await response.json();
+
+            console.log(`wallet: ${address} amount: ${amount} uuid: ${uuid} signature: ${signature}`);
 
             const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
                 transaction: [
