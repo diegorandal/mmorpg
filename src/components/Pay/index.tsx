@@ -2,12 +2,12 @@
 import { Button, LiveFeedback } from '@worldcoin/mini-apps-ui-kit-react';
 import { MiniKit, Tokens, tokenToDecimals } from '@worldcoin/minikit-js';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 
 export const Pay = () => {
 
-  const [buttonState, setButtonState] = useState<
-    'pending' | 'success' | 'failed' | undefined
-  >(undefined);
+  const [buttonState, setButtonState] = useState<'pending' | 'success' | 'failed' | undefined>(undefined);
+  const { data: session } = useSession();
 
   const API = "https://randal.onepixperday.xyz/api";
 
@@ -19,9 +19,16 @@ export const Pay = () => {
 
       setButtonState('pending');
 
-      // 1️⃣ pedir reference al backend
+      if (!session?.user?.id) return;
+      const wallet = session.user.id.toLowerCase();
+
+      // 1️⃣ pedir reference al backend y mandarle wallet y amount HC por ahora
       const res = await fetch(`${API}/initiate-payment`, {
-        method: 'POST',
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          wallet: wallet,
+          amount: "100000000000000000"
+        })
       });
 
       const { id } = await res.json();

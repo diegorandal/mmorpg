@@ -7,11 +7,12 @@ import { useEffect, useState } from 'react';
 import { createPublicClient, http } from 'viem';
 import { worldchain } from 'viem/chains';
 import { useSession } from 'next-auth/react';
-import treasureGameABI from '@/abi/skillstake.json';
+import skillstakeABI from '@/abi/skillstake.json';
 
 export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
 
     const contract = '0x2CBD6A60069B95C85f3b230164A0a166b0576dE7';
+    const API = "https://randal.onepixperday.xyz/api";
 
     const [buttonState, setButtonState] = useState<'pending' | 'success' | 'failed' | undefined>(undefined);
     const [transactionId, setTransactionId] = useState<string>('');
@@ -72,12 +73,12 @@ export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
         try {
 
             if (!session?.user?.id) return;
+            const address = session.user.id.toLowerCase();
 
-            const user = await MiniKit.getUserByUsername(session.user.username);
-            const address = user.walletAddress;
+            console.log(`wallet ${address} quiere retirar`);
 
             // pedir firma al backend
-            const response = await fetch('/api/claim-reward', {
+            const response = await fetch(`${API}/initiate-withdraw`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ address }),
@@ -88,21 +89,25 @@ export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Failed to get claim signature.');
 
+            } else {
+
+                console.log('backend OK respondio:', response);
+
             }
 
-            const { amount, signature, deadline } = await response.json();
+            const { amount, signature, uuid } = await response.json();
 
             const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
                 transaction: [
                     {
                         address: contract,
-                        abi: treasureGameABI,
-                        functionName: 'claim',
+                        abi: skillstakeABI,
+                        functionName: 'gameclaim',
                         args: [
                             {
                                 to: address,
                                 amount: amount,
-                                deadline: deadline,
+                                uuid: uuid,
                                 signature: signature,
                             }
                         ],
@@ -110,7 +115,11 @@ export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
                 ],
             });
 
+            console.log('finalpayload:', finalPayload);
+
             if (finalPayload.status === 'success') {
+
+                //LLAMAR A BACKEND Y DECIRLE: CHE, YA ESTA OK LA TX
 
                 console.log(
                     'Transaction submitted:',
