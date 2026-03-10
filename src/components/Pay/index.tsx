@@ -4,7 +4,34 @@ import { MiniKit, Tokens, tokenToDecimals } from '@worldcoin/minikit-js';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 
-export const Pay = () => {
+type PayProps = {
+  amount: number;
+  description?: string;
+};
+
+const sleep = (ms: number) =>
+  new Promise(resolve => setTimeout(resolve, ms));
+
+async function verifyWithRetry(url: string, body: any, retries = 5, delay = 1200) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      console.log(`Verify attempt ${attempt}/${retries}`);
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      // ✅ éxito → salir inmediatamente
+      if (data.success) {return data;}
+    } catch (err) {console.warn("Verify error:", err);}
+    // ⏳ esperar antes del siguiente intento
+    if (attempt < retries) await sleep(delay);
+  }
+  return { success: false }; // ❌ todos fallaron
+}
+
+export const Pay = ({ amount, description }: PayProps) => {
 
   const [buttonState, setButtonState] = useState<'pending' | 'success' | 'failed' | undefined>(undefined);
   const { data: session } = useSession();
@@ -27,7 +54,7 @@ export const Pay = () => {
         method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
           wallet: wallet,
-          amount: "100000000000000000"
+          amount: tokenToDecimals(amount, Tokens.WLD).toString(),
         })
       });
 
@@ -40,46 +67,34 @@ export const Pay = () => {
         tokens: [
           {
             symbol: Tokens.WLD,
-            token_amount: tokenToDecimals(0.1, Tokens.WLD).toString(),
+            token_amount: tokenToDecimals(amount, Tokens.WLD).toString()
           }
         ],
-        description: 'Poniendo estaba la ganza.',
+        description: description ?? 'Payment',
       });
 
       console.log('MiniKit finalPayload completo:', JSON.stringify(result.finalPayload, null, 2));
 
       if (result.finalPayload.status === 'success') {
 
-        // 3️⃣ verificar pago en backend
-        const verify = await fetch(`${API}/confirm-payment`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
+        const payment = await verifyWithRetry(
+          `${API}/confirm-payment`,
+          {
             reference: result.finalPayload.reference,
             transaction_id: result.finalPayload.transaction_id
-          })
-        });
-
-        const payment = await verify.json();
+          }, 6, 1200    // 6 intentos con 1200ms entre intentos
+        );
 
         console.log("Payment verification:", payment);
 
         if (payment.success) {
-
           setButtonState("success");
-
         } else {
-
           setButtonState("failed");
-
         }
 
       } else {
-
         setButtonState("failed");
-
       }
 
     } catch (err) {
