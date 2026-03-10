@@ -23,8 +23,8 @@ async function verifyWithRetry(url: string, body: any, retries = 5, delay = 1200
       });
       const data = await res.json();
       // ✅ éxito → salir inmediatamente
-      if (data.success) {return data;}
-    } catch (err) {console.warn("Verify error:", err);}
+      if (data.success) { return data; }
+    } catch (err) { console.warn("Verify error:", err); }
     // ⏳ esperar antes del siguiente intento
     if (attempt < retries) await sleep(delay);
   }
@@ -51,7 +51,7 @@ export const Pay = ({ amount, description }: PayProps) => {
 
       // 1️⃣ pedir reference al backend y mandarle wallet y amount HC por ahora
       const res = await fetch(`${API}/initiate-payment`, {
-        method: "POST", headers: {"Content-Type": "application/json"},
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           wallet: wallet,
           amount: tokenToDecimals(amount, Tokens.WLD).toString(),
@@ -73,7 +73,11 @@ export const Pay = ({ amount, description }: PayProps) => {
         description: description ?? 'Payment',
       });
 
-      console.log('MiniKit finalPayload completo:', JSON.stringify(result.finalPayload, null, 2));
+      //console.log('MiniKit finalPayload completo:', JSON.stringify(result.finalPayload, null, 2));
+
+      console.log('result status:', result.finalPayload.status);
+
+      await sleep(2000);
 
       if (result.finalPayload.status === 'success') {
 
