@@ -5,9 +5,10 @@ import * as Colyseus from "@colyseus/sdk";
 import { MyRoomState } from '@/app/(protected)/home/PlayerState';
 import './global.css';
 import { useSession } from "next-auth/react"
-import { Pay } from '@/components/Pay';
-import { Withdraw } from '@/components/Withdraw';
 import { ethers } from "ethers";
+import DepositModal from '@/modals/Deposit'
+import WithdrawModal from '@/modals/Withdraw';
+import TransactionsModal from '@/modals/Withdraw';
 
 // respuesta de la api: https://randal.onepixperday.xyz/api/profile?wallet=0x123&username=Diego
 // {"wallet":"0x123","username":"Diego","balance":"0","xp":0,"characterid":5,"characters":[5,6,10,11]}
@@ -24,7 +25,7 @@ type PlayerProfile = {
 export default function Home() {
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const [room, setRoom] = useState<Colyseus.Room | null>(null);
-  const [selectedCharacter, setSelectedCharacter] = useState(1);
+  //const [selectedCharacter, setSelectedCharacter] = useState(1);
   const [usersOnline, setUsersOnline] = useState<number | null>(null);
   const [error, setError] = useState('');
   const { data: session, status } = useSession();
@@ -32,7 +33,10 @@ export default function Home() {
   const [playerWallet, setPlayerWallet] = useState('');
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
-  const characters = Array.from({ length: 18 }, (_, i) => i + 1);
+  //const characters = Array.from({ length: 18 }, (_, i) => i + 1);
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [showTransactionsModal, setShowTransactionsModal] = useState(false);
 
   useEffect(() => {
 
@@ -236,6 +240,49 @@ export default function Home() {
               </p>
 
             </div>
+
+          </div>
+
+        )}
+
+        {/* WALLET ACTIONS */}
+        {profile && (
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+              marginBottom: "20px"
+            }}
+          >
+            <button
+              onClick={() => setShowDepositModal(true)}
+              style={{
+                padding: "10px 22px",
+                background: "#477fe7",
+                border: "none",
+                borderRadius: "8px",
+                color: "white",
+                fontWeight: "bold",
+                cursor: "pointer"
+              }}
+            >
+              DEPOSIT
+            </button>
+
+            <button
+              onClick={() => setShowWithdrawModal(true)}
+              style={{
+                padding: "10px 22px",
+                background: "#e76f51",
+                border: "none",
+                borderRadius: "8px",
+                color: "white",
+                fontWeight: "bold",
+                cursor: "pointer"
+              }}
+            >
+              WITHDRAW
+            </button>
           </div>
         )}
 
@@ -265,18 +312,17 @@ export default function Home() {
         >
           ENTRAR
         </button>
-        <p>
-          <Pay
-            amount={0.1}
-            description="ponete con unos wld wacho"
-            onSuccess={fetchProfile}
-          />
-        </p>
-        
-        <p>
-          <Withdraw onSuccess={fetchProfile} />
-        </p>
 
+        {/* MODALs */}
+        {showDepositModal && (
+          <DepositModal onClose={() => setShowDepositModal(false)} onSuccess={fetchProfile}/>
+        )}
+        {showWithdrawModal && (
+          <WithdrawModal balance={Number(ethers.formatUnits(profile.balance, 18))} onClose={() => setShowWithdrawModal(false)} onSuccess={fetchProfile}/>
+        )}
+        {showTransactionsModal && (
+          <TransactionsModal balance={Number(ethers.formatUnits(profile.balance, 18))} onClose={() => setShowWithdrawModal(false)} onSuccess={fetchProfile} />
+        )}
 
         {error && (
           <p style={{ color: '#ff5555', marginTop: '20px' }}>

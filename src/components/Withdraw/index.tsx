@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, LiveFeedback } from '@worldcoin/mini-apps-ui-kit-react';
-import { MiniKit } from '@worldcoin/minikit-js';
+import { MiniKit, Tokens, tokenToDecimals } from '@worldcoin/minikit-js';
 import { useWaitForTransactionReceipt } from '@worldcoin/minikit-react';
 import { useEffect, useState } from 'react';
 import { createPublicClient, http } from 'viem';
@@ -9,9 +9,11 @@ import { worldchain } from 'viem/chains';
 import { useSession } from 'next-auth/react';
 import skillstakeABI from '@/abi/skillstake.json';
 
+type PayProps = { amount: number; onSuccess?: () => void; };
+
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
+export const Withdraw = ({ amount, onSuccess }: PayProps) => {
 
     const contract = '0x2CBD6A60069B95C85f3b230164A0a166b0576dE7';
     const API = "https://randal.onepixperday.xyz/api";
@@ -81,7 +83,10 @@ export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
             const response = await fetch(`${API}/initiate-withdraw`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ address }),
+                body: JSON.stringify({ 
+                    address,
+                    amount: tokenToDecimals(amount, Tokens.WLD).toString(),
+                }),
             });
 
             if (!response.ok) {
@@ -89,15 +94,9 @@ export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Failed to get claim signature.');
 
-            } else {
+            } 
 
-                console.log('backend OK respondio:', response);
-
-            }
-
-            const { amount, signature, uuid } = await response.json();
-
-            console.log(`wallet: ${address} amount: ${amount} uuid: ${uuid} signature: ${signature}`);
+            const {signature, uuid} = await response.json();
 
             const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
                 transaction: [
@@ -108,7 +107,7 @@ export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
                         args: [
                             {
                                 to: address,
-                                amount: amount,
+                                amount: tokenToDecimals(amount, Tokens.WLD).toString(),
                                 uuid: uuid,
                                 signature: signature,
                             }
@@ -116,8 +115,6 @@ export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
                     },
                 ],
             });
-
-            console.log('finalpayload:', finalPayload);
 
             if (finalPayload.status === 'success') {
                 await sleep(2000);
@@ -137,28 +134,19 @@ export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
 
                 }
 
-                setTransactionId(finalPayload.transaction_id);
-
             } else {
 
                 console.error('Transaction submission failed:', finalPayload);
                 setButtonState('failed');
-
-                setTimeout(() => {
-                    setButtonState(undefined);
-                }, 3000);
+                setTimeout(() => {setButtonState(undefined);}, 3000);
 
             }
 
         } catch (err) {
 
             console.error('Error sending transaction:', err);
-
             setButtonState('failed');
-
-            setTimeout(() => {
-                setButtonState(undefined);
-            }, 3000);
+            setTimeout(() => {setButtonState(undefined);}, 3000);
 
         }
 
@@ -168,23 +156,9 @@ export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
 
         <div className="grid w-full gap-4">
 
-            <LiveFeedback
-                label={{
-                    failed: 'Failed to withdraw',
-                    pending: 'Withdrawing...',
-                    success: 'Successful withdraw',
-                }}
-                state={buttonState}
-                className="w-full"
-            >
+            <LiveFeedback label={{failed: 'Failed to withdraw', pending: 'Withdrawing...', success: 'Successful withdraw'}} state={buttonState} className="w-full">
 
-                <Button
-                    onClick={onClickClaim}
-                    disabled={buttonState === 'pending'}
-                    size="lg"
-                    variant="secondary"
-                    className="w-full"
-                >
+                <Button onClick={onClickClaim} disabled={buttonState === 'pending'} size="lg" variant="secondary" className="w-full">
                     Withdraw
                 </Button>
 

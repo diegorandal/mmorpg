@@ -108,26 +108,10 @@ async function verifyWithRetry(url: string, body: any, retries = 5, delay = 1200
   return (
     <div className="grid w-full gap-4">
 
-      <p className="text-lg font-semibold">Pay</p>
+      <LiveFeedback label={{failed: 'Deposit failed', pending: 'Deposit pending', success: 'Deposit successful'}} state={buttonState} className="w-full">
 
-      <LiveFeedback
-        label={{
-          failed: 'Payment failed',
-          pending: 'Payment pending',
-          success: 'Payment successful',
-        }}
-        state={buttonState}
-        className="w-full"
-      >
-
-        <Button
-          onClick={onClickPay}
-          disabled={buttonState === 'pending'}
-          size="lg"
-          variant="primary"
-          className="w-full"
-        >
-          Pay
+        <Button onClick={onClickPay} disabled={buttonState === 'pending'} size="lg" variant="primary" className="w-full">
+          Deposit
         </Button>
 
       </LiveFeedback>
