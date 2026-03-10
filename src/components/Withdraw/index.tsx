@@ -98,6 +98,8 @@ export const Withdraw = ({ amount, onSuccess }: PayProps) => {
 
             const {signature, uuid} = await response.json();
 
+            console.log(`amount: ${amount} uuid: ${uuid} sign: ${signature}`);
+
             const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
                 transaction: [
                     {
@@ -115,6 +117,8 @@ export const Withdraw = ({ amount, onSuccess }: PayProps) => {
                     },
                 ],
             });
+
+            console.log('payload withdraw:', finalPayload);
 
             if (finalPayload.status === 'success') {
                 await sleep(2000);
