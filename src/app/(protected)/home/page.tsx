@@ -338,7 +338,7 @@ export default function Home() {
           <WithdrawModal balance={Number(ethers.formatUnits(profile.balance, 18))} onClose={() => setShowWithdrawModal(false)} onSuccess={fetchProfile}/>
         )}
         {showTransactionsModal && (
-          <TransactionsModal address={profile.wallet} onClose={() => setShowWithdrawModal(false)} />
+          <TransactionsModal address={profile.wallet} onClose={() => setShowTransactionsModal(false)} />
         )}
 
         {error && (
