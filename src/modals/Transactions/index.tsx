@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
+import { ethers } from "ethers";
 
 type Transaction = {
     id: number;
@@ -151,7 +152,7 @@ export default function TransactionHistoryModal({ address, onClose }: Props) {
                                     {tx.type}
                                 </div>
 
-                                <div>{tx.amount}</div>
+                                <div>{ethers.formatUnits(tx.amount, 18)}</div>
 
                                 <div
                                     style={{
