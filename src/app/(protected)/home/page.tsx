@@ -264,7 +264,7 @@ export default function Home() {
           ENTRAR
         </button>
         <p>
-          <Pay />
+          <Pay amount={0.1} description='ponete con unos wld wacho'/>
         </p>
         
         <p>
