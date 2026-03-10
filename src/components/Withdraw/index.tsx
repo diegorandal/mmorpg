@@ -9,6 +9,9 @@ import { worldchain } from 'viem/chains';
 import { useSession } from 'next-auth/react';
 import skillstakeABI from '@/abi/skillstake.json';
 
+const sleep = (ms: number) =>
+    new Promise(resolve => setTimeout(resolve, ms));
+
 export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
 
     const contract = '0x2CBD6A60069B95C85f3b230164A0a166b0576dE7';

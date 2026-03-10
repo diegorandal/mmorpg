@@ -7,6 +7,7 @@ import './global.css';
 import { useSession } from "next-auth/react"
 import { Pay } from '@/components/Pay';
 import { Withdraw } from '@/components/Withdraw';
+import { ethers } from "ethers";
 
 // respuesta de la api: https://randal.onepixperday.xyz/api/profile?wallet=0x123&username=Diego
 // {"wallet":"0x123","username":"Diego","balance":"0","xp":0,"characterid":5,"characters":[5,6,10,11]}
@@ -226,7 +227,7 @@ export default function Home() {
               </h3>
 
               <p style={{ margin: "6px 0" }}>
-                Balance: {profile.balance} wld
+                Balance: {ethers.formatUnits(profile.balance, 18)} wld
               </p>
 
               <p style={{ margin: 0 }}>

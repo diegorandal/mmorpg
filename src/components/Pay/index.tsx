@@ -15,7 +15,6 @@ const sleep = (ms: number) =>
 async function verifyWithRetry(url: string, body: any, retries = 5, delay = 1200) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      console.log(`Verify attempt ${attempt}/${retries}`);
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,8 +74,6 @@ export const Pay = ({ amount, description }: PayProps) => {
 
       //console.log('MiniKit finalPayload completo:', JSON.stringify(result.finalPayload, null, 2));
 
-      console.log('result status:', result.finalPayload.status);
-
       await sleep(2000);
 
       if (result.finalPayload.status === 'success') {
@@ -88,8 +85,6 @@ export const Pay = ({ amount, description }: PayProps) => {
             transaction_id: result.finalPayload.transaction_id
           }, 6, 1200    // 6 intentos con 1200ms entre intentos
         );
-
-        console.log("Payment verification:", payment);
 
         if (payment.success) {
           setButtonState("success");
