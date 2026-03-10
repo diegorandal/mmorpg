@@ -84,7 +84,7 @@ export const Withdraw = ({ amount, onSuccess }: PayProps) => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    address,
+                    address: address,
                     amount: tokenToDecimals(amount, Tokens.WLD).toString(),
                 }),
             });
