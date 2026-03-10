@@ -51,7 +51,11 @@ export default function TransactionHistoryModal({ address, onClose }: Props) {
 
                 const data = await res.json();
 
-                setTransactions(data);
+                setTransactions(Array.isArray(data.transactions)
+                    ? data.transactions
+                    : []
+                );
+
             } catch (err) {
                 console.error(err);
                 setError("Could not load transactions");
