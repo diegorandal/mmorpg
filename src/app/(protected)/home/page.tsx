@@ -8,7 +8,7 @@ import { useSession } from "next-auth/react"
 import { ethers } from "ethers";
 import DepositModal from '@/modals/Deposit'
 import WithdrawModal from '@/modals/Withdraw';
-import TransactionsModal from '@/modals/Withdraw';
+import TransactionsModal from '@/modals/Transactions';
 
 // respuesta de la api: https://randal.onepixperday.xyz/api/profile?wallet=0x123&username=Diego
 // {"wallet":"0x123","username":"Diego","balance":"0","xp":0,"characterid":5,"characters":[5,6,10,11]}
@@ -338,7 +338,7 @@ export default function Home() {
           <WithdrawModal balance={Number(ethers.formatUnits(profile.balance, 18))} onClose={() => setShowWithdrawModal(false)} onSuccess={fetchProfile}/>
         )}
         {showTransactionsModal && (
-          <TransactionsModal balance={Number(ethers.formatUnits(profile.balance, 18))} onClose={() => setShowWithdrawModal(false)} onSuccess={fetchProfile} />
+          <TransactionsModal address={profile.wallet} onClose={() => setShowWithdrawModal(false)} />
         )}
 
         {error && (
