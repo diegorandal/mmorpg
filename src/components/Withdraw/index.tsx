@@ -120,26 +120,20 @@ export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
             console.log('finalpayload:', finalPayload);
 
             if (finalPayload.status === 'success') {
-
-                //LLAMAR A BACKEND Y DECIRLE: CHE, YA ESTA OK LA TX
-                console.log('esperando 2 seg.');
                 await sleep(2000);
-
                 // pedir confirmacion al backend
                 const response = await fetch(`${API}/confirm-withdraw`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({reference: uuid, transaction_id: finalPayload.transaction_id}),
                 });
-
                 if (!response.ok) {
-
                     const errorData = await response.json();
                     throw new Error(errorData.error || 'Failed to confirm withdraw.');
-
                 } else {
 
-                    console.log('CONF WITHDRAW OK respondio:', response);
+                    setButtonState('success');
+                    onSuccess?.();
 
                 }
 
@@ -176,9 +170,9 @@ export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
 
             <LiveFeedback
                 label={{
-                    failed: 'Failed to claim',
-                    pending: 'Claiming reward',
-                    success: 'Reward claimed!',
+                    failed: 'Failed to withdraw',
+                    pending: 'Withdrawing...',
+                    success: 'Successful withdraw',
                 }}
                 state={buttonState}
                 className="w-full"
@@ -191,7 +185,7 @@ export const Withdraw = ({ onSuccess }: { onSuccess: () => void }) => {
                     variant="secondary"
                     className="w-full"
                 >
-                    Claim Reward
+                    Withdraw
                 </Button>
 
             </LiveFeedback>

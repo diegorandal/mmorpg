@@ -4,7 +4,7 @@ import { MiniKit, Tokens, tokenToDecimals } from '@worldcoin/minikit-js';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 
-type PayProps = {amount: number; description?: string;};
+type PayProps = { amount: number; description?: string; onSuccess?: () => void;};
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -26,7 +26,7 @@ async function verifyWithRetry(url: string, body: any, retries = 5, delay = 1200
   return { success: false }; // ❌ todos fallaron
 }
 
-export const Pay = ({ amount, description }: PayProps) => {
+  export const Pay = ({ amount, description, onSuccess }: PayProps) => {
 
   const [buttonState, setButtonState] = useState<'pending' | 'success' | 'failed' | undefined>(undefined);
   const { data: session } = useSession();
@@ -84,6 +84,7 @@ export const Pay = ({ amount, description }: PayProps) => {
 
         if (payment.success) {
           setButtonState("success");
+          onSuccess?.();
         } else {
           setButtonState("failed");
         }

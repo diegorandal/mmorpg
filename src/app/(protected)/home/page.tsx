@@ -54,45 +54,44 @@ export default function Home() {
 
   }, [room]);
 
+ 
+  const fetchProfile = async () => {
+
+    if (!session?.user?.id || !session.user.username) return;
+
+    try {
+
+      setLoadingProfile(true);
+
+      const wallet = session.user.id.toLowerCase();
+      const username = session.user.username;
+
+      setPlayerName(username);
+
+      const res = await fetch(
+        `https://randal.onepixperday.xyz/api/profile?wallet=${wallet}&username=${username}`
+      );
+
+      if (!res.ok) throw new Error("Perfil no encontrado");
+
+      const data = await res.json();
+
+      setProfile(data);
+      setPlayerName(data.username);
+      setPlayerWallet(data.wallet);
+
+    } catch (err) {
+      console.error(err);
+      setError("No se pudo cargar el perfil");
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
   useEffect(() => {
-
-    if (status !== "authenticated") return;
-    if (!session.user.id) return;
-    if (!session.user.username) return;
-
-    const fetchProfile = async () => {
-
-      try {
-
-        setLoadingProfile(true);
-
-        const wallet = session.user.id.toLowerCase();
-        const username = session.user.username;
-
-        setPlayerName(username);
-
-        const res = await fetch(
-          `https://randal.onepixperday.xyz/api/profile?wallet=${wallet}&username=${username}`
-        );
-
-        if (!res.ok) throw new Error("Perfil no encontrado");
-
-        const data = await res.json();
-
-        setProfile(data);
-        setPlayerName(data.username);
-        setPlayerWallet(data.wallet);
-
-      } catch (err) {
-        console.error(err);
-        setError("No se pudo cargar el perfil");
-      } finally {
-        setLoadingProfile(false);
-      }
-    };
-
-    fetchProfile();
-
+    if (status === "authenticated") {
+      fetchProfile();
+    }
   }, [session?.user?.id]);
 
   // CANTIDAD DE USUARIOS ONLINE
@@ -267,11 +266,15 @@ export default function Home() {
           ENTRAR
         </button>
         <p>
-          <Pay amount={0.1} description='ponete con unos wld wacho'/>
+          <Pay
+            amount={0.1}
+            description="ponete con unos wld wacho"
+            onSuccess={fetchProfile}
+          />
         </p>
         
         <p>
-          <Withdraw onSuccess={() => {console.log('sape');}} />
+          <Withdraw onSuccess={fetchProfile} />
         </p>
 
 
