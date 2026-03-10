@@ -227,7 +227,9 @@ export default function Home() {
               </h3>
 
               <p style={{ margin: "6px 0" }}>
-                Balance: {ethers.formatUnits(profile.balance, 18)} wld
+                Balance: {profile?.balance
+                  ? ethers.formatUnits(profile.balance, 18)
+                  : "0"} wld
               </p>
 
               <p style={{ margin: 0 }}>

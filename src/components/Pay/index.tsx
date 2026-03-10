@@ -4,13 +4,9 @@ import { MiniKit, Tokens, tokenToDecimals } from '@worldcoin/minikit-js';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 
-type PayProps = {
-  amount: number;
-  description?: string;
-};
+type PayProps = {amount: number; description?: string;};
 
-const sleep = (ms: number) =>
-  new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function verifyWithRetry(url: string, body: any, retries = 5, delay = 1200) {
   for (let attempt = 1; attempt <= retries; attempt++) {
