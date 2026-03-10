@@ -283,6 +283,23 @@ export default function Home() {
             >
               WITHDRAW
             </button>
+
+
+            <button
+              onClick={() => setShowTransactionsModal(true)}
+              style={{
+                padding: "10px 22px",
+                background: "#51e7b5",
+                border: "none",
+                borderRadius: "8px",
+                color: "white",
+                fontWeight: "bold",
+                cursor: "pointer"
+              }}
+            >
+              HISTORY
+            </button>
+
           </div>
         )}
 
