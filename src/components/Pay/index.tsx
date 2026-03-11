@@ -90,6 +90,15 @@ async function verifyWithRetry(url: string, body: any, retries = 5, delay = 1200
         }
 
       } else {
+
+        // Marcar como cancelada
+        const res = await fetch(`${API}/cancel-payment`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            reference: id,
+          })  
+        });
+        
         setButtonState("failed");
       }
 

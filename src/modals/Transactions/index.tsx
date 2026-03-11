@@ -157,7 +157,7 @@ export default function TransactionHistoryModal({ address, onClose }: Props) {
                                 <div
                                     style={{
                                         color:
-                                            tx.status === "completed"
+                                            tx.status === "confirmed"
                                                 ? "#4CAF50"
                                                 : tx.status === "pending"
                                                     ? "#f0ad4e"
