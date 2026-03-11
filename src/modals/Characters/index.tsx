@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
+import { ethers } from "ethers";
 
 type StoreCharacter = {
     characterid: number;
@@ -117,7 +118,7 @@ export default function CharactersModal({
 
             {!selectable && price && (
                 <p style={{ marginTop: 6, fontSize: 12, opacity: 0.8 }}>
-                    {price} WLD
+                    {ethers.formatUnits(price, 18)} WLD
                 </p>
             )}
         </div>
