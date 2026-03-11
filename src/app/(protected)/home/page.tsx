@@ -343,8 +343,15 @@ export default function Home() {
         {showTransactionsModal && (
           <TransactionsModal address={profile.wallet} onClose={() => setShowTransactionsModal(false)} />
         )}
-        {showCharactersModal && (
-          <CharactersModal onClose={() => setShowCharactersModal(false)} />
+        {showCharactersModal && profile && (
+          <CharactersModal
+            address={profile.wallet}
+            onSelect={(id) => {
+              console.log("selected character", id);
+              // aquí luego llamas API set-character
+            }}
+            onClose={() => setShowCharactersModal(false)}
+          />
         )}
 
         {error && (

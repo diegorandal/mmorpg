@@ -1,24 +1,34 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { ethers } from "ethers";
 
-type Character = {
-    id: number;
-    cost: string;
+type StoreCharacter = {
+    characterid: number;
+    price: string;
+};
+
+type WalletCharacter = {
+    characterid: number;
 };
 
 type Props = {
+    address: string;
+    onSelect: (characterId: number) => void;
     onClose: () => void;
 };
 
-export default function CharactersModal({ onClose }: Props) {
+export default function CharactersModal({
+    address,
+    onSelect,
+    onClose
+}: Props) {
 
-    const [characters, setCharacters] = useState<Character[]>([]);
+    const [walletCharacters, setWalletCharacters] = useState<number[]>([]);
+    const [storeCharacters, setStoreCharacters] = useState<StoreCharacter[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    // cerrar con ESC
+    // ESC close
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
             if (e.key === "Escape") onClose();
@@ -28,41 +38,95 @@ export default function CharactersModal({ onClose }: Props) {
         return () => window.removeEventListener("keydown", handleEsc);
     }, [onClose]);
 
-    // fetch transactions
+    // FETCH CHARACTERS
     useEffect(() => {
-        const fetchHistory = async () => {
+        const fetchCharacters = async () => {
             try {
                 setLoading(true);
 
                 const res = await fetch(
-                    "https://randal.onepixperday.xyz/api/transactions-history", {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            address: 'address',
-                        }),                        
+                    "https://randal.onepixperday.xyz/api/get-characters",
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ address })
                     }
                 );
 
-                if (!res.ok) throw new Error("Failed to fetch");
+                if (!res.ok) throw new Error("fetch failed");
 
                 const data = await res.json();
-/*
-                setTransactions(Array.isArray(data.body.transactions)
-                    ? data.body.transactions
-                    : []
+
+                const owned: WalletCharacter[] =
+                    data.body.wallet_characters ?? [];
+
+                const store: StoreCharacter[] =
+                    data.body.characters_store ?? [];
+
+                const ownedIds = owned.map(c => c.characterid);
+
+                setWalletCharacters(ownedIds);
+
+                // filtrar los que ya tiene
+                setStoreCharacters(
+                    store.filter(c => !ownedIds.includes(c.characterid))
                 );
-*/
+
             } catch (err) {
                 console.error(err);
-                setError("Could not load transactions");
+                setError("Could not load characters");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchHistory();
-    }, []);
+        fetchCharacters();
+    }, [address]);
+
+    // UI helpers
+    const renderCharacter = (
+        id: number,
+        selectable: boolean,
+        price?: string
+    ) => (
+        <div
+            key={id}
+            onClick={() => {
+                if (selectable) {
+                    onSelect(id);
+                    onClose();
+                } else {
+                    console.log("buy character", id);
+                    // luego llamaremos API compra
+                }
+            }}
+            style={{
+                minWidth: 96,
+                cursor: "pointer",
+                textAlign: "center"
+            }}
+        >
+            <img
+                src={`https://randalrpg.onepixperday.xyz/char${id}.png`}
+                style={{
+                    width: 96,
+                    height: 96,
+                    imageRendering: "pixelated",
+                    borderRadius: 8,
+                    background: "#111",
+                    border: selectable
+                        ? "2px solid #4CAF50"
+                        : "2px solid #333"
+                }}
+            />
+
+            {!selectable && price && (
+                <p style={{ marginTop: 6, fontSize: 12, opacity: 0.8 }}>
+                    {price} WLD
+                </p>
+            )}
+        </div>
+    );
 
     return (
         <div
@@ -75,74 +139,75 @@ export default function CharactersModal({ onClose }: Props) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                zIndex: 9999,
-                animation: "fadeIn 0.15s ease"
+                zIndex: 9999
             }}
         >
-            {/* MODAL */}
             <div
                 onClick={(e) => e.stopPropagation()}
                 style={{
-                    width: "520px",
-                    maxWidth: "92%",
+                    width: "600px",
+                    maxWidth: "95%",
                     background: "#1e1e1e",
-                    borderRadius: "14px",
-                    padding: "24px",
+                    borderRadius: 14,
+                    padding: 24,
                     color: "white",
-                    boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
-                    animation: "scaleIn 0.15s ease"
+                    boxShadow: "0 10px 40px rgba(0,0,0,0.5)"
                 }}
             >
-                {/* HEADER */}
-                <div style={{ marginBottom: 20 }}>
-                    <h2 style={{ margin: 0 }}>Characters</h2>
-                </div>
+                <h2 style={{ marginTop: 0 }}>Characters</h2>
 
-                {/* CONTENT */}
-                {loading && (
-                    <p style={{ opacity: 0.7 }}>Loading characters...</p>
-                )}
-
-                {error && (
-                    <p style={{ color: "#ff5555" }}>{error}</p>
-                )}
+                {loading && <p>Loading characters...</p>}
+                {error && <p style={{ color: "#ff5555" }}>{error}</p>}
 
                 {!loading && !error && (
-                    <div
-                        style={{
-                            maxHeight: "320px",
-                            overflowY: "auto",
-                            borderRadius: "8px",
-                            background: "#111"
-                        }}
-                    >
-                        {/* TABLE HEADER */}
+                    <>
+                        {/* OWNED */}
+                        <h3 style={{ marginBottom: 8 }}>Your Characters</h3>
+
                         <div
                             style={{
-                                display: "grid",
-                                gridTemplateColumns: "1fr 1fr 1fr",
-                                padding: "12px",
-                                fontWeight: "bold",
-                                borderBottom: "1px solid #333",
-                                background: "#181818"
+                                display: "flex",
+                                gap: 14,
+                                overflowX: "auto",
+                                paddingBottom: 10
                             }}
                         >
-                            <div>TYPE</div>
-                            <div>AMOUNT</div>
-                            <div>STATUS</div>
+                            {walletCharacters.map(id =>
+                                renderCharacter(id, true)
+                            )}
                         </div>
 
-                    </div>
+                        {/* STORE */}
+                        <h3 style={{ marginTop: 20, marginBottom: 8 }}>
+                            Store
+                        </h3>
+
+                        <div
+                            style={{
+                                display: "flex",
+                                gap: 14,
+                                overflowX: "auto",
+                                paddingBottom: 10
+                            }}
+                        >
+                            {storeCharacters.map(c =>
+                                renderCharacter(
+                                    c.characterid,
+                                    false,
+                                    c.price
+                                )
+                            )}
+                        </div>
+                    </>
                 )}
 
-                {/* CLOSE */}
                 <button
                     onClick={onClose}
                     style={{
-                        marginTop: "18px",
+                        marginTop: 20,
                         width: "100%",
-                        padding: "10px",
-                        borderRadius: "8px",
+                        padding: 10,
+                        borderRadius: 8,
                         border: "none",
                         background: "#333",
                         color: "white",
@@ -152,24 +217,6 @@ export default function CharactersModal({ onClose }: Props) {
                     Close
                 </button>
             </div>
-
-            <style jsx global>{`
-        @keyframes fadeIn {
-          from { opacity: 0 }
-          to { opacity: 1 }
-        }
-
-        @keyframes scaleIn {
-          from {
-            transform: scale(0.95);
-            opacity: 0;
-          }
-          to {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-      `}</style>
         </div>
     );
 }
