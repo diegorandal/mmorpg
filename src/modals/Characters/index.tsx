@@ -45,12 +45,7 @@ export default function CharactersModal({
                 setLoading(true);
 
                 const res = await fetch(
-                    "https://randal.onepixperday.xyz/api/get-characters",
-                    {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ address })
-                    }
+                    `https://randal.onepixperday.xyz/api/get-characters?address=${address}`
                 );
 
                 if (!res.ok) throw new Error("fetch failed");
