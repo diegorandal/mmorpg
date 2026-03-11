@@ -1,10 +1,13 @@
 'use client';
-import { Button, LiveFeedback } from '@worldcoin/mini-apps-ui-kit-react';
 import { MiniKit, Tokens, tokenToDecimals } from '@worldcoin/minikit-js';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 
-type PayProps = { amount: number; description?: string; onSuccess?: () => void;};
+type PayProps = {
+  amount: number;
+  description?: string;
+  onSuccess?: () => void;
+};
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -17,36 +20,33 @@ async function verifyWithRetry(url: string, body: any, retries = 5, delay = 1200
         body: JSON.stringify(body),
       });
       const data = await res.json();
-      // ✅ éxito → salir inmediatamente
-      if (data.success) { return data; }
+      if (data.success) return data;
     } catch (err) { console.warn("Verify error:", err); }
-    // ⏳ esperar antes del siguiente intento
     if (attempt < retries) await sleep(delay);
   }
-  return { success: false }; // ❌ todos fallaron
+  return { success: false };
 }
 
-  export const Pay = ({ amount, description, onSuccess }: PayProps) => {
-
-  const [buttonState, setButtonState] = useState<'pending' | 'success' | 'failed' | undefined>(undefined);
+export const Pay = ({ amount, description, onSuccess }: PayProps) => {
+  const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'failed'>('idle');
   const { data: session } = useSession();
 
   const API = "https://randal.onepixperday.xyz/api";
 
   const onClickPay = async () => {
+    if (status === 'pending') return;
 
     try {
-
       const address = "0x2CBD6A60069B95C85f3b230164A0a166b0576dE7";
+      setStatus('pending');
 
-      setButtonState('pending');
-
-      if (!session?.user?.id) return;
+      if (!session?.user?.id) throw new Error("No session");
       const wallet = session.user.id.toLowerCase();
 
-      // 1️⃣ pedir reference al backend y mandarle wallet y amount HC por ahora
+      // 1️⃣ Iniciar pago
       const res = await fetch(`${API}/initiate-payment`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           wallet: wallet,
           amount: tokenToDecimals(amount, Tokens.WLD).toString(),
@@ -55,76 +55,90 @@ async function verifyWithRetry(url: string, body: any, retries = 5, delay = 1200
 
       const { id } = await res.json();
 
-      // 2️⃣ abrir pago en World App
+      // 2️⃣ World App SDK
       const result = await MiniKit.commandsAsync.pay({
         reference: id,
         to: address,
-        tokens: [
-          {
-            symbol: Tokens.WLD,
-            token_amount: tokenToDecimals(amount, Tokens.WLD).toString()
-          }
-        ],
-        description: description ?? 'Payment',
+        tokens: [{
+          symbol: Tokens.WLD,
+          token_amount: tokenToDecimals(amount, Tokens.WLD).toString()
+        }],
+        description: description ?? 'Deposit WLD',
       });
 
-      //console.log('MiniKit finalPayload completo:', JSON.stringify(result.finalPayload, null, 2));
-
-      await sleep(2000);
-
       if (result.finalPayload.status === 'success') {
-
         const payment = await verifyWithRetry(
           `${API}/confirm-payment`,
           {
             reference: result.finalPayload.reference,
             transaction_id: result.finalPayload.transaction_id
-          }, 6, 1200    // 6 intentos con 1200ms entre intentos
+          }
         );
 
         if (payment.success) {
-          setButtonState("success");
-          onSuccess?.();
+          setStatus("success");
+          // Esperar un poco para que el usuario vea el éxito antes de cerrar el modal
+          setTimeout(() => onSuccess?.(), 1500);
         } else {
-          setButtonState("failed");
+          setStatus("failed");
         }
-
       } else {
-
-        // Marcar como cancelada
-        const res = await fetch(`${API}/cancel-payment`, {
+        await fetch(`${API}/cancel-payment`, {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            reference: id,
-          })  
+          body: JSON.stringify({ reference: id })
         });
-        
-        setButtonState("failed");
+        setStatus("failed");
       }
 
     } catch (err) {
-
       console.error("Payment error:", err);
-      setButtonState("failed");
-
+      setStatus("failed");
     }
 
-    setTimeout(() => {
-      setButtonState(undefined);
-    }, 4000);
+    // Resetear estado después de un tiempo si falló
+    if (status !== 'success') {
+      setTimeout(() => setStatus('idle'), 4000);
+    }
+  };
+
+  // Configuración dinámica del botón según el estado
+  const getButtonContent = () => {
+    switch (status) {
+      case 'pending': return 'Processing...';
+      case 'success': return '✓ Success!';
+      case 'failed': return '✕ Failed, try again';
+      default: return `Deposit ${amount} WLD`;
+    }
+  };
+
+  const getButtonStyle = () => {
+    const baseStyle: React.CSSProperties = {
+      width: "100%",
+      padding: "14px",
+      borderRadius: "10px",
+      border: "none",
+      fontSize: "1rem",
+      fontWeight: "bold",
+      cursor: status === 'pending' ? "not-allowed" : "pointer",
+      transition: "all 0.2s ease",
+      background: "#00c853", // Verde por defecto
+      color: "white"
+    };
+
+    if (status === 'pending') baseStyle.background = "#555";
+    if (status === 'failed') baseStyle.background = "#ff5252";
+    if (status === 'success') baseStyle.background = "#00c853";
+
+    return baseStyle;
   };
 
   return (
-    <div className="grid w-full gap-4">
-
-      <LiveFeedback label={{failed: 'Deposit failed', pending: 'Deposit pending', success: 'Deposit successful'}} state={buttonState} className="w-full">
-
-        <Button onClick={onClickPay} disabled={buttonState === 'pending'} size="lg" variant="primary" className="w-full">
-          Deposit
-        </Button>
-
-      </LiveFeedback>
-
-    </div>
+    <button
+      onClick={onClickPay}
+      disabled={status === 'pending'}
+      style={getButtonStyle()}
+    >
+      {getButtonContent()}
+    </button>
   );
 };
