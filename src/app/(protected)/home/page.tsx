@@ -9,6 +9,7 @@ import { ethers } from "ethers";
 import DepositModal from '@/modals/Deposit'
 import WithdrawModal from '@/modals/Withdraw';
 import TransactionsModal from '@/modals/Transactions';
+import CharactersModal from '@/modals/Characters';
 
 // respuesta de la api: https://randal.onepixperday.xyz/api/profile?wallet=0x123&username=Diego
 // {"wallet":"0x123","username":"Diego","balance":"0","xp":0,"characterid":5,"characters":[5,6,10,11]}
@@ -37,6 +38,7 @@ export default function Home() {
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showTransactionsModal, setShowTransactionsModal] = useState(false);
+  const [showCharactersModal, setShowCharactersModal] = useState(false);
 
   useEffect(() => {
 
@@ -205,20 +207,21 @@ export default function Home() {
               />
 
               {/* SHOP LINK */}
-              <a
-                href="/shop"
+              <button
+                onClick={() => setShowCharactersModal(true)}
                 style={{
                   position: "absolute",
+                  padding: "2px 6px",
                   bottom: 0,
                   right: 0,
-                  fontSize: "12px",
                   background: "#477fe7",
-                  padding: "2px 6px",
                   borderRadius: "6px",
                   textDecoration: "none",
                   color: "white"
                 }}
-              >🔄</a>
+              >
+                🔄
+              </button>
 
             </div>
 
@@ -339,6 +342,9 @@ export default function Home() {
         )}
         {showTransactionsModal && (
           <TransactionsModal address={profile.wallet} onClose={() => setShowTransactionsModal(false)} />
+        )}
+        {showCharactersModal && (
+          <CharactersModal onClose={() => setShowCharactersModal(false)} />
         )}
 
         {error && (
