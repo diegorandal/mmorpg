@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, LiveFeedback } from '@worldcoin/mini-apps-ui-kit-react';
 import { MiniKit, Tokens, tokenToDecimals } from '@worldcoin/minikit-js';
 import { useWaitForTransactionReceipt } from '@worldcoin/minikit-react';
 import { useEffect, useState } from 'react';
@@ -14,11 +13,10 @@ type PayProps = { amount: number; onSuccess?: () => void; };
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const Withdraw = ({ amount, onSuccess }: PayProps) => {
-
     const contract = '0x2CBD6A60069B95C85f3b230164A0a166b0576dE7';
     const API = "https://randal.onepixperday.xyz/api";
 
-    const [buttonState, setButtonState] = useState<'pending' | 'success' | 'failed' | undefined>(undefined);
+    const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'failed'>('idle');
     const [transactionId, setTransactionId] = useState<string>('');
     const { data: session } = useSession();
 
@@ -31,7 +29,6 @@ export const Withdraw = ({ amount, onSuccess }: PayProps) => {
         isLoading: isConfirming,
         isSuccess: isConfirmed,
         isError,
-        error,
     } = useWaitForTransactionReceipt({
         client: client as any,
         appConfig: {
@@ -40,66 +37,50 @@ export const Withdraw = ({ amount, onSuccess }: PayProps) => {
         transactionId: transactionId,
     });
 
+    // Manejo de estados de la transacción on-chain
     useEffect(() => {
-
         if (transactionId && !isConfirming) {
-
             if (isConfirmed) {
-
-                setButtonState('success');
-
+                setStatus('success');
                 setTimeout(() => {
-                    setButtonState(undefined);
-                    onSuccess();
+                    setStatus('idle');
+                    onSuccess?.();
                 }, 2000);
-
             } else if (isError) {
-
-                console.error('Transaction failed:', error);
-                setButtonState('failed');
-
-                setTimeout(() => {
-                    setButtonState(undefined);
-                }, 2000);
-
+                setStatus('failed');
+                setTimeout(() => setStatus('idle'), 3000);
             }
-
         }
-
-    }, [isConfirmed, isConfirming, isError, error, transactionId, onSuccess]);
-
+    }, [isConfirmed, isConfirming, isError, transactionId, onSuccess]);
 
     const onClickClaim = async () => {
+        if (status === 'pending') return;
 
         setTransactionId('');
-        setButtonState('pending');
+        setStatus('pending');
 
         try {
-
-            if (!session?.user?.id) return;
+            if (!session?.user?.id) throw new Error("No session found");
             const address = session.user.id.toLowerCase();
 
-            // pedir firma al backend
+            // 1️⃣ Pedir firma al backend
             const response = await fetch(`${API}/initiate-withdraw`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     address: address,
                     amount: tokenToDecimals(amount, Tokens.WLD).toString(),
                 }),
             });
 
             if (!response.ok) {
-
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Failed to get claim signature.');
+            }
 
-            } 
+            const { signature, uuid } = await response.json();
 
-            const {signature, uuid} = await response.json();
-
-            console.log(`amount: ${amount} uuid: ${uuid} sign: ${signature}`);
-
+            // 2️⃣ Enviar transacción vía MiniKit
             const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
                 transaction: [
                     {
@@ -118,57 +99,72 @@ export const Withdraw = ({ amount, onSuccess }: PayProps) => {
                 ],
             });
 
-            console.log('payload withdraw:', finalPayload);
-
             if (finalPayload.status === 'success') {
+                setTransactionId(finalPayload.transaction_id);
                 await sleep(2000);
-                // pedir confirmacion al backend
-                const response = await fetch(`${API}/confirm-withdraw`, {
+
+                // 3️⃣ Confirmar en backend
+                const confirmRes = await fetch(`${API}/confirm-withdraw`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({reference: uuid, transaction_id: finalPayload.transaction_id}),
+                    body: JSON.stringify({ reference: uuid, transaction_id: finalPayload.transaction_id }),
                 });
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to confirm withdraw.');
-                } else {
 
-                    setButtonState('success');
-                    onSuccess?.();
+                if (!confirmRes.ok) throw new Error('Failed to confirm withdraw.');
 
-                }
-
+                // El useEffect se encargará de poner el estado 'success' cuando la tx se confirme en cadena
             } else {
-
-                console.error('Transaction submission failed:', finalPayload);
-                setButtonState('failed');
-                setTimeout(() => {setButtonState(undefined);}, 3000);
-
+                setStatus('failed');
+                setTimeout(() => setStatus('idle'), 3000);
             }
 
         } catch (err) {
-
-            console.error('Error sending transaction:', err);
-            setButtonState('failed');
-            setTimeout(() => {setButtonState(undefined);}, 3000);
-
+            console.error('Error:', err);
+            setStatus('failed');
+            setTimeout(() => setStatus('idle'), 3000);
         }
+    };
 
+    // Helpers de Estilo y Contenido
+    const getButtonContent = () => {
+        switch (status) {
+            case 'pending': return 'Processing...';
+            case 'success': return '✓ Successful Withdraw';
+            case 'failed': return '✕ Failed to withdraw';
+            default: return `Withdraw ${amount} WLD`;
+        }
+    };
+
+    const getButtonStyle = (): React.CSSProperties => {
+        const baseStyle: React.CSSProperties = {
+            width: "100%",
+            padding: "14px",
+            borderRadius: "10px",
+            border: "none",
+            fontSize: "1rem",
+            fontWeight: "bold",
+            cursor: status === 'pending' ? "not-allowed" : "pointer",
+            transition: "all 0.2s ease",
+            background: "#333", // Color gris oscuro por defecto (tipo secondary)
+            color: "white"
+        };
+
+        if (status === 'pending') baseStyle.background = "#555";
+        if (status === 'failed') baseStyle.background = "#ff5252";
+        if (status === 'success') baseStyle.background = "#00c853";
+
+        return baseStyle;
     };
 
     return (
-
-        <div className="grid w-full gap-4">
-
-            <LiveFeedback label={{failed: 'Failed to withdraw', pending: 'Withdrawing...', success: 'Successful withdraw'}} state={buttonState} className="w-full">
-
-                <Button onClick={onClickClaim} disabled={buttonState === 'pending'} size="lg" variant="secondary" className="w-full">
-                    Withdraw
-                </Button>
-
-            </LiveFeedback>
-
+        <div style={{ width: '100%' }}>
+            <button
+                onClick={onClickClaim}
+                disabled={status === 'pending'}
+                style={getButtonStyle()}
+            >
+                {getButtonContent()}
+            </button>
         </div>
-
     );
 };
