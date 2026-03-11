@@ -145,14 +145,14 @@ export const Withdraw = ({ amount, onSuccess }: PayProps) => {
             fontWeight: "bold",
             cursor: status === 'pending' ? "not-allowed" : "pointer",
             transition: "all 0.2s ease",
-            background: "#333", // Color gris oscuro por defecto (tipo secondary)
+            background: "#e76f51",
             color: "white"
         };
 
         if (status === 'pending') baseStyle.background = "#555";
         if (status === 'failed') baseStyle.background = "#ff5252";
         if (status === 'success') baseStyle.background = "#00c853";
-
+        
         return baseStyle;
     };
 

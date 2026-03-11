@@ -121,7 +121,7 @@ export const Pay = ({ amount, description, onSuccess }: PayProps) => {
       fontWeight: "bold",
       cursor: status === 'pending' ? "not-allowed" : "pointer",
       transition: "all 0.2s ease",
-      background: "#00c853", // Verde por defecto
+      background: "#477fe7", // Verde por defecto
       color: "white"
     };
 

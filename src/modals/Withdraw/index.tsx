@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Withdraw } from "@/components/Withdraw";
 
 type Props = {
-    balance: number;      // balance ya formateado (WLD)
+    balance: number;
     onClose: () => void;
     onSuccess?: () => void;
 };
@@ -138,7 +138,7 @@ export default function WithdrawModal({
                         padding: "10px",
                         borderRadius: "8px",
                         border: "none",
-                        background: "#477fe7",
+                        background: "#333",
                         color: "white",
                         cursor: "pointer",
                         fontWeight: "bold"
