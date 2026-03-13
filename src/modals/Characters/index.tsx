@@ -90,7 +90,7 @@ export default function CharactersModal({
             onClick={async () => {
                 if (selectable) {
                     try {
-                        const res = await fetch(`/api/set-character?address=${address}&character=${id}`);
+                        const res = await fetch(`https://randal.onepixperday.xyz/api/set-character?address=${address}&character=${id}`);
                         const data = await res.json();
                         if (!res.ok) {console.error(data); return;}
                         // seleccionar localmente
