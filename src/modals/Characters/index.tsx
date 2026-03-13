@@ -87,10 +87,19 @@ export default function CharactersModal({
     ) => (
         <div
             key={id}
-            onClick={() => {
+            onClick={async () => {
                 if (selectable) {
-                    onSelect(id);
-                    onClose();
+                    try {
+                        const res = await fetch(`/api/set-character?address=${address}&character=${id}`);
+                        const data = await res.json();
+                        if (!res.ok) {console.error(data); return;}
+                        // seleccionar localmente
+                        onSelect(id);
+                        // cerrar modal
+                        onClose();
+                    } catch (err) {
+                        console.error("set character failed", err);
+                    }
                 } else {
                     console.log("buy character", id);
                     // luego llamaremos API compra
@@ -111,7 +120,7 @@ export default function CharactersModal({
                     borderRadius: 8,
                     background: "#111",
                     border: selectable
-                        ? "2px solid #4CAF50"
+                        ? "2px solid #555"
                         : "2px solid #333"
                 }}
             />

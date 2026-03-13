@@ -347,8 +347,13 @@ export default function Home() {
           <CharactersModal
             address={profile.wallet}
             onSelect={(id) => {
-              console.log("selected character", id);
-              // aquí luego llamas API set-character
+              
+              setProfile(prev =>
+                prev
+                  ? { ...prev, characterid: id }
+                  : prev
+              );
+
             }}
             onClose={() => setShowCharactersModal(false)}
           />
