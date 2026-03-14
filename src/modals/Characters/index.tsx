@@ -125,7 +125,7 @@ export default function CharactersModal({
                         character: id,
                         address: finalPayload.address,
                         signature: finalPayload.signature,
-                        message
+                        message: 'sape'
                         })
                     });
 
