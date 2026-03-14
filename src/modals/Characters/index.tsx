@@ -116,6 +116,8 @@ export default function CharactersModal({
 
                     if (finalPayload.status !== "success") return;
 
+                    console.log('payload firma', finalPayload);
+
                     const res = await fetch("https://randal.onepixperday.xyz/api/buy-character", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -129,7 +131,7 @@ export default function CharactersModal({
 
                     const data = await res.json();
 
-                    console.log('buy pl:', data);
+                    console.log('buy data:', data);
 
 
 
