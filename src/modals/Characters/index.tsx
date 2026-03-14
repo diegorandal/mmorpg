@@ -102,39 +102,21 @@ export default function CharactersModal({
                         console.error("set character failed", err);
                     }
                 } else {
-                    console.log("init buy character", id);
                     // luego llamaremos API compra
-
-
-
                     const message = `Buy character ${id}`;
-
-                    const { finalPayload } =
-                        await MiniKit.commandsAsync.signMessage({
-                        message
-                        });
-
+                    const { finalPayload } = await MiniKit.commandsAsync.signMessage({message});
                     if (finalPayload.status !== "success") return;
-
-                    console.log('payload firma', finalPayload);
-
                     const res = await fetch("https://randal.onepixperday.xyz/api/buy-character", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                        character: id,
-                        address: finalPayload.address,
-                        signature: finalPayload.signature,
-                        message: 'sape'
-                        })
+                        body: JSON.stringify({character: id, address: finalPayload.address, signature: finalPayload.signature, message})
                     });
-
                     const data = await res.json();
-
-                    console.log('buy data:', data);
-
-
-
+                    if (!res.ok) { console.error(data); return; }
+                    // seleccionar localmente
+                    onSelect(id);
+                    // cerrar modal
+                    onClose();
                 }
             }}
             style={{
