@@ -116,7 +116,7 @@ export default function CharactersModal({
 
                     if (finalPayload.status !== "success") return;
 
-                    const res = await fetch("/api/buy-character", {
+                    const res = await fetch("https://randal.onepixperday.xyz/api/buy-character", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
