@@ -346,7 +346,9 @@ export default function Home() {
         {showCharactersModal && profile && (
           <CharactersModal
             address={profile.wallet}
-            onSelect={(id) => {
+            onSelect={(id, refetechar?) => {
+              
+              if (refetechar) fetchProfile();
               
               setProfile(prev =>
                 prev

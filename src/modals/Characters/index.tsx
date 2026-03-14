@@ -15,7 +15,7 @@ type WalletCharacter = {
 
 type Props = {
     address: string;
-    onSelect: (characterId: number) => void;
+    onSelect: (characterId: number, refetechar?: boolean) => void;
     onClose: () => void;
 };
 
@@ -112,9 +112,9 @@ export default function CharactersModal({
                         body: JSON.stringify({character: id, address: finalPayload.address, signature: finalPayload.signature, message})
                     });
                     const data = await res.json();
-                    if (!res.ok) { console.error(data); return; }
+                    if (!res.ok) { console.error(data); return;}
                     // seleccionar localmente
-                    onSelect(id);
+                    onSelect(id, true);
                     // cerrar modal
                     onClose();
                 }
