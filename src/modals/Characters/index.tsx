@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
+import { MiniKit } from '@worldcoin/minikit-js';
 
 type StoreCharacter = {
     characterid: number;
@@ -101,8 +102,36 @@ export default function CharactersModal({
                         console.error("set character failed", err);
                     }
                 } else {
-                    console.log("buy character", id);
+                    console.log("init buy character", id);
                     // luego llamaremos API compra
+
+
+
+                    const message = `Buy character ${id}`;
+
+                    const { finalPayload } =
+                        await MiniKit.commandsAsync.signMessage({
+                        message
+                        });
+
+                    if (finalPayload.status !== "success") return;
+
+                    await fetch("/api/buy-character", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                        character: id,
+                        address: finalPayload.address,
+                        signature: finalPayload.signature,
+                        message
+                        })
+                    });
+
+
+                    console.log('fin buy character');
+
+
+
                 }
             }}
             style={{
