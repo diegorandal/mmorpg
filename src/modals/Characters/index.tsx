@@ -116,7 +116,7 @@ export default function CharactersModal({
 
                     if (finalPayload.status !== "success") return;
 
-                    await fetch("/api/buy-character", {
+                    const res = await fetch("/api/buy-character", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
@@ -127,8 +127,9 @@ export default function CharactersModal({
                         })
                     });
 
+                    const data = await res.json();
 
-                    console.log('fin buy character');
+                    console.log('buy pl:', data);
 
 
 
