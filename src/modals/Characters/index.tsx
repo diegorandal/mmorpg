@@ -184,7 +184,7 @@ export default function CharactersModal({address, balance, onSelect, onClose}: P
         <div
             onClick={onClose}
             style={{
-                position: "relative",
+                position: "absolute",
                 inset: 0,
                 background: "rgba(0,0,0,0.6)",
                 backdropFilter: "blur(6px)",
@@ -197,6 +197,7 @@ export default function CharactersModal({address, balance, onSelect, onClose}: P
             <div
                 onClick={(e) => e.stopPropagation()}
                 style={{
+                    position: "relative",
                     width: "600px",
                     maxWidth: "95%",
                     background: "#1e1e1e",
