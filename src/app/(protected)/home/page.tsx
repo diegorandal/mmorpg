@@ -140,7 +140,7 @@ export default function Home() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({address: finalPayload.address, signature: finalPayload.signature, message})
+          body: JSON.stringify({address: finalPayload.address, signature: finalPayload.signature, message:'sape'})
         }
       );
 
@@ -162,9 +162,7 @@ export default function Home() {
       const msg = e instanceof Error ? e.message : "Error al conectar al servidor";
       setError(msg);
 
-      setTimeout(() => {
-        setError('');
-      }, 2000);
+      setTimeout(() => {setError('');}, 2000);
 
     } finally {
       setConnecting(false);
