@@ -15,20 +15,19 @@ type WalletCharacter = {
 
 type Props = {
     address: string;
+    balance: string; 
     onSelect: (characterId: number, refetechar?: boolean) => void;
     onClose: () => void;
 };
 
-export default function CharactersModal({
-    address,
-    onSelect,
-    onClose
-}: Props) {
+export default function CharactersModal({address, balance, onSelect, onClose}: Props) {
 
     const [walletCharacters, setWalletCharacters] = useState<number[]>([]);
     const [storeCharacters, setStoreCharacters] = useState<StoreCharacter[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [buyError, setBuyError] = useState("");
+    const balanceNumber = Number(balance);
 
     // ESC close
     useEffect(() => {
@@ -102,21 +101,55 @@ export default function CharactersModal({
                         console.error("set character failed", err);
                     }
                 } else {
-                    // luego llamaremos API compra
-                    const message = `Buy character ${id}`;
-                    const { finalPayload } = await MiniKit.commandsAsync.signMessage({message});
-                    if (finalPayload.status !== "success") return;
-                    const res = await fetch("https://randal.onepixperday.xyz/api/buy-character", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({character: id, address: finalPayload.address, signature: finalPayload.signature, message})
-                    });
-                    const data = await res.json();
-                    if (!res.ok) { console.error(data); return;}
-                    // seleccionar localmente
-                    onSelect(id, true);
-                    // cerrar modal
-                    onClose();
+
+ 
+                    try {
+
+                        const priceWLD = Number(ethers.formatUnits(price!, 18));
+
+                        // VALIDACION LOCAL
+                        if (balanceNumber < priceWLD) {
+                            setBuyError("Insufficient balance");
+                            setTimeout(() => setBuyError(""), 2500);
+                            return;
+                        }
+
+                        const message = `Buy character ${id}`;
+
+                        const { finalPayload } =
+                            await MiniKit.commandsAsync.signMessage({ message });
+
+                        if (finalPayload.status !== "success") return;
+
+                        const res = await fetch(
+                            "https://randal.onepixperday.xyz/api/buy-character",
+                            {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    character: id,
+                                    address: finalPayload.address,
+                                    signature: finalPayload.signature,
+                                    message
+                                })
+                            }
+                        );
+
+                        const data = await res.json();
+
+                        if (!res.ok) {
+                            console.error(data);
+                            return;
+                        }
+
+                        onSelect(id, true);
+                        onClose();
+
+                    } catch (err) {
+                        console.error("buy failed", err);
+                    }
+
+
                 }
             }}
             style={{
@@ -151,7 +184,7 @@ export default function CharactersModal({
         <div
             onClick={onClose}
             style={{
-                position: "fixed",
+                position: "relative",
                 inset: 0,
                 background: "rgba(0,0,0,0.6)",
                 backdropFilter: "blur(6px)",
@@ -173,6 +206,19 @@ export default function CharactersModal({
                     boxShadow: "0 10px 40px rgba(0,0,0,0.5)"
                 }}
             >
+
+                <div
+                    style={{
+                        position: "absolute",
+                        top: 16,
+                        right: 20,
+                        fontSize: 13,
+                        opacity: 0.85
+                    }}
+                >
+                    Balance: {balanceNumber.toFixed(2)} WLD
+                </div>
+
                 <h2 style={{ marginTop: 0 }}>Characters</h2>
 
                 {loading && <p>Loading characters...</p>}
