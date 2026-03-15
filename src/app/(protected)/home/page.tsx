@@ -338,10 +338,10 @@ export default function Home() {
         >
           {/* USERS ONLINE */}
           <p style={{
-            fontSize: '1.2rem',
-            opacity: 0.8,
-            margin: 0,               
-            color: 'white'
+            margin: 0,
+            fontSize: "1.2rem",
+            fontWeight: "bold",
+            color: "white"
           }}>
             {usersOnline !== null
               ? `${usersOnline} player${usersOnline === 1 ? '' : 's'} online`
@@ -384,7 +384,7 @@ export default function Home() {
         {showCharactersModal && profile && (
           <CharactersModal
             address={profile.wallet}
-            balance={profile.balance}
+            balance={Number(ethers.formatUnits(profile.balance, 18))}
             onSelect={(id, refetechar?) => {
               
               if (refetechar) fetchProfile();

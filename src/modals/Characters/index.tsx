@@ -15,7 +15,7 @@ type WalletCharacter = {
 
 type Props = {
     address: string;
-    balance: string; 
+    balance: number; 
     onSelect: (characterId: number, refetechar?: boolean) => void;
     onClose: () => void;
 };
@@ -27,7 +27,6 @@ export default function CharactersModal({address, balance, onSelect, onClose}: P
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [buyError, setBuyError] = useState("");
-    const balanceNumber = Number(balance);
 
     // ESC close
     useEffect(() => {
@@ -108,7 +107,7 @@ export default function CharactersModal({address, balance, onSelect, onClose}: P
                         const priceWLD = Number(ethers.formatUnits(price!, 18));
 
                         // VALIDACION LOCAL
-                        if (balanceNumber < priceWLD) {
+                        if (balance < priceWLD) {
                             setBuyError("Insufficient balance");
                             setTimeout(() => setBuyError(""), 2500);
                             return;
@@ -217,7 +216,7 @@ export default function CharactersModal({address, balance, onSelect, onClose}: P
                         opacity: 0.85
                     }}
                 >
-                    Balance: {balanceNumber.toFixed(2)} WLD
+                    Balance: {balance} WLD
                 </div>
 
                 <h2 style={{ marginTop: 0 }}>Characters</h2>
