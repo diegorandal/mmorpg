@@ -150,6 +150,8 @@ export default function Home() {
         console.error(data);
         return;
       }
+
+      console.log('data', data);
       
       const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
       const options = { wallet: playerWallet };
