@@ -147,6 +147,10 @@ export default function Home() {
           body: JSON.stringify({address: finalPayload.address, signature: finalPayload.signature, message:'sape'})
         }
       );
+      
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status}`);
+      }
 
       const data = await res.json();
 
