@@ -134,7 +134,11 @@ export default function Home() {
 
       const message = `Enter server ${MIN_BALANCE} wld`;
       const { finalPayload } = await MiniKit.commandsAsync.signMessage({ message });
-      if (finalPayload.status !== "success") return;
+      
+      if (finalPayload.status !== "success") {
+        throw new Error("Fallo en la firma del mensaje");
+      }
+
       const res = await fetch(
         "https://randal.onepixperday.xyz/api/enter",
         {
@@ -147,12 +151,9 @@ export default function Home() {
       const data = await res.json();
 
       if (!res.ok) {
-        console.error(data);
-        return;
+        throw new Error(data.message || "Error del servidor (500)");
       }
 
-      console.log('data', data);
-      
       const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
       const options = { wallet: playerWallet };
       const joinedRoom = await client.joinOrCreate<MyRoomState>("my_room", options);
@@ -165,6 +166,7 @@ export default function Home() {
       setError(msg);
 
       setTimeout(() => {setError('');}, 2000);
+      console.error("Error en handleConnection:", e);
 
     } finally {
       setConnecting(false);
@@ -181,7 +183,12 @@ export default function Home() {
       setRoom(null);
     };
     window.addEventListener('exit-game', handleExitGame);
+
+    fetchProfile();
+
     return () => window.removeEventListener('exit-game', handleExitGame);
+
+
   }, [room]);
 
 
