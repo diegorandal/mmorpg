@@ -150,6 +150,8 @@ export default function Home() {
 
       const data = await res.json();
 
+      console.log('data', data);
+
       if (!res.ok) {
         throw new Error(data.message || "Error del servidor (500)");
       }
