@@ -11,9 +11,6 @@ import WithdrawModal from '@/modals/Withdraw';
 import TransactionsModal from '@/modals/Transactions';
 import CharactersModal from '@/modals/Characters';
 
-// respuesta de la api: https://randal.onepixperday.xyz/api/profile?wallet=0x123&username=Diego
-// {"wallet":"0x123","username":"Diego","balance":"0","xp":0,"characterid":5,"characters":[5,6,10,11]}
-
 type PlayerProfile = {
   wallet: string;
   username: string;
@@ -26,7 +23,6 @@ type PlayerProfile = {
 export default function Home() {
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const [room, setRoom] = useState<Colyseus.Room | null>(null);
-  //const [selectedCharacter, setSelectedCharacter] = useState(1);
   const [usersOnline, setUsersOnline] = useState<number | null>(null);
   const [error, setError] = useState('');
   const { data: session, status } = useSession();
@@ -34,13 +30,22 @@ export default function Home() {
   const [playerWallet, setPlayerWallet] = useState('');
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
-  //const characters = Array.from({ length: 18 }, (_, i) => i + 1);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showTransactionsModal, setShowTransactionsModal] = useState(false);
   const [showCharactersModal, setShowCharactersModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+  
+  const MIN_BALANCE = 0.25; // wld
+
+  // calcular balance disponible
+  const balanceWld = profile?.balance
+    ? Number(ethers.formatUnits(profile.balance, 18))
+    : 0;
+
+  const canPlay = profile && balanceWld >= MIN_BALANCE && !connecting;
 
   useEffect(() => {
 
@@ -118,17 +123,37 @@ export default function Home() {
 
   // CONEXION
   const handleConnection = async () => {
-    
+
+    if (!profile) return;
+
+    setError('');
+    setConnecting(true);
+
     try {
-    
-      setError('');
+
+      // aqui luego llamaras a tu API
+      // const res = await fetch(...)
+
       const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
-      const options = {wallet: playerWallet};
+
+      const options = { wallet: playerWallet };
+
       const joinedRoom = await client.joinOrCreate<MyRoomState>("my_room", options);
 
       setRoom(joinedRoom);
 
-    } catch (e: unknown) {setError(e instanceof Error ? e.message : "Error al conectar al servidor");}
+    } catch (e: unknown) {
+
+      const msg = e instanceof Error ? e.message : "Error al conectar al servidor";
+      setError(msg);
+
+      setTimeout(() => {
+        setError('');
+      }, 2000);
+
+    } finally {
+      setConnecting(false);
+    }
 
   };
 
@@ -351,26 +376,25 @@ export default function Home() {
               : 'Loading data...'}
           </p>
 
-          {/* ENTER BUTTON */}
           <button
-            disabled={!profile}
+            disabled={!canPlay}
             onClick={handleConnection}
             style={{
               padding: '18px 40px',
               fontSize: '1.4rem',
-              cursor: profile ? 'pointer' : 'not-allowed',
+              cursor: canPlay ? 'pointer' : 'not-allowed',
               backgroundColor: '#4CAF50',
               color: 'white',
               border: 'none',
               borderRadius: '10px',
               fontWeight: 'bold',
-              width: '100%',          // Opcional: hace que el botón ocupe el ancho disponible
-              maxWidth: '300px',      // Opcional: limita el ancho para que no sea gigante
-              opacity: profile ? 1 : 0.5,
-              transition: '0.2s'      // Suaviza el cambio de estado
+              width: '100%',
+              maxWidth: '300px',
+              opacity: canPlay ? 1 : 0.5,
+              transition: '0.2s'
             }}
           >
-            PLAY (0.25 wld)
+            {connecting ? "CONNECTING..." : `PLAY (${MIN_BALANCE} wld)`}
           </button>
         </div>
 
