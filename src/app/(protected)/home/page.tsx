@@ -235,92 +235,114 @@ export default function Home() {
 
         )}
 
+
         {/* WALLET ACTIONS */}
         {profile && (
           <div
             style={{
               display: "flex",
+              flexDirection: "column", // Balance arriba, botones abajo
               background: "#2a2a2a",
               borderRadius: "12px",
-              padding: "16px",
+              padding: "20px",
               width: "100%",
               maxWidth: "600px",
               marginBottom: "25px",
-              gap: "16px",
+              gap: "20px",              // Espacio entre el balance y la fila de botones
               alignItems: "center"
+            }}
+          >
+            {/* BALANCE - Centrado arriba */}
+            <p style={{
+              margin: 0,
+              fontSize: "1.2rem",
+              fontWeight: "bold",
+              color: "white"
             }}>
-          
-            <p style={{ margin: "6px 0" }}>
               Balance: {profile?.balance
                 ? ethers.formatUnits(profile.balance, 18)
                 : "0"} wld
             </p>
-          
-            <button
-              onClick={() => setShowDepositModal(true)}
-              style={{
-                padding: "10px 22px",
-                background: "#477fe7",
-                border: "none",
-                borderRadius: "8px",
-                color: "white",
-                fontWeight: "bold",
-                cursor: "pointer"
-              }}
-            >
-              DEPOSIT
-            </button>
 
-            <button
-              onClick={() => setShowWithdrawModal(true)}
-              style={{
-                padding: "10px 22px",
-                background: "#e76f51",
-                border: "none",
-                borderRadius: "8px",
-                color: "white",
-                fontWeight: "bold",
-                cursor: "pointer"
-              }}
-            >
-              WITHDRAW
-            </button>
+            {/* CONTENEDOR DE BOTONES - En una fila */}
+            <div style={{
+              display: "flex",
+              flexDirection: "row",    // Botones uno al lado del otro
+              gap: "10px",             // Espacio entre botones
+              flexWrap: "wrap",        // Por si la pantalla es muy pequeña, que bajen
+              justifyContent: "center" // Centra los botones
+            }}>
+              <button
+                onClick={() => setShowDepositModal(true)}
+                style={{
+                  padding: "10px 22px",
+                  background: "#477fe7",
+                  border: "none",
+                  borderRadius: "8px",
+                  color: "white",
+                  fontWeight: "bold",
+                  cursor: "pointer"
+                }}
+              >
+                DEPOSIT
+              </button>
 
+              <button
+                onClick={() => setShowWithdrawModal(true)}
+                style={{
+                  padding: "10px 22px",
+                  background: "#e76f51",
+                  border: "none",
+                  borderRadius: "8px",
+                  color: "white",
+                  fontWeight: "bold",
+                  cursor: "pointer"
+                }}
+              >
+                WITHDRAW
+              </button>
 
-            <button
-              onClick={() => setShowTransactionsModal(true)}
-              style={{
-                padding: "10px 22px",
-                background: "#51e7b5",
-                border: "none",
-                borderRadius: "8px",
-                color: "white",
-                fontWeight: "bold",
-                cursor: "pointer"
-              }}
-            >
-              HISTORY
-            </button>
-
+              <button
+                onClick={() => setShowTransactionsModal(true)}
+                style={{
+                  padding: "10px 22px",
+                  background: "#2e7c62",
+                  border: "none",
+                  borderRadius: "8px",
+                  color: "white", 
+                  fontWeight: "bold",
+                  cursor: "pointer"
+                }}
+              >
+                HISTORY
+              </button>
+            </div>
           </div>
         )}
 
 
-        <div 
+        <div
           style={{
             display: "flex",
+            flexDirection: "column", // Esto pone los elementos en vertical
             background: "#2a2a2a",
             borderRadius: "12px",
-            padding: "16px",
+            padding: "24px",         // Aumenté un poco el padding para mejor balance
             width: "100%",
             maxWidth: "600px",
             marginBottom: "25px",
-            gap: "16px",
-            alignItems: "center"
-          }}>
-
+            gap: "12px",             // Espacio entre el texto y el botón
+            alignItems: "center",    // Centra ambos elementos horizontalmente
+            textAlign: "center"
+          }}
+        >
           {/* USERS ONLINE */}
-          <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>
+          <p style={{
+            fontSize: '1.2rem',
+            opacity: 0.8,
+            margin: 0,               
+            color: 'white'
+          }}>
             {usersOnline !== null
               ? `${usersOnline} player${usersOnline === 1 ? '' : 's'} online`
               : 'Loading data...'}
@@ -339,13 +361,14 @@ export default function Home() {
               border: 'none',
               borderRadius: '10px',
               fontWeight: 'bold',
-              marginTop: '20px',
-              opacity: profile ? 1 : 0.5
+              width: '100%',          // Opcional: hace que el botón ocupe el ancho disponible
+              maxWidth: '300px',      // Opcional: limita el ancho para que no sea gigante
+              opacity: profile ? 1 : 0.5,
+              transition: '0.2s'      // Suaviza el cambio de estado
             }}
           >
-            PLAY
+            PLAY (0.25 wld)
           </button>
-
         </div>
 
         {/* MODALs */}
