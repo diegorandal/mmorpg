@@ -39,6 +39,8 @@ export default function Home() {
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showTransactionsModal, setShowTransactionsModal] = useState(false);
   const [showCharactersModal, setShowCharactersModal] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
 
   useEffect(() => {
 
@@ -369,6 +371,63 @@ export default function Home() {
           >
             PLAY (0.25 wld)
           </button>
+        </div>
+
+        {/* LEADERBOARD CARD */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            background: "#2a2a2a",
+            borderRadius: "12px",
+            padding: "20px",
+            width: "100%",
+            maxWidth: "600px",
+            marginBottom: "15px",
+            cursor: "pointer"
+          }}
+          onClick={() => setShowLeaderboard(!showLeaderboard)}
+        >
+          <h3 style={{ margin: 0 }}>
+            Leaderboard {showLeaderboard ? "▲" : "▼"}
+          </h3>
+
+          {showLeaderboard && (
+            <div style={{ marginTop: "15px", opacity: 0.9 }}>
+              <p>1. PlayerOne — 2500 XP</p>
+              <p>2. PlayerTwo — 2100 XP</p>
+              <p>3. PlayerThree — 1800 XP</p>
+            </div>
+          )}
+        </div>
+
+
+        {/* HOW TO PLAY CARD */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            background: "#2a2a2a",
+            borderRadius: "12px",
+            padding: "20px",
+            width: "100%",
+            maxWidth: "600px",
+            marginBottom: "25px",
+            cursor: "pointer"
+          }}
+          onClick={() => setShowHowToPlay(!showHowToPlay)}
+        >
+          <h3 style={{ margin: 0 }}>
+            How to play {showHowToPlay ? "▲" : "▼"}
+          </h3>
+
+          {showHowToPlay && (
+            <div style={{ marginTop: "15px", opacity: 0.9 }}>
+              <p>• Enter the world using the PLAY button.</p>
+              <p>• Defeat enemys and use portals for teleport o exit.</p>
+              <p>• Gain XP and wld.</p>
+            </div>
+          )}
         </div>
 
         {/* MODALs */}
