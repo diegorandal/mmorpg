@@ -1,15 +1,16 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import * as Colyseus from "@colyseus/sdk";
 import { MyRoomState } from '@/app/(protected)/home/PlayerState';
-import './global.css';
 import { useSession } from "next-auth/react"
+import { MiniKit } from '@worldcoin/minikit-js';
 import { ethers } from "ethers";
 import DepositModal from '@/modals/Deposit'
 import WithdrawModal from '@/modals/Withdraw';
 import TransactionsModal from '@/modals/Transactions';
 import CharactersModal from '@/modals/Characters';
+import * as Colyseus from "@colyseus/sdk";
+import './global.css';
 
 type PlayerProfile = {
   wallet: string;
@@ -131,13 +132,27 @@ export default function Home() {
 
     try {
 
-      // aqui luego llamaras a tu API
-      // const res = await fetch(...)
+      const message = `Enter server ${MIN_BALANCE} wld`;
+      const { finalPayload } = await MiniKit.commandsAsync.signMessage({ message });
+      if (finalPayload.status !== "success") return;
+      const res = await fetch(
+        "https://randal.onepixperday.xyz/api/enter",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({address: finalPayload.address, signature: finalPayload.signature, message})
+        }
+      );
 
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error(data);
+        return;
+      }
+      
       const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
-
       const options = { wallet: playerWallet };
-
       const joinedRoom = await client.joinOrCreate<MyRoomState>("my_room", options);
 
       setRoom(joinedRoom);
