@@ -221,7 +221,19 @@ export default function CharactersModal({address, balance, onSelect, onClose}: P
                 </div>
 
                 <h2 style={{ marginTop: 0 }}>Characters</h2>
-
+                {buyError && (
+                    <div
+                        style={{
+                            color: "#ff2828",
+                            padding: "8px 12px",
+                            borderRadius: 6,
+                            marginBottom: 10,
+                            fontSize: 13
+                        }}
+                    >
+                        {buyError}
+                    </div>
+                )}
                 {loading && <p>Loading characters...</p>}
                 {error && <p style={{ color: "#ff5555" }}>{error}</p>}
 

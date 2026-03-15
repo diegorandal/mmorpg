@@ -227,21 +227,8 @@ export default function Home() {
 
             {/* PLAYER INFO */}
             <div style={{ flex: 1 }}>
-
-              <h3 style={{ margin: 0 }}>
-                {profile.username}
-              </h3>
-
-              <p style={{ margin: "6px 0" }}>
-                Balance: {profile?.balance
-                  ? ethers.formatUnits(profile.balance, 18)
-                  : "0"} wld
-              </p>
-
-              <p style={{ margin: 0 }}>
-                XP: {profile.xp}
-              </p>
-
+              <h3 style={{ margin: 0 }}>{profile.username}</h3>
+              <p style={{ margin: 0 }}>XP: {profile.xp}</p>
             </div>
 
           </div>
@@ -253,10 +240,22 @@ export default function Home() {
           <div
             style={{
               display: "flex",
-              gap: "12px",
-              marginBottom: "20px"
-            }}
-          >
+              background: "#2a2a2a",
+              borderRadius: "12px",
+              padding: "16px",
+              width: "100%",
+              maxWidth: "600px",
+              marginBottom: "25px",
+              gap: "16px",
+              alignItems: "center"
+            }}>
+          
+            <p style={{ margin: "6px 0" }}>
+              Balance: {profile?.balance
+                ? ethers.formatUnits(profile.balance, 18)
+                : "0"} wld
+            </p>
+          
             <button
               onClick={() => setShowDepositModal(true)}
               style={{
@@ -306,32 +305,48 @@ export default function Home() {
           </div>
         )}
 
-        {/* USERS ONLINE */}
-        <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>
-          {usersOnline !== null
-            ? `${usersOnline} jugador${usersOnline === 1 ? '' : 'es'} online`
-            : 'Cargando jugadores...'}
-        </p>
 
-        {/* ENTER BUTTON */}
-        <button
-          disabled={!profile}
-          onClick={handleConnection}
+        <div 
           style={{
-            padding: '18px 40px',
-            fontSize: '1.4rem',
-            cursor: profile ? 'pointer' : 'not-allowed',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '10px',
-            fontWeight: 'bold',
-            marginTop: '20px',
-            opacity: profile ? 1 : 0.5
-          }}
-        >
-          ENTRAR
-        </button>
+            display: "flex",
+            background: "#2a2a2a",
+            borderRadius: "12px",
+            padding: "16px",
+            width: "100%",
+            maxWidth: "600px",
+            marginBottom: "25px",
+            gap: "16px",
+            alignItems: "center"
+          }}>
+
+          {/* USERS ONLINE */}
+          <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>
+            {usersOnline !== null
+              ? `${usersOnline} player${usersOnline === 1 ? '' : 's'} online`
+              : 'Loading data...'}
+          </p>
+
+          {/* ENTER BUTTON */}
+          <button
+            disabled={!profile}
+            onClick={handleConnection}
+            style={{
+              padding: '18px 40px',
+              fontSize: '1.4rem',
+              cursor: profile ? 'pointer' : 'not-allowed',
+              backgroundColor: '#4CAF50',
+              color: 'white',
+              border: 'none',
+              borderRadius: '10px',
+              fontWeight: 'bold',
+              marginTop: '20px',
+              opacity: profile ? 1 : 0.5
+            }}
+          >
+            PLAY
+          </button>
+
+        </div>
 
         {/* MODALs */}
         {showDepositModal && (
