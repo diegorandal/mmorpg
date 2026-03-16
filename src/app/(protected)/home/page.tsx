@@ -131,8 +131,8 @@ export default function Home() {
     setConnecting(true);
 
     try {
-
-      const message = `Enter server ${MIN_BALANCE} wld`;
+      const timestamp = new Date().toLocaleString(); // Ej: "27/10/2023, 15:30:05"
+      const message = `Enter server ${MIN_BALANCE} wld @ ${timestamp}`;
       const { finalPayload } = await MiniKit.commandsAsync.signMessage({ message });
       
       if (finalPayload.status !== "success") {
