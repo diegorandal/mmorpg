@@ -144,7 +144,7 @@ export default function Home() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({address: finalPayload.address, signature: finalPayload.signature, message:'sape'})
+          body: JSON.stringify({address: finalPayload.address, signature: finalPayload.signature, message})
         }
       );
       
