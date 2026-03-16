@@ -154,10 +154,8 @@ export default function Home() {
 
       const data = await res.json();
 
-      console.log('data', data);
-
-      if (!res.ok) {
-        throw new Error(data.message || "Error del servidor (500)");
+      if (data.statusCode === 500 || data.body?.error) {
+        throw new Error(data.body?.error || "Error interno del servidor");
       }
 
       const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
