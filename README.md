@@ -1,11 +1,11 @@
 =========================================================
-      RANDAL
+      sKillsTake
 =========================================================
 
 1. INTRODUCCIÓN
 ---------------------------------------------------------
-RANDAL es un ARPG (Action Role-Playing Game) de mapa persistente y extracción masiva donde la habilidad del jugador se traduce directamente en activos digitales. 
-A diferencia de los modelos Play-to-Earn tradicionales, RANDAL utiliza un modelo Skill-to-Earn de suma cero que asegura la sostenibilidad a largo plazo.
+sKillsTake es un ARPG (Action Role-Playing Game) de mapa persistente y extracción masiva donde la habilidad del jugador se traduce directamente en activos digitales. 
+A diferencia de los modelos Play-to-Earn tradicionales, sKillsTake utiliza un modelo Skill-to-Earn de suma cero que asegura la sostenibilidad a largo plazo.
 
 2. EL ECOSISTEMA ECONÓMICO
 ---------------------------------------------------------
@@ -29,13 +29,12 @@ Los jugadores pueden recuperar HP usando su Pot.
 3.2 Los Portales de Extracción
 Salida exitosa con el 100% de los activos.
 - Naturaleza: Portales instantáneos de ubicación variable.
-- Liquidación: Al salir, el jugador recibe: TOTAL = POT + HP RESTANTE (liquidado a valor nominal).
+- Liquidación: Al salir, el jugador recibe: TOTAL = POT + HP RESTANTE.
 
 3.3 Protocolo de Muerte
 Si el HP llega a 0, se aplica liquidación forzosa:
-- Conservación: El jugador retiene el 80% de su Pot.
-- Fee de Muerte: 15%.
-- Bono de Verdugo: 5% para quien asestó el golpe final.
+- Conservación: El jugador retiene el 90% de su Pot.
+- Bono de Verdugo: 10% para quien asestó el golpe final.
 
 4. SEGURIDAD Y FAIR PLAY
 ---------------------------------------------------------
@@ -45,8 +44,8 @@ Si el HP llega a 0, se aplica liquidación forzosa:
 
 5. CONCLUSIÓN
 ---------------------------------------------------------
-RANDAL fusiona la adrenalina de los ARPG con una economía transparente.
+sKillsTake fusiona la adrenalina de los ARPG con una economía transparente.
 
 =========================================================
-(c) 2026 - RANDAL Project
+(c) 2026 - sKillsTake
 =========================================================
