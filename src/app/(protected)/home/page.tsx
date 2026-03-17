@@ -9,6 +9,7 @@ import DepositModal from '@/modals/Deposit'
 import WithdrawModal from '@/modals/Withdraw';
 import TransactionsModal from '@/modals/Transactions';
 import CharactersModal from '@/modals/Characters';
+import ResultModal from '@/modals/Result';
 import * as Colyseus from "@colyseus/sdk";
 import './global.css';
 
@@ -36,6 +37,7 @@ export default function Home() {
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showTransactionsModal, setShowTransactionsModal] = useState(false);
   const [showCharactersModal, setShowCharactersModal] = useState(false);
+  const [showResultModal, setShowResultModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [connecting, setConnecting] = useState(false);
@@ -69,7 +71,7 @@ export default function Home() {
 
   }, [room]);
 
- 
+// #region fetchProfile
   const fetchProfile = async () => {
 
     if (!session?.user?.id || !session.user.username) return;
@@ -109,7 +111,7 @@ export default function Home() {
     }
   }, [session?.user?.id]);
 
-  // CANTIDAD DE USUARIOS ONLINE
+  // #region online users
   useEffect(() => {
     const fetchUsersOnline = async () => {
       try {
@@ -123,7 +125,7 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // CONEXION
+  // #region Connection
   const handleConnection = async () => {
 
     if (!profile) return;
@@ -179,11 +181,15 @@ export default function Home() {
 
   };
 
-  // SALE DE LA ROOM
+  // #region exitGame
   useEffect(() => {
     const handleExitGame = () => {
       
       console.log('salio de la room');
+
+      //aca hay que llamar a que muestre el resultado de la sesion
+
+      setShowResultModal(true);
 
       if(room) setRoom(null);
       
@@ -216,7 +222,7 @@ export default function Home() {
     return () => { game?.destroy(true); };
   }, [room]);
 
-  // LOBBY
+  // #region Return
   if (!room) {
 
     return (
@@ -283,7 +289,20 @@ export default function Home() {
 
             {/* PLAYER INFO */}
             <div style={{ flex: 1 }}>
-              <h3 style={{ margin: 0 }}>{profile.username}</h3>
+              <h3 style={{ margin: 0 }}>{profile.username}
+                {/* Result Modal */}
+                <button
+                  onClick={() => setShowResultModal(true)}
+                  style={{
+                    padding: "2px 6px",
+                    background: "#333",
+                    textDecoration: "none",
+                    color: "white"
+                  }}
+                >
+                  ⚔
+                </button>                
+              </h3>
               <p style={{ margin: 0 }}>XP: {profile.xp}</p>
               <p style={{ margin: 0 }}>Kills: {profile.kills}</p>
             </div>
@@ -495,6 +514,9 @@ export default function Home() {
         )}
         {showTransactionsModal && (
           <TransactionsModal address={profile.wallet} onClose={() => setShowTransactionsModal(false)} />
+        )}
+        {showResultModal && (
+          <ResultModal address={profile.wallet} onClose={() => setShowResultModal(false)} />
         )}
         {showCharactersModal && profile && (
           <CharactersModal
