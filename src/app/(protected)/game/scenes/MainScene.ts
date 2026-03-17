@@ -232,7 +232,7 @@ export class MainScene extends Phaser.Scene {
             } else {
                 console.log("Cierre por error de red o crash del servidor");
             }
-            this.disableControls();
+
             this.showDeathScreen();
             
         });
@@ -263,7 +263,6 @@ export class MainScene extends Phaser.Scene {
                     entity.isDead = true; // Esto bloqueará el update
                 }
                 this.room.leave();
-                this.disableControls();
                 this.showDeathScreen();
                 return;
             }
@@ -382,7 +381,6 @@ export class MainScene extends Phaser.Scene {
 
         // Si soy yo → deshabilitar controles
         if (sessionId === this.room.sessionId) {
-            this.disableControls();
             this.showDeathScreen();
         }
     }
@@ -960,13 +958,14 @@ export class MainScene extends Phaser.Scene {
     }
 
     private showDeathScreen() {
+
         const { width, height } = this.scale;
+
+        this.disableControls();
 
         this.room.state.players.forEach((player, sessionId) => {
             this.removePlayer(sessionId);
         });
-        
-        // Detectar los que se fueron
 
         // 🕶 overlay oscuro
         this.deathOverlay = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.6).setScrollFactor(0).setDepth(10009);
