@@ -262,6 +262,7 @@ export class MainScene extends Phaser.Scene {
                 if (entity) {
                     entity.isDead = true; // Esto bloqueará el update
                 }
+                this.room.leave();
                 this.disableControls();
                 this.showDeathScreen();
                 return;
