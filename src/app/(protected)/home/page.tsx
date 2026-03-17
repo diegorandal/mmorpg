@@ -289,19 +289,9 @@ export default function Home() {
 
             {/* PLAYER INFO */}
             <div style={{ flex: 1 }}>
-              <h3 style={{ margin: 0 }}>{profile.username}
+              <h3 style={{ margin: 0 }}>{profile.username} 
                 {/* Result Modal */}
-                <button
-                  onClick={() => setShowResultModal(true)}
-                  style={{
-                    padding: "2px 6px",
-                    background: "#333",
-                    textDecoration: "none",
-                    color: "white"
-                  }}
-                >
-                  ⚔
-                </button>                
+                <button onClick={() => setShowResultModal(true)}>🧾</button>                
               </h3>
               <p style={{ margin: 0 }}>XP: {profile.xp}</p>
               <p style={{ margin: 0 }}>Kills: {profile.kills}</p>
