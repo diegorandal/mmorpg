@@ -17,6 +17,7 @@ type PlayerProfile = {
   username: string;
   balance: string;
   xp: number;
+  kills: number;
   characterid: number;
   characters: number[];
 };
@@ -284,6 +285,7 @@ export default function Home() {
             <div style={{ flex: 1 }}>
               <h3 style={{ margin: 0 }}>{profile.username}</h3>
               <p style={{ margin: 0 }}>XP: {profile.xp}</p>
+              <p style={{ margin: 0 }}>Kills: {profile.kills}</p>
             </div>
 
           </div>
