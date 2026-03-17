@@ -227,15 +227,11 @@ export class MainScene extends Phaser.Scene {
         this.room.onLeave((code) => {
 
             console.log(`Has salido de la sala. Código de cierre: ${code}`);
-
             if (code === 1000) {
                 console.log("Cierre limpio (voluntario o expulsión controlada)");
             } else {
                 console.log("Cierre por error de red o crash del servidor");
             }
-
-            // Aquí es donde deberías redirigir al usuario al menú principal 
-            // o mostrar un mensaje de "Desconectado por inactividad"
             this.disableControls();
             this.showDeathScreen();
             
@@ -262,6 +258,8 @@ export class MainScene extends Phaser.Scene {
             
             if (msg.portalType === 'exit' && msg.sessionId === this.room.sessionId){
                 //window.dispatchEvent(new Event('exit-game'));
+                this.disableControls();
+                this.showDeathScreen();
                 return;
             }
 
@@ -387,9 +385,10 @@ export class MainScene extends Phaser.Scene {
     private disableControls() {
         this.isDragging = false;
         this.joystickBase?.setVisible(false);
-        //this.attackText?.setVisible(false);
+        this.joystickBase?.setActive(false);
         this.joystickThumb?.setVisible(false);
         this.attackButton?.setVisible(false);
+        this.attackButton?.setActive(false);
         this.input.keyboard?.removeAllKeys(true);
         this.weapon0?.setVisible(false);
         this.weapon1?.setVisible(false);
@@ -397,6 +396,7 @@ export class MainScene extends Phaser.Scene {
         this.weapon3?.setVisible(false);
         this.weapon4?.setVisible(false);
         this.potion?.setVisible(false);
+        this.potion?.setActive(false);
         this.weapon0Text?.setVisible(false);
         this.weapon1Text?.setVisible(false);
         this.weapon2Text?.setVisible(false);
