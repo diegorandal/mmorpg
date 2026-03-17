@@ -112,8 +112,8 @@ export default function CharactersModal({address, balance, onSelect, onClose}: P
                             setTimeout(() => setBuyError(""), 2500);
                             return;
                         }
-
-                        const message = `Buy character ${id}`;
+                        const timestamp = new Date().toLocaleString();
+                        const message = `Buy character ${id} @ ${timestamp}`;
 
                         const { finalPayload } =
                             await MiniKit.commandsAsync.signMessage({ message });

@@ -181,9 +181,9 @@ export default function Home() {
   // SALE DE LA ROOM
   useEffect(() => {
     const handleExitGame = () => {
-      if (room) {
-        room.leave();
-      }
+      
+      console.log('salio de la room');
+
       setRoom(null);
     };
     window.addEventListener('exit-game', handleExitGame);
