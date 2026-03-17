@@ -184,7 +184,8 @@ export default function Home() {
       
       console.log('salio de la room');
 
-      setRoom(null);
+      if(room) setRoom(null);
+      
     };
     window.addEventListener('exit-game', handleExitGame);
 

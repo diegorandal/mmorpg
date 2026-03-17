@@ -261,7 +261,7 @@ export class MainScene extends Phaser.Scene {
         this.room.onMessage("playerTeleport", (msg) => {
             
             if (msg.portalType === 'exit' && msg.sessionId === this.room.sessionId){
-                window.dispatchEvent(new Event('exit-game'));
+                //window.dispatchEvent(new Event('exit-game'));
                 return;
             }
 
@@ -961,7 +961,7 @@ export class MainScene extends Phaser.Scene {
         this.deathOverlay = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.6).setScrollFactor(0).setDepth(10009);
 
         this.deathButton = this.add.text(
-            width / 2, height / 2, 'VOLVER',
+            width / 2, height / 2, 'HOME',
             { fontSize: '32px', color: '#ffffff', backgroundColor: '#222222', padding: { x: 24, y: 14 },}
         ).setOrigin(0.5).setScrollFactor(0).setDepth(10010).setInteractive({ useHandCursor: true });
 
