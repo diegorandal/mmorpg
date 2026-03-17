@@ -258,6 +258,10 @@ export class MainScene extends Phaser.Scene {
             
             if (msg.portalType === 'exit' && msg.sessionId === this.room.sessionId){
                 //window.dispatchEvent(new Event('exit-game'));
+                const entity = this.playerEntities[msg.sessionId];
+                if (entity) {
+                    entity.isDead = true; // Esto bloqueará el update
+                }
                 this.disableControls();
                 this.showDeathScreen();
                 return;
@@ -659,7 +663,7 @@ export class MainScene extends Phaser.Scene {
 
         const myId = this.room.sessionId;
         const myEntity = this.playerEntities[myId];
-        if (!myEntity) return;
+        if (!myEntity || myEntity.isDead) return;
 
         const myState = this.room.state.players.get(myId);
 
