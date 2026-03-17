@@ -401,12 +401,12 @@ export default function Home() {
             color: "white"
           }}>
             {usersOnline !== null
-              ? `${usersOnline} player${usersOnline === 1 ? '' : 's'} online`
+              ? `${usersOnline}/25 player${usersOnline === 1 ? '' : 's'} online`
               : 'Loading data...'}
           </p>
 
           <button
-            disabled={!canPlay}
+            disabled={!canPlay || usersOnline > 24}
             onClick={handleConnection}
             style={{
               padding: '18px 40px',
@@ -423,7 +423,9 @@ export default function Home() {
               transition: '0.2s'
             }}
           >
-            {connecting ? "CONNECTING..." : `PLAY (${MIN_BALANCE} wld)`}
+            {usersOnline > 24
+              ? "SERVER FULL"
+              : (connecting ? "CONNECTING..." : `PLAY (${MIN_BALANCE} wld)`)}
           </button>
         </div>
 
