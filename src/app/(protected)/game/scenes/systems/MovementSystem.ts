@@ -18,7 +18,14 @@ export class MovementSystem {
         const myEntity = this.scene.playerEntities[myId];
         if (!myEntity) return;
 
-        const speed = 4;
+        let currentSpeed = 4;
+
+        // 2. Aplicar reducción si el arma no es 0 (15% menos)
+        // Accedemos a la propiedad de la escena que mencionaste
+        if (this.scene.myCurrentWeaponType !== 0) {
+            currentSpeed = 4 * 0.85; // 0.85 es el 85% de la velocidad (o sea, -15%)
+        }
+
         let dx = 0;
         let dy = 0;
         let moved = false;
@@ -67,7 +74,7 @@ export class MovementSystem {
         }
 
         // 🧱 FÍSICA
-        myEntity.sprite.body.setVelocity(dx * speed * 60, dy * speed * 60);
+        myEntity.sprite.body.setVelocity(dx * currentSpeed * 60, dy * currentSpeed * 60);
 
         if (moved) {
             const len = Math.sqrt(dx * dx + dy * dy);
@@ -119,8 +126,8 @@ export class MovementSystem {
             );
 
             if (entity.isMoving) {
-                entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.15);
-                entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.15);
+                entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.5);
+                entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.5);
             } else {
                 entity.sprite.x = entity.serverX;
                 entity.sprite.y = entity.serverY;

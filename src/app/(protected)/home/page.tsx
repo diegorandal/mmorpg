@@ -497,7 +497,7 @@ export default function Home() {
           {showHowToPlay && (
             <div style={{ marginTop: "15px", opacity: 0.9 }}>
               <p>• Enter the world using the PLAY button.</p>
-              <p>• Defeat enemys and use portals for teleport o exit.</p>
+              <p>• Defeat enemys and use portals for teleport or exit.</p>
               <p>• Gain XP and wld.</p>
             </div>
           )}
