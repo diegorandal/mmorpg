@@ -74,7 +74,7 @@ export class MainScene extends Phaser.Scene {
         // Spell
         "4-1": 700,
         "4-2": 600,
-        "4-3": 1000
+        "4-3": 900
     };
 
     // #region preload

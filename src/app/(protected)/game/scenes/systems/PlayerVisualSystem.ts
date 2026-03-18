@@ -130,15 +130,12 @@ export class PlayerVisualSystem {
         if (entity.defence === 1 && !entity.isDead) {
             circle.setVisible(true);
             circle.clear();
-
-            const radius = 23;
-
             circle.fillStyle(0x00ff00, 0.15);
             circle.lineStyle(1, 0x00ff00, 0.25);
-            circle.fillCircle(entity.sprite.x, entity.sprite.y + 8, radius);
-            circle.strokeCircle(entity.sprite.x, entity.sprite.y + 8, radius);
-
+            circle.fillCircle(entity.sprite.x, entity.sprite.y + 16, 24);
+            circle.strokeCircle(entity.sprite.x, entity.sprite.y + 16, 24);
             circle.setDepth(entity.sprite.depth - 1);
+
         } else {
             circle.setVisible(false);
         }
