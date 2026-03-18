@@ -41,7 +41,9 @@ export default function Home() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [connecting, setConnecting] = useState(false);
-  
+  const [leaderboardData, setLeaderboardData] = useState([]);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+
   const MIN_BALANCE = 0.25; // wld
 
   // calcular balance disponible
@@ -110,6 +112,28 @@ export default function Home() {
       fetchProfile();
     }
   }, [session?.user?.id]);
+
+  useEffect(() => {
+    // Solo disparamos la petición si el acordeón se abre Y no tenemos datos aún
+    // (o puedes quitar 'leaderboardData.length === 0' si quieres que se actualice siempre)
+    if (showLeaderboard && leaderboardData.length === 0) {
+      fetchLeaderboard();
+    }
+  }, [showLeaderboard]);
+
+  // #region load LeaderBoard
+  const fetchLeaderboard = async () => {
+    setLoadingLeaderboard(true);
+    try {
+      const response = await fetch("https://randal.onepixperday.xyz/api/get-leaderboard");
+      const data = await response.json();
+      if (data.body && data.body.result) setLeaderboardData(data.body.result);
+    } catch (error) {
+      console.error("Error cargando el leaderboard:", error);
+    } finally {
+      setLoadingLeaderboard(false);
+    }
+  };
 
   // #region online users
   useEffect(() => {
@@ -240,7 +264,6 @@ export default function Home() {
 
         {/* PROFILE CARD */}
         {loadingProfile && <p>Cargando perfil...</p>}
-
         {profile && (
           <div style={{
             display: "flex",
@@ -467,9 +490,28 @@ export default function Home() {
 
           {showLeaderboard && (
             <div style={{ marginTop: "15px", opacity: 0.9 }}>
-              <p>1. PlayerOne — 2500 XP</p>
-              <p>2. PlayerTwo — 2100 XP</p>
-              <p>3. PlayerThree — 1800 XP</p>
+              {loadingLeaderboard ? (
+                <p>Loading ranking...</p>
+              ) : leaderboardData.length > 0 ? (
+                leaderboardData.map((player, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      padding: "8px 0",
+                      borderBottom: "1px solid #444"
+                    }}
+                  >
+                    <span>{index + 1}. {player.username || "Anonymous"}</span>
+                    <span style={{ fontWeight: "bold", color: "#ffd700" }}>
+                      {player.xp} XP <span style={{ fontSize: "0.8em", color: "#aaa" }}>({player.kills} Kills)</span>
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p>No data</p>
+              )}
             </div>
           )}
         </div>
