@@ -291,7 +291,15 @@ export default function Home() {
             <div style={{ flex: 1 }}>
               <h3 style={{ margin: 0 }}>{profile.username} 
                 {/* Result Modal */}
-                <button onClick={() => setShowResultModal(true)}>🧾</button>                
+                <button onClick={() => setShowResultModal(true)} 
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                  fontSize: 'inherit',
+                  marginLeft: '8px'
+                }}>🧾</button>                
               </h3>
               <p style={{ margin: 0 }}>XP: {profile.xp}</p>
               <p style={{ margin: 0 }}>Kills: {profile.kills}</p>
