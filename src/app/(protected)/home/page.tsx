@@ -333,7 +333,7 @@ export default function Home() {
               fontWeight: "bold",
               color: "white"
             }}>
-              Balance: {profile?.balance
+              In-game Balance: {profile?.balance
                 ? ethers.formatUnits(profile.balance, 18)
                 : "0"} wld
             </p>
@@ -391,6 +391,7 @@ export default function Home() {
                 HISTORY
               </button>
             </div>
+            Funds are held in-game. Withdraw to your wallet anytime.
           </div>
         )}
 
