@@ -273,13 +273,12 @@ export default function Home() {
                 onClick={() => setShowCharactersModal(true)}
                 style={{
                   position: "absolute",
-                  padding: "2px 6px",
                   bottom: 0,
                   right: 0,
-                  background: "#477fe7",
-                  borderRadius: "6px",
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
                   textDecoration: "none",
-                  color: "white"
                 }}
               >
                 🔄
