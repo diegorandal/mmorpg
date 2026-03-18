@@ -142,7 +142,9 @@ export default function Home() {
         const res = await fetch("https://randal.onepixperday.xyz/api/usersonline");
         const data = await res.json();
         setUsersOnline(data.totalClients);
-      } catch (err) {console.error("Error fetching users online:", err);}
+      } catch (err) {
+        return;
+      }
     };
     fetchUsersOnline();
     const interval = setInterval(fetchUsersOnline, 5000);
@@ -256,7 +258,7 @@ export default function Home() {
         alignItems: 'center',
         height: '100vh',
         overflowY: 'auto',
-        background: '#1a1a1a',
+        background: '#25201c',
         color: 'white',
         fontFamily: 'sans-serif',
         padding: '20px'
@@ -287,7 +289,7 @@ export default function Home() {
                   height: 96,
                   imageRendering: "pixelated",
                   borderRadius: "8px",
-                  background: "#111"
+                  background: "#69ae55"
                 }}
               />
 
