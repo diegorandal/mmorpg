@@ -56,15 +56,26 @@ export class MainScene extends Phaser.Scene {
     private hpText?: Phaser.GameObjects.Text;
     private playersText?: Phaser.GameObjects.Text;
     private attackCooldowns: { [key: string]: number } = {};
-    private currentPortalId: string | null = null;
+    //private currentPortalId: string | null = null;
     private portalCheckCooldown = 0;
     private attackSpeeds: { [key: string]: number } = {
+        // Sword
         "1-1": 250,
-        "2-1": 250,
-        "3-1": 500,
-        "4-1": 750,
+        "1-2": 400,
+        "1-3": 600,
+        // Bow
+        "2-1": 350,
+        "2-2": 500,
+        "2-3": 900,
+        // Wand
+        "3-1": 450,
+        "3-2": 550,
+        "3-3": 800,
+        // Spell
+        "4-1": 700,
+        "4-2": 600,
+        "4-3": 1000
     };
-    // #endregion
 
     // #region preload
     preload(): void {
@@ -490,12 +501,12 @@ export class MainScene extends Phaser.Scene {
         this.weapon4 = this.add.circle(ax - r, ay + r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
         this.potion = this.add.circle(35, this.weapon4.y, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
 
-        this.weapon0Text = this.add.text(this.weapon0.x, this.weapon0.y, '🏃‍♂️', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon1Text = this.add.text(this.weapon1.x, this.weapon1.y, '🗡', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon2Text = this.add.text(this.weapon2.x, this.weapon2.y, '🏹', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon3Text = this.add.text(this.weapon3.x, this.weapon3.y, '🧙‍♂️', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon4Text = this.add.text(this.weapon4.x, this.weapon4.y, '🗣', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.potionText = this.add.text(this.potion.x, this.potion.y, '♥', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon0Text = this.add.text(this.weapon0.x, this.weapon0.y, 'Run', { fontSize: '10px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon1Text = this.add.text(this.weapon1.x, this.weapon1.y, 'Sword', { fontSize: '10px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon2Text = this.add.text(this.weapon2.x, this.weapon2.y, 'Bow', { fontSize: '10px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon3Text = this.add.text(this.weapon3.x, this.weapon3.y, 'Wand', { fontSize: '10px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.weapon4Text = this.add.text(this.weapon4.x, this.weapon4.y, 'Speel', { fontSize: '10px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
+        this.potionText = this.add.text(this.potion.x, this.potion.y, '♥', { fontSize: '10px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
 
         this.weaponSelectorRing = this.add.circle(-100, -100, wsize + 5).setStrokeStyle(4, 0xffff00, 0.4).setScrollFactor(0).setDepth(10001);
 

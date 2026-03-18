@@ -541,6 +541,8 @@ export default function Home() {
           </p>
         )}
 
+        SkillStake (Alpha 0.1.0) diegorandal
+
       </div>
     );
   }
