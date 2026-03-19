@@ -160,7 +160,7 @@ export default function Home() {
     setConnecting(true);
 
     try {
-      const timestamp = new Date().toLocaleString(); // Ej: "27/10/2023, 15:30:05"
+      const timestamp = new Date().toLocaleString(); 
       const message = `Enter server ${MIN_BALANCE} wld @ ${timestamp}`;
       const { finalPayload } = await MiniKit.commandsAsync.signMessage({ message });
       
@@ -188,8 +188,8 @@ export default function Home() {
       }
 
       const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
-      const options = { wallet: playerWallet };
-      const joinedRoom = await client.joinOrCreate<MyRoomState>("my_room", options);
+      const options = { wallet: playerWallet, signature: finalPayload.signature};
+      const joinedRoom = await client.join<MyRoomState>("my_room", options);
 
       setRoom(joinedRoom);
 
