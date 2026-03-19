@@ -138,10 +138,6 @@ export default function LastResultModal({ address, onClose }: Props) {
                                 border: `2px solid ${getResultLabel(data.result).color}`
                             }}
                         >
-                            <div style={{ fontSize: 13, opacity: 0.7 }}>
-                                RESULT
-                            </div>
-
                             <div
                                 style={{
                                     fontSize: 22,
@@ -161,10 +157,10 @@ export default function LastResultModal({ address, onClose }: Props) {
                                 gap: 12
                             }}
                         >
-                            <Stat label="Pot" value={data.pot} />
+                            <Stat label="Final Pot" value={data.pot} />
                             <Stat label="Final HP" value={data.hp} />
                             <Stat label="Damage (XP)" value={data.xp} />
-                            <Stat label="Total Kills" value={data.kills} />
+                            <Stat label="Kills" value={data.kills} />
                         </div>
 
                         {/* REWARD */}
