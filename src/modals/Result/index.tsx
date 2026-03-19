@@ -71,8 +71,20 @@ export default function LastResultModal({ address, onClose }: Props) {
         }
     };
 
-    const reward =
-        data ? (data.pot + data.hp) * 0.002 : 0;
+    // LÓGICA DE RECOMPENSA ACTUALIZADA
+    const calculateReward = () => {
+        if (!data) return 0;
+
+        if (data.result === "disconnect") {
+            // Si es disconnect: (POT * 0.9) * 0.002
+            return (data.pot * 0.9) * 0.002;
+        }
+
+        // Caso normal (exit o death): (POT + HP) * 0.002
+        return (data.pot + data.hp) * 0.002;
+    };
+
+    const reward = calculateReward();
 
     const rewardColor =
         reward > 0.25
