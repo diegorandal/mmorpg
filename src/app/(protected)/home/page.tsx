@@ -42,6 +42,7 @@ export default function Home() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [connecting, setConnecting] = useState(false);
+  const [connectingFree, setConnectingFree] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
 
@@ -159,7 +160,36 @@ export default function Home() {
     if (!profile) return;
 
     setError('');
-    setConnecting(true);
+
+    if(roomName == 'my_room'){
+      setConnecting(true);
+    } 
+
+    // ======================================== SERVER FREE ===================================
+    if (roomName == 'free_room') {
+
+      setConnectingFree(true);
+
+      try{
+
+        const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
+        const options = { wallet: playerWallet, signature: "sape" };
+        const joinedRoom = await client.join<MyRoomState>(roomName, options);
+        setRoom(joinedRoom);
+      
+      } catch (e: unknown) {
+
+          const msg = e instanceof Error ? e.message : "Error al conectar al servidor free";
+          setError(msg);
+          setTimeout(() => { setError(''); }, 2000);
+          console.error("Error en handleConnection:", e);
+        } finally {
+          setConnectingFree(false);
+        }
+
+    }
+
+    // ======================================== SERVER PAY ===================================
 
     try {
       const timestamp = new Date().toLocaleString(); 
@@ -189,9 +219,11 @@ export default function Home() {
         throw new Error(data.body?.error || "Error interno del servidor");
       }
 
+
+
+
       const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
       const options = { wallet: playerWallet, signature: finalPayload.signature};
-      
       const joinedRoom = await client.join<MyRoomState>(roomName, options);
 
       setRoom(joinedRoom);
@@ -481,12 +513,12 @@ export default function Home() {
             color: "white"
           }}>
             {usersOnlineFree !== null
-              ? `${usersOnlineFree}/5 player${usersOnlineFree === 1 ? '' : 's'} online`
+              ? `${usersOnlineFree}/10 player${usersOnlineFree === 1 ? '' : 's'} online`
               : 'Loading data...'}
           </p>
 
           <button
-            disabled={usersOnlineFree > 4}
+            disabled={usersOnlineFree > 9}
             onClick={() => handleConnection("free_room")}
             style={{
               padding: '18px 40px',
@@ -503,9 +535,9 @@ export default function Home() {
               transition: '0.2s'
             }}
           >
-            {usersOnlineFree > 4
+            {usersOnlineFree > 9
               ? "SERVER FULL"
-              : (connecting ? "CONNECTING..." : `FREE (0.00 wld)`)}
+              : (connectingFree ? "CONNECTING..." : `FREE (0.00 wld)`)}
           </button>
 
         </div>
