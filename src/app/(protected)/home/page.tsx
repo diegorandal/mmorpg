@@ -176,7 +176,9 @@ export default function Home() {
         const options = { wallet: playerWallet, signature: "sape" };
         const joinedRoom = await client.join<MyRoomState>(roomName, options);
         setRoom(joinedRoom);
-      
+        
+        return;
+        
       } catch (e: unknown) {
 
           const msg = e instanceof Error ? e.message : "Error al conectar al servidor free";
@@ -191,53 +193,57 @@ export default function Home() {
 
     // ======================================== SERVER PAY ===================================
 
-    try {
-      const timestamp = new Date().toLocaleString(); 
-      const message = `Enter server ${MIN_BALANCE} wld @ ${timestamp}`;
-      const { finalPayload } = await MiniKit.commandsAsync.signMessage({ message });
-      
-      if (finalPayload.status !== "success") {
-        throw new Error("Fallo en la firma del mensaje");
-      }
+    if (roomName == 'my_room') {
 
-      const res = await fetch(
-        "https://randal.onepixperday.xyz/api/enter",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({address: finalPayload.address, signature: finalPayload.signature, message})
+      try {
+        const timestamp = new Date().toLocaleString(); 
+        const message = `Enter server ${MIN_BALANCE} wld @ ${timestamp}`;
+        const { finalPayload } = await MiniKit.commandsAsync.signMessage({ message });
+        
+        if (finalPayload.status !== "success") {
+          throw new Error("Fallo en la firma del mensaje");
         }
-      );
-      
-      if (!res.ok) {
-        throw new Error(`Server error: ${res.status}`);
+
+        const res = await fetch(
+          "https://randal.onepixperday.xyz/api/enter",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({address: finalPayload.address, signature: finalPayload.signature, message})
+          }
+        );
+        
+        if (!res.ok) {
+          throw new Error(`Server error: ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        if (data.statusCode === 500 || data.body?.error) {
+          throw new Error(data.body?.error || "Error interno del servidor");
+        }
+
+
+
+
+        const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
+        const options = { wallet: playerWallet, signature: finalPayload.signature};
+        const joinedRoom = await client.join<MyRoomState>(roomName, options);
+
+        setRoom(joinedRoom);
+
+      } catch (e: unknown) {
+
+        const msg = e instanceof Error ? e.message : "Error al conectar al servidor";
+        setError(msg);
+
+        setTimeout(() => {setError('');}, 2000);
+        console.error("Error en handleConnection:", e);
+
+      } finally {
+        setConnecting(false);
       }
 
-      const data = await res.json();
-
-      if (data.statusCode === 500 || data.body?.error) {
-        throw new Error(data.body?.error || "Error interno del servidor");
-      }
-
-
-
-
-      const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
-      const options = { wallet: playerWallet, signature: finalPayload.signature};
-      const joinedRoom = await client.join<MyRoomState>(roomName, options);
-
-      setRoom(joinedRoom);
-
-    } catch (e: unknown) {
-
-      const msg = e instanceof Error ? e.message : "Error al conectar al servidor";
-      setError(msg);
-
-      setTimeout(() => {setError('');}, 2000);
-      console.error("Error en handleConnection:", e);
-
-    } finally {
-      setConnecting(false);
     }
 
   };
