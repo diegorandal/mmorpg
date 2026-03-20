@@ -27,6 +27,7 @@ export default function Home() {
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const [room, setRoom] = useState<Colyseus.Room | null>(null);
   const [usersOnline, setUsersOnline] = useState<number | null>(null);
+  const [usersOnlineFree, setUsersOnlineFree] = useState<number | null>(null);
   const [error, setError] = useState('');
   const { data: session, status } = useSession();
   const [playerName, setPlayerName] = useState('playera');
@@ -142,6 +143,7 @@ export default function Home() {
         const res = await fetch("https://randal.onepixperday.xyz/api/usersonline");
         const data = await res.json();
         setUsersOnline(data.totalClients);
+        setUsersOnlineFree(data.totalClientsFree);
       } catch (err) {
         return;
       }
@@ -152,7 +154,7 @@ export default function Home() {
   }, []);
 
   // #region Connection
-  const handleConnection = async () => {
+  const handleConnection = async (roomName: string) => {
 
     if (!profile) return;
 
@@ -189,7 +191,8 @@ export default function Home() {
 
       const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
       const options = { wallet: playerWallet, signature: finalPayload.signature};
-      const joinedRoom = await client.join<MyRoomState>("my_room", options);
+      
+      const joinedRoom = await client.join<MyRoomState>(roomName, options);
 
       setRoom(joinedRoom);
 
@@ -449,7 +452,7 @@ export default function Home() {
 
           <button
             disabled={!canPlay || usersOnline > 24}
-            onClick={handleConnection}
+            onClick={() => handleConnection("my_room")}
             style={{
               padding: '18px 40px',
               fontSize: '1.4rem',
@@ -469,6 +472,42 @@ export default function Home() {
               ? "SERVER FULL"
               : (connecting ? "CONNECTING..." : `PLAY (${MIN_BALANCE} wld)`)}
           </button>
+
+          {/* USERS ONLINE FREE MODE */}
+          <p style={{
+            margin: 0,
+            fontSize: "1.2rem",
+            fontWeight: "bold",
+            color: "white"
+          }}>
+            {usersOnlineFree !== null
+              ? `${usersOnlineFree}/5 player${usersOnlineFree === 1 ? '' : 's'} online`
+              : 'Loading data...'}
+          </p>
+
+          <button
+            disabled={usersOnlineFree > 4}
+            onClick={() => handleConnection("free_room")}
+            style={{
+              padding: '18px 40px',
+              fontSize: '1.4rem',
+              cursor: 'pointer',
+              backgroundColor: '#75864b',
+              color: 'white',
+              border: 'none',
+              borderRadius: '10px',
+              fontWeight: 'bold',
+              width: '100%',
+              maxWidth: '300px',
+              opacity: 1,
+              transition: '0.2s'
+            }}
+          >
+            {usersOnlineFree > 4
+              ? "SERVER FULL"
+              : (connecting ? "CONNECTING..." : `FREE (0.00 wld)`)}
+          </button>
+
         </div>
 
         {/* LEADERBOARD CARD */}
