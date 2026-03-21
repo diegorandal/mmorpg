@@ -3,7 +3,7 @@ import ClientProviders from '@/providers';
 //import '@worldcoin/mini-apps-ui-kit-react/styles.css';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-//import './globals.css';
+import './globals.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
