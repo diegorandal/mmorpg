@@ -1,5 +1,12 @@
-html,
-body {
+@import 'tailwindcss';
+
+:root {
+    --background: #000000;
+    /* Negro puro para evitar la franja */
+    --foreground: #ededed;
+}
+
+html, body {
     margin: 0;
     padding: 0;
     width: 100%;
@@ -7,4 +14,11 @@ body {
     overflow: hidden;
     background-color: #000000;
     /* Evita el scroll innecesario en la Mini App */
+}
+
+body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
 }

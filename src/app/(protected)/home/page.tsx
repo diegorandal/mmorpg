@@ -407,7 +407,7 @@ export default function Home() {
             <div style={{
               display: "flex",
               flexDirection: "row",    // Botones uno al lado del otro
-              gap: "10px",             // Espacio entre botones
+              gap: "8px",             // Espacio entre botones
               flexWrap: "wrap",        // Por si la pantalla es muy pequeña, que bajen
               justifyContent: "center" // Centra los botones
             }}>
