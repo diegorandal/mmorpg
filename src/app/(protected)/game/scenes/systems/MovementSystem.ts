@@ -126,8 +126,8 @@ export class MovementSystem {
             );
 
             if (entity.isMoving) {
-                entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.5);
-                entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.5);
+                entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.4);
+                entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.4);
             } else {
                 entity.sprite.x = entity.serverX;
                 entity.sprite.y = entity.serverY;

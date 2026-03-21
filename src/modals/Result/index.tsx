@@ -8,7 +8,7 @@ type Props = {
 };
 
 type ResultResponse = {
-    result: "exit" | "death" | "disconnect";
+    result: "exit" | "death" | "disconnect" | "exit_free" | "death_free" | "disconnect_free";
     pot: number;
     hp: number;
     kills: number;
@@ -66,14 +66,25 @@ export default function LastResultModal({ address, onClose }: Props) {
                 return { text: "Death", color: "#ff3b3b" };
             case "disconnect":
                 return { text: "Disconnect", color: "#ff9b2f" };
+            case "exit_free":
+                return { text: "Portal Exit (free)", color: "#baf7d2" };
+            case "death_free":
+                return { text: "Death (free)", color: "#f1a4a4" };
+            case "disconnect_free":
+                return { text: "Disconnect (free)", color: "#f5c99a" };
             default:
-                return { text: r, color: "#fff" };
+                return { text: r, color: "#749cf3" };
         }
     };
 
     // LÓGICA DE RECOMPENSA ACTUALIZADA
     const calculateReward = () => {
+        
         if (!data) return 0;
+
+        if (data.result === "disconnect_free" || data.result === "exit_free" || data.result === "death_free"){
+            return (0);
+        }
 
         if (data.result === "disconnect") {
             // Si es disconnect: (POT * 0.9) * 0.002
