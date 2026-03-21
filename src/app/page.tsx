@@ -19,7 +19,7 @@ export default function Home() {
   }, [status, router]);
 
   return (
-    <main className="relative flex flex-col items-center justify-center min-h-screen bg-black text-white font-sans">
+    <main className="relative flex flex-col items-center justify-center min-h-[100dvh] min-h-screen bg-black text-white font-sans">
 
       {/* Mensaje Central */}
       <div className="flex flex-col items-center gap-4">

@@ -6,6 +6,12 @@
     --foreground: #ededed;
 }
 
+html {
+    background-color: #000000 !important;
+    color-scheme: dark;
+    /* Indica al navegador que el sitio es oscuro */
+}
+
 html, body {
     margin: 0;
     padding: 0;
