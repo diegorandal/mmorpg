@@ -407,14 +407,15 @@ export default function Home() {
             <div style={{
               display: "flex",
               flexDirection: "row",    // Botones uno al lado del otro
-              gap: "8px",             // Espacio entre botones
-              flexWrap: "wrap",        // Por si la pantalla es muy pequeña, que bajen
+              gap: "6px",             // Espacio entre botones
+              flexWrap: "nowrap",        // Por si la pantalla es muy pequeña, que bajen
               justifyContent: "center" // Centra los botones
             }}>
               <button
                 onClick={() => setShowDepositModal(true)}
                 style={{
-                  padding: "10px 22px",
+                  padding: "8px 12px",
+                  fontSize: 12,
                   background: "#477fe7",
                   border: "none",
                   borderRadius: "8px",
@@ -429,7 +430,8 @@ export default function Home() {
               <button
                 onClick={() => setShowWithdrawModal(true)}
                 style={{
-                  padding: "10px 22px",
+                  padding: "8px 12px",
+                  fontSize: 12,
                   background: "#e76f51",
                   border: "none",
                   borderRadius: "8px",
@@ -444,7 +446,8 @@ export default function Home() {
               <button
                 onClick={() => setShowTransactionsModal(true)}
                 style={{
-                  padding: "10px 22px",
+                  padding: "8px 12px",
+                  fontSize: 12,
                   background: "#2e7c62",
                   border: "none",
                   borderRadius: "8px",
