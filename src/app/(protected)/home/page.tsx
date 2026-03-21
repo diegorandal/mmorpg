@@ -354,7 +354,7 @@ export default function Home() {
 
             {/* PLAYER INFO */}
             <div style={{ flex: 1 }}>
-              <h3 style={{ margin: 0 }}>{profile.username} 
+              <h3 className="text-2xl font-bold mb-4" style={{ margin: 0 }}>{profile.username} 
                 {/* Result Modal */}
                 <button onClick={() => setShowResultModal(true)} 
                 style={{

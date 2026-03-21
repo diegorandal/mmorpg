@@ -131,7 +131,7 @@ export default function LastResultModal({ address, onClose }: Props) {
                     boxShadow: "0 10px 40px rgba(0,0,0,0.5)"
                 }}
             >
-                <h2 style={{ marginTop: 0 }}>Last Run Result</h2>
+                <h2 className="text-2xl font-bold mb-4" style={{ marginTop: 0 }}>Last Run Result</h2>
 
                 {loading && <p>Loading result...</p>}
                 {error && <p style={{ color: "#ff5555" }}>{error}</p>}

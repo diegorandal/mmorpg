@@ -63,7 +63,7 @@ export default function Deposit({
             >
                 {/* HEADER */}
                 <div style={{ marginBottom: 20 }}>
-                    <h2 style={{ margin: 0 }}>Deposit WLD</h2>
+                    <h2 className="text-2xl font-bold mb-4" style={{ marginTop: 0 }}>Deposit WLD</h2>
                     <p style={{ opacity: 0.7, marginTop: 6 }}>
                         Select how much you want to deposit
                     </p>

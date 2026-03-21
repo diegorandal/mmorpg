@@ -72,7 +72,7 @@ export default function WithdrawModal({
             >
                 {/* HEADER */}
                 <div style={{ marginBottom: 20 }}>
-                    <h2 style={{ margin: 0 }}>Withdraw WLD</h2>
+                    <h2 className="text-2xl font-bold mb-4" style={{ marginTop: 0 }}>Withdraw WLD</h2>
 
                     <p style={{ opacity: 0.7, marginTop: 6 }}>
                         Available balance: <b>{balance.toFixed(4)} WLD</b>

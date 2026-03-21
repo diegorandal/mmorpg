@@ -99,7 +99,7 @@ export default function TransactionHistoryModal({ address, onClose }: Props) {
             >
                 {/* HEADER */}
                 <div style={{ marginBottom: 20 }}>
-                    <h2 style={{ margin: 0 }}>Transaction History</h2>
+                    <h2 className="text-2xl font-bold mb-4" style={{ marginTop: 0 }}>Transactions History</h2>
                 </div>
 
                 {/* CONTENT */}

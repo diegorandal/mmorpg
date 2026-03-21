@@ -219,7 +219,7 @@ export default function CharactersModal({address, balance, onSelect, onClose}: P
                     Balance: {balance} WLD
                 </div>
 
-                <h2 style={{ marginTop: 0 }}>Characters</h2>
+                <h2 className="text-2xl font-bold mb-4" style={{ marginTop: 0 }}>Character</h2>
                 {buyError && (
                     <div
                         style={{
