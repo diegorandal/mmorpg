@@ -63,6 +63,8 @@ export class MainScene extends Phaser.Scene {
         "3-1": 450, "3-2": 550, "3-3": 800, // wand
         "4-1": 700, "4-2": 600, "4-3": 900, // spell
     };
+    private directionIndicator?: Phaser.GameObjects.Triangle;
+    private showDirectionIndicator: boolean = true;
 
     // #region preload
     preload(): void {
@@ -224,12 +226,14 @@ export class MainScene extends Phaser.Scene {
 
         this.room.onLeave((code) => {
 
+            /*
             console.log(`Has salido de la sala. Código de cierre: ${code}`);
             if (code === 1000) {
                 console.log("Cierre limpio (voluntario o expulsión controlada)");
             } else {
                 console.log("Cierre por error de red o crash del servidor");
             }
+            */
 
             this.showDeathScreen();
             
@@ -253,13 +257,10 @@ export class MainScene extends Phaser.Scene {
 
         // 1. Escuchar teleports
         this.room.onMessage("playerTeleport", (msg) => {
-            
-            if (msg.portalType === 'exit' && msg.sessionId === this.room.sessionId){
-                //window.dispatchEvent(new Event('exit-game'));
+
+            if (msg.portalType === 'exit' && msg.sessionId === this.room.sessionId) {
                 const entity = this.playerEntities[msg.sessionId];
-                if (entity) {
-                    entity.isDead = true; // Esto bloqueará el update
-                }
+                if (entity) {entity.isDead = true;}
                 this.room.leave();
                 this.showDeathScreen();
                 return;
@@ -267,21 +268,34 @@ export class MainScene extends Phaser.Scene {
 
             const entity = this.playerEntities[msg.sessionId];
             if (!entity || entity.isDead) return;
+            // Guardamos la posición de ORIGEN antes de actualizarla
+            const oldX = entity.sprite.x;
+            const oldY = entity.sprite.y;
+            // Actualizamos a la posición de DESTINO
             entity.serverX = msg.newX;
             entity.serverY = msg.newY;
-            
             entity.sprite.setPosition(msg.newX, msg.newY);
-
-            if (msg.sessionId === this.room.sessionId) {
+            const myEntity = this.playerEntities[this.room.sessionId];
+            if (msg.sessionId === this.room.sessionId) { // Si soy yo: Efectos locales y sonido siempre
                 this.cameras.main.shake(150, 0.025);
                 navigator.vibrate(50);
                 this.cameras.main.centerOn(entity.sprite.x, entity.sprite.y);
-            } else {
+                this.playSfx("teleport");
+            } else {                 // Si es otro usuario:
                 this.visualSystem.playTeleportFade(entity.sprite);
+                if (myEntity) {
+                    // Calculamos distancia al ORIGEN (donde estaba)
+                    const distOrigin = Phaser.Math.Distance.Between(myEntity.sprite.x, myEntity.sprite.y, oldX, oldY);
+                    // Calculamos distancia al DESTINO (donde apareció)
+                    const distDest = Phaser.Math.Distance.Between(myEntity.sprite.x, myEntity.sprite.y, msg.newX, msg.newY);
+                    // Si cualquiera de los dos puntos está cerca, disparamos el sonido
+                    if (distOrigin <= 1000 || distDest <= 1000) {
+                        const minContextDist = Math.min(distOrigin, distDest); // Usamos la distancia más corta para calcular el volumen (para que suene más fuerte si alguna es muy cercana)
+                        const volume = 1 - (minContextDist / 1000);
+                        this.playSfx("teleport", { volume: Math.max(volume, 0.1) });
+                    }
+                }
             }
-
-            //sonido
-            this.playSfx("teleport");
 
         });
 
@@ -325,6 +339,8 @@ export class MainScene extends Phaser.Scene {
         this.potText = this.add.text(this.scale.width / 2, 20, `💰 ${this.room.state.players.get(this.room.sessionId)?.pot || 0}`, { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }, }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(10000);
         this.hpText = this.add.text(20, 20, `❤ ${this.room.state.players.get(this.room.sessionId)?.hp || 0}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 },}).setScrollFactor(0).setDepth(10000);
         this.playersText = this.add.text(this.scale.width - 20, 20, `👥 ${this.room.state.players.size}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }}).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
+        // Un triángulo amarillo pequeño que apunta al objetivo
+            this.directionIndicator = this.add.triangle(0, 0, 0, 10, 5, 0, 10, 10, 0xffff00).setVisible(false).setDepth(10010).setScrollFactor(0); // Para que siga a la cámara, no al mundo
 
         this.setupJoystick();
 
@@ -606,19 +622,12 @@ export class MainScene extends Phaser.Scene {
         }
         
         // -- DEFIENDE ---
-        if (entity.defence === 1 && data.defence === 2) {
-            this.visualSystem.playDefence(entity);
-        }
-
+        if (entity.defence === 1 && data.defence === 2) this.visualSystem.playDefence(entity);
         // -- POCION ---
-        if (data.hp !== undefined && data.hp > entity.hp) {
-            this.visualSystem.playPotion(entity);
-        }
-
-        // --- DETECCIÓN DE MUERTE ---
-        if (data.hp !== undefined && data.hp <= 0 && entity.hp > 0) {
-            this.handleDeath(entity, sessionId);
-        }
+        if (data.hp !== undefined && data.hp > entity.hp) this.visualSystem.playPotion(entity);
+        // --- MUERTE ---
+        if (data.hp !== undefined && data.hp <= 0 && entity.hp > 0) this.handleDeath(entity, sessionId);
+        
         
         entity.pot = data.pot ?? entity.pot;
         this.visualSystem.updateAura(entity);
@@ -634,6 +643,63 @@ export class MainScene extends Phaser.Scene {
             entity.serverX = data.x;
             entity.serverY = data.y;
         }
+
+        // indicador de jugador mas cercano
+        const myId = this.room.sessionId;
+        const myEntity = this.playerEntities[myId];
+
+        if (myEntity && !myEntity.isDead && this.showDirectionIndicator) {
+            let closestEnemy: any = null;
+            let minDistance = Infinity;
+
+            // 1. Buscar el jugador (enemigo) más cercano
+            for (const sessionId in this.playerEntities) {
+                if (sessionId === myId) continue;
+
+                const enemy = this.playerEntities[sessionId];
+                if (enemy.isDead) continue;
+
+                const dist = Phaser.Math.Distance.Between(
+                    myEntity.sprite.x, myEntity.sprite.y,
+                    enemy.sprite.x, enemy.sprite.y
+                );
+
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    closestEnemy = enemy;
+                }
+            }
+
+            // 2. Lógica del indicador
+            // Si no hay nadie cerca (distancia > 1000) y encontramos a alguien
+            if (minDistance > 1000 && closestEnemy) {
+                this.directionIndicator?.setVisible(true);
+
+                // Calcular ángulo hacia el enemigo
+                const angle = Phaser.Math.Angle.Between(
+                    myEntity.sprite.x, myEntity.sprite.y,
+                    closestEnemy.sprite.x, closestEnemy.sprite.y
+                );
+
+                // Posicionar el indicador en un círculo alrededor del centro de la pantalla
+                const centerX = this.scale.width / 2;
+                const centerY = this.scale.height / 2;
+                const radius = 100; // Distancia desde el centro de la pantalla
+
+                this.directionIndicator?.setPosition(
+                    centerX + Math.cos(angle) * radius,
+                    centerY + Math.sin(angle) * radius
+                );
+
+                // Rotar el triángulo para que apunte hacia allá
+                // Sumamos 90 grados (PI/2) porque el triángulo apunta hacia arriba por defecto
+                this.directionIndicator?.setRotation(angle + Math.PI / 2);
+            } else {
+                // Si hay alguien cerca (< 1000) o no hay nadie en el mapa, ocultamos
+                this.directionIndicator?.setVisible(false);
+            }
+        }
+
     }
 
     // #region removePlayer
