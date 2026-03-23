@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 :root {
-  --background: #0a0a0a;
+  --background: #25201c;
   --foreground: #ededed;
 }
 
@@ -14,7 +14,6 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  /* Eliminamos Arial para usar una fuente más moderna y elegante */
   font-family: var(--font-sans);
   margin: 0;
   -webkit-font-smoothing: antialiased;
