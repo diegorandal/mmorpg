@@ -644,7 +644,7 @@ export class MainScene extends Phaser.Scene {
             entity.serverY = data.y;
         }
 
-        // indicador de jugador mas cercano
+        // #region DirectionIndicator
         const myId = this.room.sessionId;
         const myEntity = this.playerEntities[myId];
 
@@ -673,6 +673,7 @@ export class MainScene extends Phaser.Scene {
             // 2. Lógica del indicador
             // Si no hay nadie cerca (distancia > 1000) y encontramos a alguien
             if (minDistance > 1000 && closestEnemy) {
+                console.log(closestEnemy);
                 this.directionIndicator?.setVisible(true);
 
                 // Calcular ángulo hacia el enemigo

@@ -669,7 +669,7 @@ export default function Home() {
           </p>
         )}
 
-        sKillsTake (Alpha 0.1.0) diegorandal
+        sKillsTake (Alpha 0.1.1) diegorandal
 
       </div>
     );
