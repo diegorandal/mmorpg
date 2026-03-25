@@ -5,6 +5,7 @@ import { MyRoomState } from '@/app/(protected)/home/PlayerState';
 import { useSession } from "next-auth/react"
 import { MiniKit } from '@worldcoin/minikit-js';
 import { ethers } from "ethers";
+import InfoModal from '@/modals/Information'
 import DepositModal from '@/modals/Deposit'
 import WithdrawModal from '@/modals/Withdraw';
 import TransactionsModal from '@/modals/Transactions';
@@ -45,6 +46,7 @@ export default function Home() {
   const [connectingFree, setConnectingFree] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+  const [infoSelector, setInfoSelector] = useState<string | null>(null);
 
   const MIN_BALANCE = 0.25; // wld
 
@@ -479,7 +481,7 @@ export default function Home() {
             textAlign: "center"
           }}
         >
-          {/* USERS ONLINE */}
+          {/* USERS ONLINE PAY MODE */}
           <p style={{
             margin: 0,
             fontSize: "1.2rem",
@@ -487,8 +489,9 @@ export default function Home() {
             color: "white"
           }}>
             {usersOnline !== null
-              ? `${usersOnline}/25 player${usersOnline === 1 ? '' : 's'} online`
+              ? `${usersOnline}/25 player${usersOnline === 1 ? '' : 's'} online `
               : 'Loading data...'}
+            <button onClick={() => setInfoSelector('pay')}>ℹ</button>
           </p>
 
           <button
@@ -524,6 +527,7 @@ export default function Home() {
             {usersOnlineFree !== null
               ? `${usersOnlineFree}/10 player${usersOnlineFree === 1 ? '' : 's'} online`
               : 'Loading data...'}
+            <button onClick={() => setInfoSelector('free')}>ℹ</button>
           </p>
 
           <button
@@ -632,6 +636,8 @@ export default function Home() {
         </div>
 
         {/* MODALs */}
+        <InfoModal selector={infoSelector} onClose={() => setInfoSelector(null)}/>
+
         {showDepositModal && (
           <DepositModal onClose={() => setShowDepositModal(false)} onSuccess={fetchProfile}/>
         )}
