@@ -82,10 +82,12 @@ export default function LastResultModal({ address, onClose }: Props) {
         
         if (!data) return 0;
 
+        /*
         if (data.result === "disconnect_free" || data.result === "exit_free" || data.result === "death_free"){
             return (0);
         }
-
+        */
+       
         if (data.result === "disconnect") {
             // Si es disconnect: (POT * 0.9) * 0.002
             return (data.pot * 0.9) * 0.002;
