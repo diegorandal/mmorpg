@@ -658,6 +658,7 @@ export class MainScene extends Phaser.Scene {
 
                 const enemy = this.playerEntities[sessionId];
                 if (enemy.isDead) continue;
+                if (enemy.characterId == 8) continue;
 
                 const dist = Phaser.Math.Distance.Between(
                     myEntity.sprite.x, myEntity.sprite.y,
@@ -672,9 +673,8 @@ export class MainScene extends Phaser.Scene {
 
             // 2. Lógica del indicador
             // Si no hay nadie cerca (distancia > 1000) y encontramos a alguien
-            if (minDistance > 1000 && closestEnemy && closestEnemy.characterId != 8) {
+            if (minDistance > 1000 && closestEnemy) {
                 
-                console.log(closestEnemy);
                 this.directionIndicator?.setVisible(true);
 
                 // Calcular ángulo hacia el enemigo
