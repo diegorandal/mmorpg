@@ -673,7 +673,7 @@ export class MainScene extends Phaser.Scene {
 
             // 2. Lógica del indicador
             // Si no hay nadie cerca (distancia > 1000) y encontramos a alguien
-            if (minDistance > 1000 && closestEnemy) {
+            if (minDistance > 800 && closestEnemy) {
                 
                 this.directionIndicator?.setVisible(true);
 

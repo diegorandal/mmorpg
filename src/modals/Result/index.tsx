@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
+import Confetti from 'react-confetti';
 
 type Props = {
     address: string;
@@ -20,6 +21,12 @@ export default function LastResultModal({ address, onClose }: Props) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [data, setData] = useState<ResultResponse | null>(null);
+    const [showConfetti, setShowConfetti] = useState(false);
+    const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+    useEffect(() => {
+        setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    }, []);
 
     // ESC close
     useEffect(() => {
@@ -81,20 +88,20 @@ export default function LastResultModal({ address, onClose }: Props) {
     const calculateReward = () => {
         
         if (!data) return 0;
-
+        let rewardAmount;
         
         if (data.result === "disconnect_free" || data.result === "exit_free" || data.result === "death_free"){
-            return data.pot * 0.002;
-        }
-        
-
-        if (data.result === "disconnect") {
-            // Si es disconnect: (POT * 0.9) * 0.002
-            return (data.pot * 0.9) * 0.002;
+            rewardAmount = data.pot * 0.002;
+            if (rewardAmount > 0) setShowConfetti(true);
+            return rewardAmount;
         }
 
-        // Caso normal (exit o death): (POT + HP) * 0.002
-        return (data.pot + data.hp) * 0.002;
+        if (data.result === "disconnect") rewardAmount = (data.pot * 0.9) * 0.002;
+        // Caso normal (exit o death): (POT + HP) * 0.002 en death ya mando 10% al matador
+        if (data.result === "exit" || data.result === "death") rewardAmount = (data.pot + data.hp) * 0.002;
+        if (rewardAmount > 0.25) setShowConfetti(true);
+        return rewardAmount;
+
     };
 
     const reward = calculateReward();
@@ -219,7 +226,18 @@ export default function LastResultModal({ address, onClose }: Props) {
                     Close
                 </button>
             </div>
+            {showConfetti && (
+                <Confetti
+                    width={dimensions.width}
+                    height={dimensions.height}
+                    recycle={false} // Para que caiga una vez y se detenga
+                    numberOfPieces={300}
+                    onConfettiComplete={() => setShowConfetti(false)} // Limpieza automática
+                    style={{ position: 'fixed', top: 0, left: 0, zIndex: 10000 }}
+                />
+            )}
         </div>
+        
     );
 }
 
