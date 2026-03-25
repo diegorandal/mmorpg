@@ -86,25 +86,35 @@ export default function LastResultModal({ address, onClose }: Props) {
 
     // LÓGICA DE RECOMPENSA ACTUALIZADA
     const calculateReward = () => {
-        
         if (!data) return 0;
-        let rewardAmount;
-        
-        if (data.result === "disconnect_free" || data.result === "exit_free" || data.result === "death_free"){
+        let rewardAmount = 0;
+
+        if (data.result === "disconnect_free" || data.result === "exit_free" || data.result === "death_free") {
             rewardAmount = data.pot * 0.002;
-            if (rewardAmount > 0) setShowConfetti(true);
-            return rewardAmount;
+        } else if (data.result === "disconnect") {
+            rewardAmount = (data.pot * 0.9) * 0.002;
+        } else {
+            rewardAmount = (data.pot + data.hp) * 0.002;
         }
-
-        if (data.result === "disconnect") rewardAmount = (data.pot * 0.9) * 0.002;
-        // Caso normal (exit o death): (POT + HP) * 0.002 en death ya mando 10% al matador
-        if (data.result === "exit" || data.result === "death") rewardAmount = (data.pot + data.hp) * 0.002;
-        if (rewardAmount > 0.25) setShowConfetti(true);
         return rewardAmount;
-
     };
 
     const reward = calculateReward();
+
+    useEffect(() => {
+        if (data) {
+            const currentReward = calculateReward();
+
+            // Aplicamos tus mismas condiciones
+            const isFree = data.result.includes("_free");
+
+            if (isFree && currentReward > 0) {
+                setShowConfetti(true);
+            } else if (currentReward > 0.25) {
+                setShowConfetti(true);
+            }
+        }
+    }, [data]);
 
     const rewardColor =
         reward > 0.25
@@ -114,7 +124,27 @@ export default function LastResultModal({ address, onClose }: Props) {
                 : "#ff3b3b";
 
     return (
-        <div
+        <>
+            {/* 1. EL CONFETI: Capa independiente al fondo de todo */ }
+            {
+            showConfetti && (
+                <Confetti
+                    width={dimensions.width}
+                    height={dimensions.height}
+                    recycle={false}
+                    numberOfPieces={300}
+                    onConfettiComplete={() => setShowConfetti(false)}
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        zIndex: 10001, // Un nivel por encima del modal (9999)
+                        pointerEvents: 'none' // ¡ESTO ES CLAVE!
+                    }}
+                />
+            )
+        }
+            <div
             onClick={onClose}
             style={{
                 position: "absolute",
@@ -226,18 +256,8 @@ export default function LastResultModal({ address, onClose }: Props) {
                     Close
                 </button>
             </div>
-            {showConfetti && (
-                <Confetti
-                    width={dimensions.width}
-                    height={dimensions.height}
-                    recycle={false} // Para que caiga una vez y se detenga
-                    numberOfPieces={300}
-                    onConfettiComplete={() => setShowConfetti(false)} // Limpieza automática
-                    style={{ position: 'fixed', top: 0, left: 0, zIndex: 10000 }}
-                />
-            )}
         </div>
-        
+        </>
     );
 }
 
