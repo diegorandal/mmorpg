@@ -116,13 +116,12 @@ export default function LastResultModal({ address, onClose }: Props) {
         }
     }, [data]);
 
-    const rewardColor =
-        reward > 0.25
-            ? "#36ff88"
-            : reward >= 0.2
-                ? "#ff9b2f"
-                : "#ff3b3b";
-
+    const rewardColor = showConfetti
+        ? "#36ff88" // Verde si hay celebración
+        : reward > 0
+            ? "#ff9b2f" // Naranja si ganó algo pero poco
+            : "#ff3b3b"; // Rojo si no ganó nada
+            
     return (
         <>
             {/* 1. EL CONFETI: Capa independiente al fondo de todo */ }
