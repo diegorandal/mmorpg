@@ -491,7 +491,7 @@ export default function Home() {
             {usersOnline !== null
               ? `${usersOnline}/25 player${usersOnline === 1 ? '' : 's'} online `
               : 'Loading data...'}
-            <button onClick={() => setInfoSelector('pay')}>ℹ</button>
+            <button onClick={() => setInfoSelector('pay')}>📄</button>
           </p>
 
           <button
@@ -525,9 +525,9 @@ export default function Home() {
             color: "white"
           }}>
             {usersOnlineFree !== null
-              ? `${usersOnlineFree}/10 player${usersOnlineFree === 1 ? '' : 's'} online`
+              ? `${usersOnlineFree}/10 player${usersOnlineFree === 1 ? '' : 's'} online `
               : 'Loading data...'}
-            <button onClick={() => setInfoSelector('free')}>ℹ</button>
+            <button onClick={() => setInfoSelector('free')}>📄</button>
           </p>
 
           <button

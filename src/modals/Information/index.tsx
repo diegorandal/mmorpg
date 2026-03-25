@@ -11,7 +11,7 @@ const ROOM_DESCRIPTIONS: Record<string, { title: string; description: string }> 
             <p>Pay and win. Text test.</p>
         `
     },
-    bosque: {
+    free: {
         title: "Free Server",
         description: `
             <p>Free server, test text.</p>
