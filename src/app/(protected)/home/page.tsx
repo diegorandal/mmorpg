@@ -366,7 +366,7 @@ export default function Home() {
                   cursor: 'pointer',
                   fontSize: 'inherit',
                   marginLeft: '8px'
-                }}>🧾</button>                
+                  }}>📄</button>                
               </h3>
               <p style={{ margin: 0 }}>XP: {profile.xp}</p>
               <p style={{ margin: 0 }}>Kills: {profile.kills}</p>
@@ -624,13 +624,7 @@ export default function Home() {
 
           {showHowToPlay && (
             <div style={{ marginTop: "15px", opacity: 0.9 }}>
-              <p>• Enter the world using the PLAY button (pay 0.25 wld).</p>
-              <p>• 0.20 wld to HP, 0.05 wld to game fee.</p>
-              <p>• All players have the same weapons/attacks and stats.</p>
-              <p>• Defeat enemys. 10% bonus for final hit.</p>
-              <p>• 1 HP = 1 POT = 0.002 wld.</p>
-              <p>• You receive 100% of the pot (+HP) if you exit through a yellow portal.</p>
-              <p>• You receive 90% of the pot if you die or disconnect.</p>
+
             </div>
           )}
         </div>

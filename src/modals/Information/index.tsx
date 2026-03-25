@@ -5,20 +5,24 @@ import { useEffect } from "react";
 // 1. Centralizamos toda la información aquí
 const ROOM_DESCRIPTIONS: Record<string, { title: string; description: string }> = {
     pay: {
-        title: "Main Server",
+        title: "PVP Server",
         description: `
-            <p>Main <b>Server</b>.</p>
-            <p>Pay and win. Text test.</p>
+            <p>• Enter using the PLAY button (pay 0.25 wld).</p>
+            <p>• 0.20 wld to 100 HP, 0.05 wld to game fee.</p>
+            <p>• Defeat enemys. 10% (enemy POT) bonus for final hit.</p>
+            <p>• 1 HP = 1 POT = 0.002 wld.(0.2 wld for each enemy defeated)</p>
+            <p>• You receive 100% of the POT (+HP) if you exit through a yellow portal.</p>
+            <p>• You receive 90% of the POT if you die or disconnect.</p>
         `
     },
     free: {
         title: "Free Server",
         description: `
-            <p>Free server, test text.</p>
-            <ul style="margin-top: 8px; color: #aaffaa;">
-                <li>Text1: 1 - 10</li>
-                <li>Text2: test</li>
-            </ul>
+            <p>• Enter using the FREE button (no pay).</p>
+            <p>• Find and defeat the red wizard "Carandir", get 1 POT.</p>
+            <p>• Reach a yellow portal to save your POT.</p>
+            <p>• If someone else kills you, they keep your POT.</p>
+            <p>• Carandir will respawn after 3 minutes.</p>
         `
     },
 };
