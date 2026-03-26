@@ -23,6 +23,8 @@ const ROOM_DESCRIPTIONS: Record<string, { title: string; description: string }> 
             <p>• Reach a yellow portal to save your POT.</p>
             <p>• If someone else kills you, they keep your POT.</p>
             <p>• Carandir will respawn after 3 minutes.</p>
+            <p></p>
+            <p>• Kills and XP are not added to the Leaderboard.</p>
         `
     },
 };
