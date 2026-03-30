@@ -437,13 +437,13 @@ export class MainScene extends Phaser.Scene {
             .setAlpha(buttonAlpha);
 
         // --- BOTÓN DE ATAQUE ---
-        this.attackButton = this.add.circle(xAttack, y, 50, 0xffffff, 0).setScrollFactor(0).setDepth(10000).setInteractive();
+        this.attackButton = this.add.circle(xAttack, y, 50, 0xffffff, 0).setScrollFactor(0).setDepth(10000);
         // Crear las 4 imágenes de ataque encima del botón de interacción
         for (let i = 1; i <= 4; i++) {
             this.attackButtonsUI[i] = this.add.image(xAttack, y, `button-attack${i}`)
                 .setScrollFactor(0)
                 .setDepth(10001) // Por encima del círculo de interacción
-                .setDisplaySize(120, 120) // Ajusta el tamaño según necesites
+                .setDisplaySize(112, 112) // Ajusta el tamaño según necesites
                 .setVisible(false) // Solo la primera es visible al inicio
                 .setAlpha(buttonAlpha);
         }
@@ -464,9 +464,7 @@ export class MainScene extends Phaser.Scene {
             if (Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
             if (Math.abs(dx) > Math.abs(dy)) {this.attackDragSelect = dx > 0 ? 3 : 2;
             } else {this.attackDragSelect = dy < 0 ? 1 : 4;}
-
             this.updateAttackImg();
-
         });
         
         this.attackButton.on('dragend', (pointer: Phaser.Input.Pointer) => {
@@ -495,15 +493,14 @@ export class MainScene extends Phaser.Scene {
 
         const ax = this.attackButton.x;
         const ay = this.attackButton.y;
-        const r = 65; // distancia desde boton ataque
+        const r = 62; // distancia desde boton ataque
         const wsize = 30; // tamaño del botón
         const targetSize = 60;
 
         this.weapon0 = this.add.image(ax + r, ay - r, 'button-run-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
-        this.weapon1 = this.add.image(ax + (r * 1.35), ay, 'button-sword-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+        this.weapon1 = this.add.image(ax + (r * 1.40), ay, 'button-sword-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         this.weapon2 = this.add.image(ax + r, ay + r, 'button-bow-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
-        this.weapon3 = this.add.image(ax, ay + (r * 1.35), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
-        this.weapon4 = this.add.image(ax - r, ay + r, 'button-spell-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+        this.weapon3 = this.add.image(ax, ay + (r * 1.40), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);        this.weapon4 = this.add.image(ax - r, ay + r, 'button-spell-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         
         this.potion = this.add.image(35, this.weapon4.y, 'button-potion-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
 
@@ -562,10 +559,10 @@ export class MainScene extends Phaser.Scene {
         this.tweens.add({targets: this.weaponSelectorRing, scale: { from: 0.8, to: 1.05 }, duration: 50, yoyo: true});
         if(type === 0){
             for (let i = 1; i <= 4; i++) if (this.attackButtonsUI[i]) this.attackButtonsUI[i].setVisible(false);
-            this.attackButton.setInteractive(false);
+            this.attackButton.disableInteractive();
         } else {
             for (let i = 1; i <= 4; i++) if (this.attackButtonsUI[i]) this.attackButtonsUI[i].setVisible(i === this.attackDragSelect);
-            this.attackButton.setInteractive(true);
+            this.attackButton.setInteractive();
         }
         this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
 
