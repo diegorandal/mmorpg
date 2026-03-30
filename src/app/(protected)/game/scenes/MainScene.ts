@@ -777,32 +777,6 @@ export class MainScene extends Phaser.Scene {
             myEntity.hp = myState.hp;
         }
 
-        // ⚔ ATAQUE
-        if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-
-            handleAttack({
-                room: this.room,
-                playerEntities: this.playerEntities,
-                attackNumber: this.attackDragSelect,
-                myCurrentWeaponType: this.myCurrentWeaponType,
-                attackCooldowns: this.attackCooldowns,
-                attackSpeeds: this.attackSpeeds,
-                time: this.time,
-                playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem),
-                clearTarget: this.clearTarget.bind(this),
-                currentTargetId: this.currentTargetId,
-            });
-
-            this.attackButton?.setFillStyle(0xffffff, 0.3);
-
-        }
-
-        // CAMBIO DE ARMA
-        if (Phaser.Input.Keyboard.JustDown(this.key1Key)) this.selectWeapon(1);
-        if (Phaser.Input.Keyboard.JustDown(this.key2Key)) this.selectWeapon(2);
-        if (Phaser.Input.Keyboard.JustDown(this.key3Key)) this.selectWeapon(3);
-        if (Phaser.Input.Keyboard.JustDown(this.key4Key)) this.selectWeapon(4);
-
         // 🖥 UI
         if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
         if (this.potText) this.potText.setText(`💰 ${myState?.pot || 0}`);
