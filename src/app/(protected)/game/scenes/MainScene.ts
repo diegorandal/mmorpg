@@ -450,7 +450,7 @@ export class MainScene extends Phaser.Scene {
             this.attackDragStartX = pointer.x;
             this.attackDragStartY = pointer.y;
         });
-
+ 
         this.attackButton.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
             if (pointer.id !== this.attackPointerId) return;
             const dx = pointer.x - this.attackDragStartX;
