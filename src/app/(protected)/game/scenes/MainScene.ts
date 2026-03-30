@@ -29,12 +29,22 @@ export class MainScene extends Phaser.Scene {
     public isDragging: boolean = false;
     public moveTimer: number = 0;
     private attackButton?: Phaser.GameObjects.Arc;
+    /*
     private weapon0?: Phaser.GameObjects.Arc;
     private weapon1?: Phaser.GameObjects.Arc;
     private weapon2?: Phaser.GameObjects.Arc;
     private weapon3?: Phaser.GameObjects.Arc;
     private weapon4?: Phaser.GameObjects.Arc;
     private potion?: Phaser.GameObjects.Arc;
+    */
+
+    private weapon0?: Phaser.GameObjects.Image;
+    private weapon1?: Phaser.GameObjects.Image;
+    private weapon2?: Phaser.GameObjects.Image;
+    private weapon3?: Phaser.GameObjects.Image;
+    private weapon4?: Phaser.GameObjects.Image;
+    private potion?: Phaser.GameObjects.Image;
+
     private weapon0Text?: Phaser.GameObjects.Text;
     private weapon1Text?: Phaser.GameObjects.Text;
     private weapon2Text?: Phaser.GameObjects.Text;
@@ -124,6 +134,12 @@ export class MainScene extends Phaser.Scene {
             });
         }
 
+        this.load.image('button-run-image', `${BASE_URL}/button_run.png?v=${version}`);
+        this.load.image('button-sword-image', `${BASE_URL}/button_sword.png?v=${version}`);
+        this.load.image('button-bow-image', `${BASE_URL}/button_bow.png?v=${version}`);
+        this.load.image('button-wand-image', `${BASE_URL}/button_wand.png?v=${version}`);
+        this.load.image('button-spell-image', `${BASE_URL}/button_spell.png?v=${version}`);
+        this.load.image('button-potion-image', `${BASE_URL}/button_potion.png?v=${version}`);
         this.load.image('tileset-image', `${BASE_URL}/tileset.png?v=${version}`);
         this.load.json('mapData', `${BASE_URL}/map.json?v=${version}`);
         this.load.image('arrow', `${BASE_URL}/arrow.png?v=${version}`);
@@ -433,11 +449,6 @@ export class MainScene extends Phaser.Scene {
         const y = window.innerHeight - 120;
         const xAttack = window.innerWidth - margin;
         
-        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        this.key1Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
-        this.key2Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
-        this.key3Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
-        this.key4Key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
         this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.2).setScrollFactor(0).setDepth(10000);
         this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(10001);
         
@@ -496,21 +507,30 @@ export class MainScene extends Phaser.Scene {
         const ay = this.attackButton.y;
         const r = 70; // distancia desde boton ataque
         const wsize = 30; // tamaño del botón
-
+        const targetSize = 64;
+/*
         this.weapon0 = this.add.circle(ax + r, ay - r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
         this.weapon1 = this.add.circle(ax + (r * 1.31), ay, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
         this.weapon2 = this.add.circle(ax + r, ay + r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
         this.weapon3 = this.add.circle(ax, ay + (r * 1.31), wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
         this.weapon4 = this.add.circle(ax - r, ay + r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
         this.potion = this.add.circle(35, this.weapon4.y, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
-
+*/
+        // Reemplazamos círculos por imágenes
+        this.weapon0 = this.add.image(ax + r, ay - r, 'button-run-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize);
+        this.weapon1 = this.add.image(ax + (r * 1.31), ay, 'button-sword-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize);
+        this.weapon2 = this.add.image(ax + r, ay + r, 'button-bow-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize);
+        this.weapon3 = this.add.image(ax, ay + (r * 1.31), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize);
+        this.weapon4 = this.add.image(ax - r, ay + r, 'button-spell-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize);
+        this.potion = this.add.image(35, this.weapon4.y, 'button-potion-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize);
+/*
         this.weapon0Text = this.add.text(this.weapon0.x, this.weapon0.y, 'R', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
         this.weapon1Text = this.add.text(this.weapon1.x, this.weapon1.y, 'S', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
         this.weapon2Text = this.add.text(this.weapon2.x, this.weapon2.y, 'B', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
         this.weapon3Text = this.add.text(this.weapon3.x, this.weapon3.y, 'W', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
         this.weapon4Text = this.add.text(this.weapon4.x, this.weapon4.y, 'S', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
         this.potionText = this.add.text(this.potion.x, this.potion.y, '❤', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-
+*/
         this.weaponSelectorRing = this.add.circle(-100, -100, wsize + 5).setStrokeStyle(4, 0xffff00, 0.4).setScrollFactor(0).setDepth(10001);
 
         this.weapon0.on('pointerdown', () => this.selectWeapon(0));
