@@ -17,7 +17,7 @@ interface ClientProvidersProps {
 }
 
 
-/*
+
 export default function ClientProviders({
   children,
   session,
@@ -29,8 +29,8 @@ export default function ClientProviders({
   );
 }
 
-*/
 
+/*
 export default function ClientProviders({
   children,
   session,
@@ -44,3 +44,4 @@ export default function ClientProviders({
   );
 }
 
+*/

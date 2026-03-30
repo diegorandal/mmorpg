@@ -507,7 +507,9 @@ export class MainScene extends Phaser.Scene {
         const ay = this.attackButton.y;
         const r = 70; // distancia desde boton ataque
         const wsize = 30; // tamaño del botón
-        const targetSize = 64;
+        const targetSize = 60;
+        const buttonAlpha = 0.4;
+        
 /*
         this.weapon0 = this.add.circle(ax + r, ay - r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
         this.weapon1 = this.add.circle(ax + (r * 1.31), ay, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
@@ -517,12 +519,12 @@ export class MainScene extends Phaser.Scene {
         this.potion = this.add.circle(35, this.weapon4.y, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
 */
         // Reemplazamos círculos por imágenes
-        this.weapon0 = this.add.image(ax + r, ay - r, 'button-run-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize);
-        this.weapon1 = this.add.image(ax + (r * 1.31), ay, 'button-sword-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize);
-        this.weapon2 = this.add.image(ax + r, ay + r, 'button-bow-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize);
-        this.weapon3 = this.add.image(ax, ay + (r * 1.31), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize);
-        this.weapon4 = this.add.image(ax - r, ay + r, 'button-spell-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize);
-        this.potion = this.add.image(35, this.weapon4.y, 'button-potion-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize);
+        this.weapon0 = this.add.image(ax + r, ay - r, 'button-run-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+        this.weapon1 = this.add.image(ax + (r * 1.31), ay, 'button-sword-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+        this.weapon2 = this.add.image(ax + r, ay + r, 'button-bow-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+        this.weapon3 = this.add.image(ax, ay + (r * 1.31), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+        this.weapon4 = this.add.image(ax - r, ay + r, 'button-spell-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+        this.potion = this.add.image(35, this.weapon4.y, 'button-potion-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
 /*
         this.weapon0Text = this.add.text(this.weapon0.x, this.weapon0.y, 'R', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
         this.weapon1Text = this.add.text(this.weapon1.x, this.weapon1.y, 'S', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
