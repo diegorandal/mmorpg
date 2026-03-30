@@ -508,8 +508,8 @@ export class MainScene extends Phaser.Scene {
         const r = 70; // distancia desde boton ataque
         const wsize = 30; // tamaño del botón
         const targetSize = 60;
-        const buttonAlpha = 0.4;
-        
+        const buttonAlpha = 0.6;
+
 /*
         this.weapon0 = this.add.circle(ax + r, ay - r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
         this.weapon1 = this.add.circle(ax + (r * 1.31), ay, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
