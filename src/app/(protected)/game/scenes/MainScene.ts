@@ -437,7 +437,7 @@ export class MainScene extends Phaser.Scene {
             .setAlpha(buttonAlpha);
 
         // --- BOTÓN DE ATAQUE ---
-        this.attackButton = this.add.circle(xAttack, y, 50, 0xffffff, 0).setScrollFactor(0).setDepth(10000);
+        this.attackButton = this.add.circle(xAttack, y, 50, 0xffffff, 0).setScrollFactor(0).setDepth(10000).setInteractive();
         // Crear las 4 imágenes de ataque encima del botón de interacción
         for (let i = 1; i <= 4; i++) {
             this.attackButtonsUI[i] = this.add.image(xAttack, y, `button-attack${i}`)
@@ -474,8 +474,6 @@ export class MainScene extends Phaser.Scene {
         });
 
         this.attackButton.on('pointerup', () => {
-
-
             handleAttack({ room: this.room,
                  playerEntities: this.playerEntities, 
                  myCurrentWeaponType: this.myCurrentWeaponType, 
@@ -486,7 +484,6 @@ export class MainScene extends Phaser.Scene {
                  playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem), 
                  clearTarget: this.clearTarget.bind(this), 
                  currentTargetId: this.currentTargetId});
-            
         });
 
         // --- Botones seleccion weapon y pocion ---
