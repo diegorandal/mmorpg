@@ -16,6 +16,7 @@ export class MainScene extends Phaser.Scene {
     private portalEntities: { [id: string]: Phaser.GameObjects.Container } = {};
     public cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private collisionLayer?: Phaser.Tilemaps.TilemapLayer;
+    public joystickBase?: Phaser.GameObjects.Arc;
     public joystickThumb?: Phaser.GameObjects.Image;
     private deathOverlay?: Phaser.GameObjects.Rectangle;
     private deathButton?: Phaser.GameObjects.Text;
@@ -424,6 +425,10 @@ export class MainScene extends Phaser.Scene {
         const y = window.innerHeight - 120;
         const xAttack = window.innerWidth - margin;
         const buttonAlpha = 0.65;
+        
+        this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.15)
+            .setScrollFactor(0)
+            .setDepth(10000);
 
         this.joystickThumb = this.add.image(x, y, 'button-joystick')
             .setScrollFactor(0)
