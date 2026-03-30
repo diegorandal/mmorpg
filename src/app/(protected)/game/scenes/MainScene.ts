@@ -554,12 +554,19 @@ export class MainScene extends Phaser.Scene {
     }
 
     private selectWeapon(type: number) {
+
         const buttons = [this.weapon0, this.weapon1, this.weapon2, this.weapon3, this.weapon4];
         const active = buttons[type];
         this.myCurrentWeaponType = type;
         this.weaponSelectorRing.setPosition(active.x, active.y);
         this.tweens.add({targets: this.weaponSelectorRing, scale: { from: 0.8, to: 1.05 }, duration: 50, yoyo: true});
+        if(type === 0){
+            for (let i = 1; i <= 4; i++) if (this.attackButtonsUI[i]) this.attackButtonsUI[i].setVisible(false);
+        } else {
+            for (let i = 1; i <= 4; i++) if (this.attackButtonsUI[i]) this.attackButtonsUI[i].setVisible(i === this.attackDragSelect);
+        }
         this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
+
     }
 
     // #region addPlayer
