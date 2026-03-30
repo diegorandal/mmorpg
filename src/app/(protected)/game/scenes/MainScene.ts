@@ -21,36 +21,15 @@ export class MainScene extends Phaser.Scene {
     private attackArc?: Phaser.GameObjects.Graphics;
     private deathOverlay?: Phaser.GameObjects.Rectangle;
     private deathButton?: Phaser.GameObjects.Text;
-    private spaceKey!: Phaser.Input.Keyboard.Key;
-    private key1Key!: Phaser.Input.Keyboard.Key;
-    private key2Key!: Phaser.Input.Keyboard.Key;
-    private key3Key!: Phaser.Input.Keyboard.Key;
-    private key4Key!: Phaser.Input.Keyboard.Key;
     public isDragging: boolean = false;
     public moveTimer: number = 0;
     private attackButton?: Phaser.GameObjects.Arc;
-    /*
-    private weapon0?: Phaser.GameObjects.Arc;
-    private weapon1?: Phaser.GameObjects.Arc;
-    private weapon2?: Phaser.GameObjects.Arc;
-    private weapon3?: Phaser.GameObjects.Arc;
-    private weapon4?: Phaser.GameObjects.Arc;
-    private potion?: Phaser.GameObjects.Arc;
-    */
-
     private weapon0?: Phaser.GameObjects.Image;
     private weapon1?: Phaser.GameObjects.Image;
     private weapon2?: Phaser.GameObjects.Image;
     private weapon3?: Phaser.GameObjects.Image;
     private weapon4?: Phaser.GameObjects.Image;
     private potion?: Phaser.GameObjects.Image;
-
-    private weapon0Text?: Phaser.GameObjects.Text;
-    private weapon1Text?: Phaser.GameObjects.Text;
-    private weapon2Text?: Phaser.GameObjects.Text;
-    private weapon3Text?: Phaser.GameObjects.Text;
-    private weapon4Text?: Phaser.GameObjects.Text;
-    private potionText?: Phaser.GameObjects.Text;
     private attackDragStartX = 0;
     private attackDragStartY = 0;
     private attackDragSelect = 1;
@@ -430,12 +409,6 @@ export class MainScene extends Phaser.Scene {
         this.weapon4?.setVisible(false);
         this.potion?.setVisible(false);
         this.potion?.setActive(false);
-        this.weapon0Text?.setVisible(false);
-        this.weapon1Text?.setVisible(false);
-        this.weapon2Text?.setVisible(false);
-        this.weapon3Text?.setVisible(false);
-        this.weapon4Text?.setVisible(false);
-        this.potionText?.setVisible(false);
         this.weaponSelectorRing?.setVisible(false);
         this.attackArc?.setVisible(false);
 
@@ -480,7 +453,6 @@ export class MainScene extends Phaser.Scene {
             if (pointer.id !== this.attackPointerId) return;
             this.attackPointerId = null;
             this.isDragging = false;
-            //this.attackText?.setText('ATK' + this.attackDragSelect);
         });
 
         this.attackButton.on('pointerup', () => {
@@ -508,32 +480,16 @@ export class MainScene extends Phaser.Scene {
         const r = 70; // distancia desde boton ataque
         const wsize = 30; // tamaño del botón
         const targetSize = 60;
-        const buttonAlpha = 0.6;
+        const buttonAlpha = 0.65;
 
-/*
-        this.weapon0 = this.add.circle(ax + r, ay - r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
-        this.weapon1 = this.add.circle(ax + (r * 1.31), ay, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
-        this.weapon2 = this.add.circle(ax + r, ay + r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
-        this.weapon3 = this.add.circle(ax, ay + (r * 1.31), wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
-        this.weapon4 = this.add.circle(ax - r, ay + r, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
-        this.potion = this.add.circle(35, this.weapon4.y, wsize, 0xffffff, 0.3).setScrollFactor(0).setInteractive().setDepth(10002);
-*/
-        // Reemplazamos círculos por imágenes
         this.weapon0 = this.add.image(ax + r, ay - r, 'button-run-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         this.weapon1 = this.add.image(ax + (r * 1.31), ay, 'button-sword-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         this.weapon2 = this.add.image(ax + r, ay + r, 'button-bow-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         this.weapon3 = this.add.image(ax, ay + (r * 1.31), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         this.weapon4 = this.add.image(ax - r, ay + r, 'button-spell-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         this.potion = this.add.image(35, this.weapon4.y, 'button-potion-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
-/*
-        this.weapon0Text = this.add.text(this.weapon0.x, this.weapon0.y, 'R', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon1Text = this.add.text(this.weapon1.x, this.weapon1.y, 'S', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon2Text = this.add.text(this.weapon2.x, this.weapon2.y, 'B', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon3Text = this.add.text(this.weapon3.x, this.weapon3.y, 'W', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.weapon4Text = this.add.text(this.weapon4.x, this.weapon4.y, 'S', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-        this.potionText = this.add.text(this.potion.x, this.potion.y, '❤', { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
-*/
-        this.weaponSelectorRing = this.add.circle(-100, -100, wsize + 5).setStrokeStyle(4, 0xffff00, 0.4).setScrollFactor(0).setDepth(10001);
+
+        this.weaponSelectorRing = this.add.circle(-100, -100, wsize + 8).setStrokeStyle(4, 0xffff00, 0.5).setScrollFactor(0).setDepth(10001);
 
         this.weapon0.on('pointerdown', () => this.selectWeapon(0));
         this.weapon1.on('pointerdown', () => this.selectWeapon(1));
@@ -542,9 +498,7 @@ export class MainScene extends Phaser.Scene {
         this.weapon4.on('pointerdown', () => this.selectWeapon(4));
 
         // usar pocion
-        this.potion.on('pointerdown', () => {
-            this.room.send("useItem", { item: 1 });
-        });
+        this.potion.on('pointerdown', () => {this.room.send("useItem", { item: 1 });});
 
         // --- LÓGICA PARA JOYSTICK ---
         this.joystickBase.setInteractive();
@@ -566,9 +520,7 @@ export class MainScene extends Phaser.Scene {
             const angle = Math.atan2(dy, dx);
             this.joystickThumb.x = x + Math.cos(angle) * distance;
             this.joystickThumb.y = y + Math.sin(angle) * distance;
-
             this.potion?.setVisible(false);
-            this.potionText?.setVisible(false);
 
         });
 
@@ -579,7 +531,6 @@ export class MainScene extends Phaser.Scene {
             this.joystickThumb.x = x;
             this.joystickThumb.y = y;
             this.potion?.setVisible(true);
-            this.potionText?.setVisible(true);
 
         });
 
