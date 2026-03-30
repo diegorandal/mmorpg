@@ -18,7 +18,6 @@ export class MainScene extends Phaser.Scene {
     private collisionLayer?: Phaser.Tilemaps.TilemapLayer;
     public joystickBase?: Phaser.GameObjects.Arc;
     public joystickThumb?: Phaser.GameObjects.Arc;
-    private attackArc?: Phaser.GameObjects.Graphics;
     private deathOverlay?: Phaser.GameObjects.Rectangle;
     private deathButton?: Phaser.GameObjects.Text;
     public isDragging: boolean = false;
@@ -54,6 +53,7 @@ export class MainScene extends Phaser.Scene {
     };
     private directionIndicator?: Phaser.GameObjects.Triangle;
     private showDirectionIndicator: boolean = true;
+    private attackButtonsUI: { [key: number]: Phaser.GameObjects.Image } = {};
 
     // #region preload
     preload(): void {
@@ -113,6 +113,11 @@ export class MainScene extends Phaser.Scene {
             });
         }
 
+        this.load.image('button-attack1', `${BASE_URL}/attacks1.png?v=${version}`);
+        this.load.image('button-attack2', `${BASE_URL}/attacks2.png?v=${version}`);
+        this.load.image('button-attack3', `${BASE_URL}/attacks3.png?v=${version}`);
+        this.load.image('button-attack4', `${BASE_URL}/attacks4.png?v=${version}`);
+        this.load.image('button-joystick', `${BASE_URL}/joystick.png?v=${version}`);
         this.load.image('button-run-image', `${BASE_URL}/button_run.png?v=${version}`);
         this.load.image('button-sword-image', `${BASE_URL}/button_sword.png?v=${version}`);
         this.load.image('button-bow-image', `${BASE_URL}/button_bow.png?v=${version}`);
@@ -363,7 +368,7 @@ export class MainScene extends Phaser.Scene {
         // UI inicial
         this.selectWeapon(0);
         this.attackDragSelect = 1;
-        this.updateAttackArc();
+        this.updateAttackImg();
 
     }
     
@@ -410,7 +415,7 @@ export class MainScene extends Phaser.Scene {
         this.potion?.setVisible(false);
         this.potion?.setActive(false);
         this.weaponSelectorRing?.setVisible(false);
-        this.attackArc?.setVisible(false);
+        Object.values(this.attackButtonsUI).forEach(img => img.setVisible(false));
 
     }
 
@@ -427,6 +432,14 @@ export class MainScene extends Phaser.Scene {
         
         // --- BOTÓN DE ATAQUE ---
         this.attackButton = this.add.circle(xAttack, y, 50, 0xffffff, 0.3).setScrollFactor(0).setDepth(10000).setInteractive();
+        // Crear las 4 imágenes de ataque encima del botón de interacción
+        for (let i = 1; i <= 4; i++) {
+            this.attackButtonsUI[i] = this.add.image(xAttack, y, `button-attack${i}`)
+                .setScrollFactor(0)
+                .setDepth(10001) // Por encima del círculo de interacción
+                .setDisplaySize(128, 128) // Ajusta el tamaño según necesites
+                .setVisible(i === 1); // Solo la primera es visible al inicio
+        }
         this.input.setDraggable(this.attackButton);
 
         this.attackButton.on('dragstart', (pointer: Phaser.Input.Pointer) => {
@@ -445,7 +458,7 @@ export class MainScene extends Phaser.Scene {
             if (Math.abs(dx) > Math.abs(dy)) {this.attackDragSelect = dx > 0 ? 3 : 2;
             } else {this.attackDragSelect = dy < 0 ? 1 : 4;}
 
-            this.updateAttackArc();
+            this.updateAttackImg();
 
         });
         
@@ -470,8 +483,6 @@ export class MainScene extends Phaser.Scene {
                  currentTargetId: this.currentTargetId});
             
         });
-
-        this.attackArc = this.add.graphics().setScrollFactor(0).setDepth(10002);
 
         // --- Botones seleccion weapon y pocion ---
 
@@ -913,27 +924,10 @@ export class MainScene extends Phaser.Scene {
         this.playersText?.setText(`👥 ${count}`);
     }
 
-    private updateAttackArc() {
+    private updateAttackImg() {
 
-        if (!this.attackArc || !this.attackButton) return;
-        this.attackArc.clear();
-        const centerX = this.attackButton.x;
-        const centerY = this.attackButton.y;
-        const radius = 50;
-        const quarter = Math.PI / 2;
-        let startAngle = 0;
-        switch (this.attackDragSelect) {
-            case 1: startAngle = -Math.PI * 3 / 4; break;
-            case 2: startAngle = Math.PI * 3 / 4; break;
-            case 3: startAngle = -Math.PI / 4; break;
-            case 4: startAngle = Math.PI / 4; break;
-            default: return;
-        }
-
-        this.attackArc.lineStyle(3, 0xffff00, 0.4);
-        this.attackArc.fillStyle(0xffffff, 0.5).beginPath().moveTo(centerX, centerY);
-        this.attackArc.arc(centerX, centerY, radius, startAngle, startAngle + quarter, false);
-        this.attackArc.closePath().fillPath().strokePath();
+        // Recorremos las 4 imágenes y solo mostramos la seleccionada
+        for (let i = 1; i <= 4; i++) if (this.attackButtonsUI[i]) this.attackButtonsUI[i].setVisible(i === this.attackDragSelect);
 
     }
 
