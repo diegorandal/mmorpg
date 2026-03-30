@@ -16,8 +16,7 @@ export class MainScene extends Phaser.Scene {
     private portalEntities: { [id: string]: Phaser.GameObjects.Container } = {};
     public cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private collisionLayer?: Phaser.Tilemaps.TilemapLayer;
-    public joystickBase?: Phaser.GameObjects.Arc;
-    public joystickThumb?: Phaser.GameObjects.Arc;
+    public joystickThumb?: Phaser.GameObjects.Image;
     private deathOverlay?: Phaser.GameObjects.Rectangle;
     private deathButton?: Phaser.GameObjects.Text;
     public isDragging: boolean = false;
@@ -401,8 +400,6 @@ export class MainScene extends Phaser.Scene {
 
     private disableControls() {
         this.isDragging = false;
-        this.joystickBase?.setVisible(false);
-        this.joystickBase?.setActive(false);
         this.joystickThumb?.setVisible(false);
         this.attackButton?.setVisible(false);
         this.attackButton?.setActive(false);
@@ -426,19 +423,24 @@ export class MainScene extends Phaser.Scene {
         const margin = 120;
         const y = window.innerHeight - 120;
         const xAttack = window.innerWidth - margin;
-        
-        this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.2).setScrollFactor(0).setDepth(10000);
-        this.joystickThumb = this.add.circle(x, y, 30, 0xffffff, 0.5).setScrollFactor(0).setDepth(10001);
-        
+        const buttonAlpha = 0.65;
+
+        this.joystickThumb = this.add.image(x, y, 'button-joystick')
+            .setScrollFactor(0)
+            .setDepth(10001)
+            .setDisplaySize(64, 64) // Ajusta el tamaño según tu asset
+            .setAlpha(buttonAlpha);
+
         // --- BOTÓN DE ATAQUE ---
-        this.attackButton = this.add.circle(xAttack, y, 50, 0xffffff, 0.3).setScrollFactor(0).setDepth(10000).setInteractive();
+        this.attackButton = this.add.circle(xAttack, y, 50, 0xffffff, 0).setScrollFactor(0).setDepth(10000).setInteractive();
         // Crear las 4 imágenes de ataque encima del botón de interacción
         for (let i = 1; i <= 4; i++) {
             this.attackButtonsUI[i] = this.add.image(xAttack, y, `button-attack${i}`)
                 .setScrollFactor(0)
                 .setDepth(10001) // Por encima del círculo de interacción
-                .setDisplaySize(128, 128) // Ajusta el tamaño según necesites
-                .setVisible(i === 1); // Solo la primera es visible al inicio
+                .setDisplaySize(120, 120) // Ajusta el tamaño según necesites
+                .setVisible(i === 1) // Solo la primera es visible al inicio
+                .setAlpha(buttonAlpha);
         }
         this.input.setDraggable(this.attackButton);
 
@@ -488,16 +490,16 @@ export class MainScene extends Phaser.Scene {
 
         const ax = this.attackButton.x;
         const ay = this.attackButton.y;
-        const r = 70; // distancia desde boton ataque
+        const r = 68; // distancia desde boton ataque
         const wsize = 30; // tamaño del botón
         const targetSize = 60;
-        const buttonAlpha = 0.65;
 
         this.weapon0 = this.add.image(ax + r, ay - r, 'button-run-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
-        this.weapon1 = this.add.image(ax + (r * 1.31), ay, 'button-sword-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+        this.weapon1 = this.add.image(ax + (r * 1.32), ay, 'button-sword-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         this.weapon2 = this.add.image(ax + r, ay + r, 'button-bow-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
-        this.weapon3 = this.add.image(ax, ay + (r * 1.31), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+        this.weapon3 = this.add.image(ax, ay + (r * 1.32), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         this.weapon4 = this.add.image(ax - r, ay + r, 'button-spell-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+        
         this.potion = this.add.image(35, this.weapon4.y, 'button-potion-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
 
         this.weaponSelectorRing = this.add.circle(-100, -100, wsize + 8).setStrokeStyle(4, 0xffff00, 0.5).setScrollFactor(0).setDepth(10001);
@@ -512,7 +514,6 @@ export class MainScene extends Phaser.Scene {
         this.potion.on('pointerdown', () => {this.room.send("useItem", { item: 1 });});
 
         // --- LÓGICA PARA JOYSTICK ---
-        this.joystickBase.setInteractive();
         this.joystickThumb.setInteractive();     
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 
