@@ -340,7 +340,7 @@ export class MainScene extends Phaser.Scene {
         this.potText = this.add.text(this.scale.width / 2, 20, `💰 ${this.room.state.players.get(this.room.sessionId)?.pot || 0}`, { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }, }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(10000);
         this.hpText = this.add.text(20, 20, `❤ ${this.room.state.players.get(this.room.sessionId)?.hp || 0}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 },}).setScrollFactor(0).setDepth(10000);
         this.playersText = this.add.text(this.scale.width - 20, 20, `👥 ${this.room.state.players.size}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }}).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
-        this.dianaText = this.add.text(this.scale.width / 1.5, 20, '🎯', { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 } }).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
+        this.dianaText = this.add.text(this.scale.width / 1.4, 20, '🎯', { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 } }).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
 
         // Un triángulo pequeño que apunta al enemigo mas cercano
         this.directionIndicator = this.add.triangle(0, 0, 0, 10, 5, 0, 10, 10, 0xff0000).setVisible(false).setDepth(10010).setScrollFactor(0);
@@ -358,18 +358,12 @@ export class MainScene extends Phaser.Scene {
             // 2. Solo permitimos apuntar si tenemos ciertos ataques
             if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2) {
                 this.checkTargetSelection(pointer);
-                this.dianaText?.setVisible(true);
             } else if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 3) {
                 this.checkTargetSelection(pointer);
-                this.dianaText?.setVisible(true);
             } else if (this.myCurrentWeaponType === 3 && this.attackDragSelect === 2) {
                 this.checkTargetSelection(pointer);
-                this.dianaText?.setVisible(true);
             } else if (this.myCurrentWeaponType === 4 && this.attackDragSelect === 2) {
                 this.checkTargetSelection(pointer);
-                this.dianaText?.setVisible(true);
-            } else {
-                this.dianaText?.setVisible(false);
             }
 
         });
@@ -568,7 +562,20 @@ export class MainScene extends Phaser.Scene {
             for (let i = 1; i <= 4; i++) if (this.attackButtonsUI[i]) this.attackButtonsUI[i].setVisible(i === this.attackDragSelect);
             this.attackButton.setInteractive();
         }
+
         this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
+        // show diana
+        if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2) {
+            this.dianaText?.setVisible(true);            
+        } else if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 3) {
+            this.dianaText?.setVisible(true);            
+        } else if (this.myCurrentWeaponType === 3 && this.attackDragSelect === 2) {
+            this.dianaText?.setVisible(true);            
+        } else if (this.myCurrentWeaponType === 4 && this.attackDragSelect === 2) {
+            this.dianaText?.setVisible(true);            
+        } else {
+            this.dianaText?.setVisible(false);
+        }
 
     }
 
