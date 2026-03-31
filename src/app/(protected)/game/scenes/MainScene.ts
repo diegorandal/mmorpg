@@ -466,6 +466,7 @@ export class MainScene extends Phaser.Scene {
             if (Math.abs(dx) > Math.abs(dy)) {this.attackDragSelect = dx > 0 ? 3 : 2;
             } else {this.attackDragSelect = dy < 0 ? 1 : 4;}
             this.updateAttackImg();
+            this.showDiana();
         });
         
         this.attackButton.on('dragend', (pointer: Phaser.Input.Pointer) => {
@@ -563,16 +564,21 @@ export class MainScene extends Phaser.Scene {
             this.attackButton.setInteractive();
         }
 
+        this.showDiana();
+
         this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
-        // show diana
+
+    }
+    private showDiana(){
+
         if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2) {
-            this.dianaText?.setVisible(true);            
+            this.dianaText?.setVisible(true);
         } else if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 3) {
-            this.dianaText?.setVisible(true);            
+            this.dianaText?.setVisible(true);
         } else if (this.myCurrentWeaponType === 3 && this.attackDragSelect === 2) {
-            this.dianaText?.setVisible(true);            
+            this.dianaText?.setVisible(true);
         } else if (this.myCurrentWeaponType === 4 && this.attackDragSelect === 2) {
-            this.dianaText?.setVisible(true);            
+            this.dianaText?.setVisible(true);
         } else {
             this.dianaText?.setVisible(false);
         }
