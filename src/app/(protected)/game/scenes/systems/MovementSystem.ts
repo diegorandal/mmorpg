@@ -18,13 +18,9 @@ export class MovementSystem {
         const myEntity = this.scene.playerEntities[myId];
         if (!myEntity) return;
 
-        let currentSpeed = 4;
-
-        // 2. Aplicar reducción si el arma no es 0 (15% menos)
-        // Accedemos a la propiedad de la escena que mencionaste
-        if (this.scene.myCurrentWeaponType !== 0) {
-            currentSpeed = 4 * 0.85; // 0.85 es el 85% de la velocidad (o sea, -15%)
-        }
+        let currentSpeed = 3.8;
+        // 2. Aplicar reducción si el arma no es 0
+        if (this.scene.myCurrentWeaponType !== 0) currentSpeed = 3.2;
 
         let dx = 0;
         let dy = 0;
