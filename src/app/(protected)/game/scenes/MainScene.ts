@@ -337,12 +337,10 @@ export class MainScene extends Phaser.Scene {
         });
 
         // #region hud 
-        this.potText = this.add.text(this.scale.width / 2, 20, `💰 ${this.room.state.players.get(this.room.sessionId)?.pot || 0}`, { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }, }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(10000);
+        this.potText = this.add.text(this.scale.width / 2, 20, `💰 ${this.formatPot(this.room.state.players.get(this.room.sessionId)?.pot)}`, { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }, }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(10000);
         this.hpText = this.add.text(20, 20, `❤ ${this.room.state.players.get(this.room.sessionId)?.hp || 0}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 },}).setScrollFactor(0).setDepth(10000);
         this.playersText = this.add.text(this.scale.width - 20, 20, `👥 ${this.room.state.players.size}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }}).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
-        
-        //this.dianaText = this.add.text(this.scale.width / 1.4, 20, '🎯', { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 } }).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
-        this.dianaText = this.add.text(this.scale.width - 20, 40, '🎯', { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 } }).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
+        this.dianaText = this.add.text(this.scale.width - 20, 60, '🎯', { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 } }).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
 
         // Un triángulo pequeño que apunta al enemigo mas cercano
         this.directionIndicator = this.add.triangle(0, 0, 0, 10, 5, 0, 10, 10, 0xff0000).setVisible(false).setDepth(10010).setScrollFactor(0);
@@ -642,10 +640,11 @@ export class MainScene extends Phaser.Scene {
         if (data.hp !== undefined && data.hp > entity.hp) this.visualSystem.playPotion(entity);
         // --- MUERTE ---
         if (data.hp !== undefined && data.hp <= 0 && entity.hp > 0) this.handleDeath(entity, sessionId);
-        
-        
-        entity.pot = data.pot ?? entity.pot;
-        this.visualSystem.updateAura(entity);
+        // --- CAMBIA POT ---
+        if (data.pot !== undefined && entity.pot !== data.pot) {
+            entity.pot = data.pot;
+            this.visualSystem.updateAura(entity);
+        }
 
         entity.hp = data.hp;
         entity.weapon = data.weapon;
@@ -774,8 +773,8 @@ export class MainScene extends Phaser.Scene {
 
         // 🖥 UI
         if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
-        const potWei = myState?.pot * 0.002;
-        if (this.potText) this.potText.setText(`💰 ${potWei}`);
+        if (myState?.pot) this.potText?.setText(`💰 ${this.formatPot(myState.pot)}`);
+        
 
         // 🎯 TARGET
         if (this.currentTargetId) {
@@ -1032,4 +1031,9 @@ export class MainScene extends Phaser.Scene {
     playSfx(sprite: string, config?: Phaser.Types.Sound.SoundConfig) {
         this.sound.playAudioSprite("sfx", sprite, config);
     }
+    
+    private formatPot(pot: number): string {
+        return (pot / 1000000).toFixed(6);
+    }
+
 }

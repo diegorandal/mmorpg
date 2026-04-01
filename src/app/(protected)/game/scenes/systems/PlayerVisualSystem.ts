@@ -3,6 +3,9 @@ import { MainScene } from "../MainScene";
 
 export class PlayerVisualSystem {
 
+    private readonly AURA_MIN = 2_000_000_000_000_000n;
+    private readonly AURA_RANGE = 1_000_000_000_000_000_000n - this.AURA_MIN;
+
     constructor(private scene: MainScene) { }
 
     update() {
@@ -77,14 +80,19 @@ export class PlayerVisualSystem {
     }
 
     updateAura(entity: any) {
-        if (!entity.glow) return;
 
-        const pot = Math.max(entity.pot || 0, 0);
-        const strength = Phaser.Math.Clamp(pot / 250, 0, 8);
+        if (!entity.glow) return;
+        const pot = BigInt(entity.pot ?? "0");
+        let strength = 0;
+
+        if (pot > this.AURA_MIN) {
+            const normalized = Number(pot - this.AURA_MIN) / Number(this.AURA_RANGE);
+            strength = Phaser.Math.Clamp(normalized * 8, 0, 8);
+        }
 
         entity.glow.outerStrength = strength;
         entity.glow.innerStrength = strength * 0.5;
-        entity.glow.color = 0xffffff;
+        
     }
 
     updateHealthBar(entity: any) {
