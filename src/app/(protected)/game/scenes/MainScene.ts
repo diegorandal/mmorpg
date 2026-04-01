@@ -336,11 +336,13 @@ export class MainScene extends Phaser.Scene {
 
         });
 
-        // hud 
+        // #region hud 
         this.potText = this.add.text(this.scale.width / 2, 20, `💰 ${this.room.state.players.get(this.room.sessionId)?.pot || 0}`, { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }, }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(10000);
         this.hpText = this.add.text(20, 20, `❤ ${this.room.state.players.get(this.room.sessionId)?.hp || 0}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 },}).setScrollFactor(0).setDepth(10000);
         this.playersText = this.add.text(this.scale.width - 20, 20, `👥 ${this.room.state.players.size}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }}).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
-        this.dianaText = this.add.text(this.scale.width / 1.4, 20, '🎯', { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 } }).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
+        
+        //this.dianaText = this.add.text(this.scale.width / 1.4, 20, '🎯', { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 } }).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
+        this.dianaText = this.add.text(this.scale.width - 20, 40, '🎯', { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 } }).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
 
         // Un triángulo pequeño que apunta al enemigo mas cercano
         this.directionIndicator = this.add.triangle(0, 0, 0, 10, 5, 0, 10, 10, 0xff0000).setVisible(false).setDepth(10010).setScrollFactor(0);
@@ -772,7 +774,8 @@ export class MainScene extends Phaser.Scene {
 
         // 🖥 UI
         if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
-        if (this.potText) this.potText.setText(`💰 ${myState?.pot || 0}`);
+        const potWei = myState?.pot * 0.002;
+        if (this.potText) this.potText.setText(`💰 ${potWei}`);
 
         // 🎯 TARGET
         if (this.currentTargetId) {
