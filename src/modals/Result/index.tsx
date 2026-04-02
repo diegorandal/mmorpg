@@ -207,7 +207,7 @@ export default function LastResultModal({ address, onClose }: Props) {
                                 gap: 12
                             }}
                         >
-                            <Stat label="Final Pot" value={data.pot} />
+                            <Stat label="Final Pot" value={(Number(data.pot) / 1000000)} />
                             <Stat label="Final HP" value={data.hp} />
                             <Stat label="Damage (XP)" value={data.xp} />
                             <Stat label="Kills" value={data.kills} />
