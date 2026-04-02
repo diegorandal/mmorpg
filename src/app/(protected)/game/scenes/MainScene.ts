@@ -788,8 +788,12 @@ export class MainScene extends Phaser.Scene {
                 // Aplicamos el incremento/decremento
                 if (this.potToShow < targetPot) {
                     this.potToShow = Math.min(this.potToShow + increment, targetPot);
+                    this.potText?.setScale(1.2).setTint(0xffff00); // efecto 
                 } else {
                     this.potToShow = Math.max(this.potToShow - increment, targetPot);
+                }
+                if (this.potToShow === targetPot) { // Si ya llegó al objetivo, devolvemos la escala a la normalidad
+                    this.potText?.setScale(1).clearTint();
                 }
                 // Actualizamos el texto con el valor intermedio
                 this.potText?.setText(`💰 ${this.formatPot(this.potToShow)}`);
