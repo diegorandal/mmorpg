@@ -90,11 +90,11 @@ export default function LastResultModal({ address, onClose }: Props) {
         let rewardAmount = 0;
 
         if (data.result === "disconnect_free" || data.result === "exit_free" || data.result === "death_free") {
-            rewardAmount = data.pot * 0.002;
+            rewardAmount = data.pot;
         } else if (data.result === "disconnect") {
-            rewardAmount = (data.pot * 0.9) * 0.002;
-        } else {
-            rewardAmount = (data.pot + data.hp) * 0.002;
+            rewardAmount = data.pot * 0.9;
+        } else if (data.result === "exit") {
+            rewardAmount = (data.pot + (data.hp * 2000));
         }
         return rewardAmount;
     };
