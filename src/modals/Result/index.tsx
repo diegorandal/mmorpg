@@ -96,7 +96,8 @@ export default function LastResultModal({ address, onClose }: Props) {
         } else if (data.result === "exit") {
             rewardAmount = (data.pot + (data.hp * 2000));
         }
-        return rewardAmount;
+
+        return rewardAmount / 1000000;
     };
 
     const reward = calculateReward();
@@ -233,7 +234,7 @@ export default function LastResultModal({ address, onClose }: Props) {
                                     color: rewardColor
                                 }}
                             >
-                                {reward.toFixed(3)} WLD
+                                {reward.toFixed(6)} WLD
                             </div>
                         </div>
                     </>
