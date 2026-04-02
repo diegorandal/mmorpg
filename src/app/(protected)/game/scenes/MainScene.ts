@@ -55,6 +55,7 @@ export class MainScene extends Phaser.Scene {
     private directionIndicator?: Phaser.GameObjects.Triangle;
     private showDirectionIndicator: boolean = true;
     private attackButtonsUI: { [key: number]: Phaser.GameObjects.Image } = {};
+    private potToShow = 0;
 
     // #region preload
     preload(): void {
@@ -772,9 +773,28 @@ export class MainScene extends Phaser.Scene {
         }
 
         // 🖥 UI
-        if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
-        if (myState?.pot) this.potText?.setText(`💰 ${this.formatPot(myState.pot)}`);
         
+        if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
+        if (myState?.pot !== undefined) {
+            const targetPot = myState.pot;
+            // Si hay diferencia entre lo que mostramos y lo que tiene el servidor
+            if (this.potToShow !== targetPot) {
+                const diff = Math.abs(targetPot - this.potToShow);
+                let increment = 0;
+                // Lógica de 3 escalas
+                if (diff > 1000) {increment = 100;} 
+                else if (diff > 100) {increment = 10;} 
+                else {increment = 1;}
+                // Aplicamos el incremento/decremento
+                if (this.potToShow < targetPot) {
+                    this.potToShow = Math.min(this.potToShow + increment, targetPot);
+                } else {
+                    this.potToShow = Math.max(this.potToShow - increment, targetPot);
+                }
+                // Actualizamos el texto con el valor intermedio
+                this.potText?.setText(`💰 ${this.formatPot(this.potToShow)}`);
+            }
+        }
 
         // 🎯 TARGET
         if (this.currentTargetId) {
