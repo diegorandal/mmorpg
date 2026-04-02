@@ -89,7 +89,7 @@ export default function LastResultModal({ address, onClose }: Props) {
         if (!data) return 0;
         let rewardAmount = 0;
 
-        if (data.result === "disconnect_free" || data.result === "exit_free" || data.result === "death_free") {
+        if (data.result === "exit_free" || data.result === "death") {
             rewardAmount = data.pot;
         } else if (data.result === "disconnect") {
             rewardAmount = data.pot * 0.9;
