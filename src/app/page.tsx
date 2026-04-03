@@ -8,8 +8,6 @@ export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  // Es una buena práctica manejar efectos secundarios como redirecciones 
-  // o llamadas a funciones externas dentro de un useEffect.
   useEffect(() => {
     if (status === 'authenticated') {
 
@@ -19,6 +17,7 @@ export default function Home() {
         console.log('yendo a alter');
         router.push('/alterpage');
       } else {
+        console.log(`yendo a home id: ${session.user.id.toLowerCase()}`);
         router.push('/home');
       }
 
