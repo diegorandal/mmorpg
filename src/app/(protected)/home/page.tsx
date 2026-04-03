@@ -12,7 +12,6 @@ import TransactionsModal from '@/modals/Transactions';
 import CharactersModal from '@/modals/Characters';
 import ResultModal from '@/modals/Result';
 import * as Colyseus from "@colyseus/sdk";
-//import './global.css';
 
 type PlayerProfile = {
   wallet: string;
