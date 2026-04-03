@@ -225,9 +225,6 @@ export default function Home() {
           throw new Error(data.body?.error || "Error interno del servidor");
         }
 
-
-
-
         const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
         const options = { wallet: playerWallet, signature: finalPayload.signature};
         const joinedRoom = await client.join<MyRoomState>(roomName, options);
