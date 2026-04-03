@@ -5,14 +5,25 @@ import { useEffect } from 'react';
 import { walletAuth } from '@/auth/wallet';
 
 export default function Home() {
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   // Es una buena práctica manejar efectos secundarios como redirecciones 
   // o llamadas a funciones externas dentro de un useEffect.
   useEffect(() => {
     if (status === 'authenticated') {
-      router.push('/home');
+
+      if (!session?.user?.id || !session.user.username) return;
+
+      if (session.user.id.toLowerCase() === '0x10fed80b87407320cfb2affbd68be78868937a6d'){
+        router.push('/home/alterpage.tsx');
+      } else {
+        router.push('/home');
+      }
+
+      
+
+
     } else if (status === 'unauthenticated') {
       walletAuth();
     }
