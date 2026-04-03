@@ -249,22 +249,12 @@ export default function Home() {
   // #region exitGame
   useEffect(() => {
     const handleExitGame = () => {
-      
-      console.log('salio de la room');
-
-      //aca hay que llamar a que muestre el resultado de la sesion
-
       setShowResultModal(true);
-
       if(room) setRoom(null);
-      
     };
     window.addEventListener('exit-game', handleExitGame);
-
     fetchProfile();
-
     return () => window.removeEventListener('exit-game', handleExitGame);
-
 
   }, [room]);
 

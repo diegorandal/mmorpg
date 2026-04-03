@@ -5,6 +5,7 @@ import SecRooms from './secRooms';
 import SecProfile from './secProfile';
 import SecLeaderboard from './secLeaderboard';
 import SecInfo from './secInfo';
+import SecResult from './secResult';
 
 import { useEffect, useRef, useState } from 'react';
 import { MyRoomState } from '@/app/(protected)/home/PlayerState';
@@ -19,15 +20,7 @@ import CharactersModal from '@/modals/Characters';
 import ResultModal from '@/modals/Result';
 import * as Colyseus from "@colyseus/sdk";
 
-type PlayerProfile = {
-  wallet: string;
-  username: string;
-  balance: string;
-  xp: number;
-  kills: number;
-  characterid: number;
-  characters: number[];
-};
+type PlayerProfile = {wallet: string; username: string; balance: string; xp: number; kills: number; characterid: number; characters: number[];};
 
 export default function Home() {
 
@@ -47,14 +40,19 @@ export default function Home() {
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [infoSelector, setInfoSelector] = useState<string | null>(null);
 
+  const MIN_BALANCE = 0.25; // wld
+  const balanceWld = profile?.balance ? Number(ethers.formatUnits(profile.balance, 18)) : 0;
+  const canPlay = profile && balanceWld >= MIN_BALANCE && !connecting;
+
   // Función para renderizar el componente según el estado
   const [activeTab, setActiveTab] = useState('rooms');
   const renderSection = () => {
     switch (activeTab) {
-      case 'rooms': return <SecRooms></SecRooms>;
+      case 'rooms': return <SecRooms usersOnline={usersOnlineFree} handleConnection={handleConnection}></SecRooms>;
       case 'cage': return <SecCage></SecCage>;
       case 'profile': return <SecProfile></SecProfile>;
       case 'info': return <SecInfo></SecInfo>;
+      case 'result': return <SecResult></SecResult>;
       case 'leaderboard': return <SecLeaderboard loading={loadingLeaderboard} data={leaderboardData}></SecLeaderboard>;
       default: return null;
     }
@@ -89,7 +87,7 @@ export default function Home() {
     }
   }, [session?.user?.id]);
 
-  // #region load LeaderBoard
+  // #region fetchLeaderboard
   const fetchLeaderboard = async () => {
     setLoadingLeaderboard(true);
     try {
@@ -103,8 +101,129 @@ export default function Home() {
     }
   };
 
-  if (!room) {
+  // #region Connection
+  const handleConnection = async (roomName: string) => {
 
+    if (!profile) return;
+
+    setError('');
+
+    if(roomName == 'my_room'){
+      setConnecting(true);
+    } 
+
+    // ======================================== SERVER FREE ===================================
+    if (roomName == 'free_room') {
+
+      setConnectingFree(true);
+
+      try{
+
+        const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
+        const options = { wallet: playerWallet, signature: "sape" };
+        const joinedRoom = await client.join<MyRoomState>(roomName, options);
+        setRoom(joinedRoom);
+        
+        return;
+        
+      } catch (e: unknown) {
+
+          const msg = e instanceof Error ? e.message : "Error al conectar al servidor free";
+          setError(msg);
+          setTimeout(() => { setError(''); }, 2000);
+          console.error("Error en handleConnection:", e);
+        } finally {
+          setConnectingFree(false);
+        }
+
+    }
+
+    // ======================================== SERVER PAY ===================================
+
+    if (roomName == 'my_room') {
+
+      try {
+        const timestamp = new Date().toLocaleString(); 
+        const message = `Enter server ${MIN_BALANCE} wld @ ${timestamp}`;
+        const { finalPayload } = await MiniKit.commandsAsync.signMessage({ message });
+        
+        if (finalPayload.status !== "success") {
+          throw new Error("Fallo en la firma del mensaje");
+        }
+
+        const res = await fetch(
+          "https://randal.onepixperday.xyz/api/enter",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({address: finalPayload.address, signature: finalPayload.signature, message})
+          }
+        );
+        
+        if (!res.ok) {
+          throw new Error(`Server error: ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        if (data.statusCode === 500 || data.body?.error) {
+          throw new Error(data.body?.error || "Error interno del servidor");
+        }
+
+        const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
+        const options = { wallet: playerWallet, signature: finalPayload.signature};
+        const joinedRoom = await client.join<MyRoomState>(roomName, options);
+
+        setRoom(joinedRoom);
+
+      } catch (e: unknown) {
+
+        const msg = e instanceof Error ? e.message : "Error al conectar al servidor";
+        setError(msg);
+
+        setTimeout(() => {setError('');}, 2000);
+        console.error("Error en handleConnection:", e);
+
+      } finally {
+        setConnecting(false);
+      }
+
+    }
+
+  };
+
+  // #region exitGame
+  useEffect(() => {
+    const handleExitGame = () => {
+      setActiveTab('result');
+      if(room) setRoom(null);
+    };
+    window.addEventListener('exit-game', handleExitGame);
+    fetchProfile();
+    return () => window.removeEventListener('exit-game', handleExitGame);
+  }, [room]);
+
+  // #region setRoom
+  useEffect(() => {
+    if (!room) return;
+    let game: Phaser.Game | null = null;
+    const initPhaser = async () => {
+      const Phaser = (await import('phaser')).default;
+      const { getGameConfig } = await import('../game/PhaserGame');
+      if (gameContainerRef.current) {
+        const config = getGameConfig(gameContainerRef.current.id);
+        config.callbacks = {
+          preBoot: (g) => { g.registry.set('room', room); }
+        };
+        game = new Phaser.Game(config);
+      }
+    };
+    initPhaser();
+    return () => { game?.destroy(true); };
+  }, [room]);
+
+  if (!room) {
+    // #region return
     return (
       <main style={{minHeight: '100vh', background: '#25201c', color: 'white', display: 'flex', flexDirection: 'column'}}>
 
