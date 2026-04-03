@@ -53,7 +53,7 @@ export default function Home() {
       desc: "⚔",
       type: "Training",
       map: "Forest",
-      ref: "asd",
+      ref: "free_room",
       onlineUsers: 12
     },
     {
