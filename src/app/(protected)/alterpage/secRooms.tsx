@@ -42,8 +42,8 @@ export default function SectionRooms({ roomsData, handleConnection }: RoomsProps
                     <div className="relative z-10 flex flex-col h-full w-full p-3">
 
                         {/* PRIMERA LÍNEA: Nombre y Costo */}
-                        <div className="flex justify-between items-center pb-2">
-                            <span className="text-xl font-bold tracking-tighter uppercase">{room.name}</span>
+                        <div className="flex justify-between items-center pb-1">
+                            <span className="text-xl font-bold tracking-tighter uppercase" style={{textShadow: '1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000'}}>{room.name}</span>
                             <div className="flex items-center gap-1 bg-black/50 px-2 py-1 rounded-lg border border-[#D1851F]/50">
                                 <span className="text-sm text-yellow-400 font-bold">💰 {room.cost}</span>
                             </div>
