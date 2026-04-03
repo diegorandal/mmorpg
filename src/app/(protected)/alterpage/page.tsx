@@ -46,9 +46,57 @@ export default function Home() {
 
   // Función para renderizar el componente según el estado
   const [activeTab, setActiveTab] = useState('rooms');
+  const dataRoomsEjemplo = [
+    {
+      name: "Forest Training",
+      cost: "0.00",
+      desc: "⚔",
+      type: "Training",
+      map: "Forest",
+      ref: "asd",
+      onlineUsers: 12
+    },
+    {
+      name: "Forest Stake",
+      cost: "0.250 WLD",
+      desc: "⚔",
+      type: "Stake",
+      map: "Forest",
+      ref: "asd",
+      onlineUsers: 5
+    },
+    {
+      name: "Desert Royale",
+      cost: "0.250 WLD",
+      desc: "💀",
+      type: "Royale",
+      map: "Desert",
+      ref: "asd",
+      onlineUsers: 28
+    },
+    {
+      name: "Capture the flag",
+      cost: "0.01 WLD",
+      desc: "🏳",
+      type: "Flag",
+      map: "Forest",
+      ref: "asd",
+      onlineUsers: 3
+    },
+    {
+      name: "Color Teams",
+      cost: "0.10 WLD",
+      desc: "👨🏽‍🤝‍👨🏻",
+      type: "Teams",
+      map: "Dungeons",
+      ref: "asd",
+      onlineUsers: 8
+    }
+  ];
+
   const renderSection = () => {
     switch (activeTab) {
-      case 'rooms': return <SecRooms usersOnline={usersOnlineFree} handleConnection={handleConnection}></SecRooms>;
+      case 'rooms': return <SecRooms roomsData={dataRoomsEjemplo} handleConnection={handleConnection}></SecRooms>;
       case 'cage': return <SecCage></SecCage>;
       case 'profile': return <SecProfile></SecProfile>;
       case 'info': return <SecInfo></SecInfo>;
