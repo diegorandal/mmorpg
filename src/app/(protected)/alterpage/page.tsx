@@ -36,7 +36,7 @@ export default function Home() {
         flexWrap: 'nowrap'
       }}>
 
-        {/* IZQUIERDA: Contenedor con shrink 0 para que no se achiquen estos iconos */}
+        {/* IZQUIERDA: Contenedor con shrink 0 para que no se achiquen estos iconos sape */}
         <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
           <button onClick={() => setActiveTab('info')}
             className="h-10 px-2 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white border-2 border-[#D1851F] rounded-lg transition-all duration-200 active:scale-95">
