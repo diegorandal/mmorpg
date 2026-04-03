@@ -27,7 +27,7 @@ export default function Home() {
     } else if (status === 'unauthenticated') {
       walletAuth();
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   return (
     <main className="relative flex flex-col items-center justify-center min-h-[100dvh] min-h-screen bg-black text-white font-sans">
