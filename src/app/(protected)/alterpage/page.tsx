@@ -30,19 +30,76 @@ type PlayerProfile = {
 };
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState('rooms');
+
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const [room, setRoom] = useState<Colyseus.Room | null>(null);
+  const [usersOnline, setUsersOnline] = useState<number | null>(null);
+  const [usersOnlineFree, setUsersOnlineFree] = useState<number | null>(null);
+  const [error, setError] = useState('');
+  const { data: session, status } = useSession();
+  const [playerName, setPlayerName] = useState('playera');
+  const [playerWallet, setPlayerWallet] = useState('');
+  const [profile, setProfile] = useState<PlayerProfile | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+  const [connectingFree, setConnectingFree] = useState(false);
+  const [leaderboardData, setLeaderboardData] = useState([]);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+  const [infoSelector, setInfoSelector] = useState<string | null>(null);
 
   // Función para renderizar el componente según el estado
+  const [activeTab, setActiveTab] = useState('rooms');
   const renderSection = () => {
     switch (activeTab) {
       case 'rooms': return <SecRooms></SecRooms>;
       case 'cage': return <SecCage></SecCage>;
       case 'profile': return <SecProfile></SecProfile>;
       case 'info': return <SecInfo></SecInfo>;
-      case 'leaderboard': return <SecLeaderboard></SecLeaderboard>;
+      case 'leaderboard': return <SecLeaderboard loading={loadingLeaderboard} data={leaderboardData}></SecLeaderboard>;
       default: return null;
+    }
+  };
+
+  // #region fetchProfile
+  const fetchProfile = async () => {
+    if (!session?.user?.id || !session.user.username) return;
+    try {
+      setLoadingProfile(true);
+      const wallet = session.user.id.toLowerCase();
+      const username = session.user.username;
+      setPlayerName(username);
+      const res = await fetch(`https://randal.onepixperday.xyz/api/profile?wallet=${wallet}&username=${username}`);
+      if (!res.ok) throw new Error("Perfil no encontrado");
+      const data = await res.json();
+      setProfile(data);
+      setPlayerName(data.username);
+      setPlayerWallet(data.wallet);
+    } catch (err) {
+      console.error(err);
+      setError("No se pudo cargar el perfil");
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetchProfile();
+      fetchLeaderboard();
+    }
+  }, [session?.user?.id]);
+
+  // #region load LeaderBoard
+  const fetchLeaderboard = async () => {
+    setLoadingLeaderboard(true);
+    try {
+      const response = await fetch("https://randal.onepixperday.xyz/api/get-leaderboard");
+      const data = await response.json();
+      if (data.body && data.body.result) setLeaderboardData(data.body.result);
+    } catch (error) {
+      console.error("Error cargando el leaderboard:", error);
+    } finally {
+      setLoadingLeaderboard(false);
     }
   };
 
@@ -83,7 +140,7 @@ export default function Home() {
               <span className="flex items-center gap-1">
                 <span>💰</span>
                 <span className="text-xs bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold truncate">
-                  0.002468
+                  {profile?.balance ? ethers.formatUnits(profile.balance, 18) : "0"}
                 </span>
               </span>
             </button>
