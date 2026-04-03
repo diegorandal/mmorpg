@@ -56,7 +56,22 @@ export default function Home() {
         zIndex: 100
       }}>
         <button onClick={() => setActiveTab('profile')} style={btnFooterStyle}>👨</button>
-        <button onClick={() => setActiveTab('rooms')} style={btnFooterStyle}>⚔</button>
+        <button
+          className="
+    w-24 h-24
+    flex items-center justify-center
+    bg-[radial-gradient(circle_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)]
+    text-white font-bold text-4xl tracking-widest
+    border-4 border-[#D1851F]
+    rounded-full
+    shadow-[0_0_10px_rgba(209,133,31,0.6)]
+    transition-all duration-200
+    hover:brightness-125 hover:scale-105
+    active:scale-95
+    overflow-hidden
+  "
+        >⚔
+        </button>
         <button onClick={() => setActiveTab('cage')} style={btnFooterStyle}>💸</button>
       </nav>
 
