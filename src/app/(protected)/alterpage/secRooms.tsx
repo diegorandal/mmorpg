@@ -8,8 +8,6 @@ export default function SectionRooms({ usersOnline, handleConnection }: RoomsPro
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
             <h2>Rooms</h2>
 
-            <br>Sape</br>
-
             <p style={{margin: 0, fontSize: "1.2rem", fontWeight: "bold", color: "white"}}>
                 {usersOnline !== null ? `${usersOnline}/10 player${usersOnline === 1 ? '' : 's'} online ` : 'Loading data...'}
             </p>
