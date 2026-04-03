@@ -16,7 +16,7 @@ export default function Home() {
       if (!session?.user?.id || !session.user.username) return;
 
       if (session.user.id.toLowerCase() === '0x10fed80b87407320cfb2affbd68be78868937a6e'){
-        router.push('/home/alterpage.tsx');
+        router.push('/home/alterpage');
       } else {
         router.push('/home');
       }
