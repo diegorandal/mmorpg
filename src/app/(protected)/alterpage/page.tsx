@@ -39,7 +39,6 @@ export default function Home() {
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [infoSelector, setInfoSelector] = useState<string | null>(null);
-
   const MIN_BALANCE = 0.25; // wld
   const balanceWld = profile?.balance ? Number(ethers.formatUnits(profile.balance, 18)) : 0;
   const canPlay = profile && balanceWld >= MIN_BALANCE && !connecting;
@@ -74,7 +73,7 @@ export default function Home() {
       type: "Royale",
       map: "desert",
       ref: "asd",
-      status: "open",
+      status: "close",
       onlineUsers: 28
     },
     {
@@ -84,7 +83,7 @@ export default function Home() {
       type: "Flag",
       map: "forest",
       ref: "asd",
-      status: "open",
+      status: "close",
       onlineUsers: 3
     },
     {
@@ -94,7 +93,7 @@ export default function Home() {
       type: "Teams",
       map: "dungeon",
       ref: "asd",
-      status: "open",
+      status: "close",
       onlineUsers: 8
     }
   ];
