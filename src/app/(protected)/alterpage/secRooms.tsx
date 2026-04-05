@@ -42,7 +42,7 @@ export default function SectionRooms({ roomsData, handleConnection }: RoomsProps
                     />
 
                     {/* Capa de fondo degradado para legibilidad (La tuya, ahora en z-5) */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(58,4,2,0.6)_0%,rgba(0,0,0,0.85)_100%)] z-5" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(58,4,2,0.4)_0%,rgba(0,0,0,0.5)_100%)] z-5" />
 
                     {/* CONTENIDO DE LA CARD (Z-10 para estar sobre el fondo) */}
                     <div className="relative z-10 flex flex-col h-full w-full p-3">
