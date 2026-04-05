@@ -32,7 +32,7 @@ export default function SectionRooms({ roomsData, handleConnection }: RoomsProps
                 >
                     {/* CAPA DE IMAGEN DESENFOCADA */}
                     <div
-                        className="absolute inset-0 z-0 blur-[4px] scale-110"
+                        className="absolute inset-0 z-0 blur-sm scale-110"
                         style={{
                             backgroundImage: `url('https://randalrpg.onepixperday.xyz/banner_${room.map}.png')`,
                             backgroundSize: 'cover',
