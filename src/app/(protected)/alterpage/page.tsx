@@ -52,8 +52,9 @@ export default function Home() {
       cost: "0.00",
       desc: "⚔",
       type: "Training",
-      map: "Forest",
+      map: "forest",
       ref: "free_room",
+      status: "open",
       onlineUsers: 12
     },
     {
@@ -61,8 +62,9 @@ export default function Home() {
       cost: "0.250 WLD",
       desc: "⚔",
       type: "Stake",
-      map: "Forest",
+      map: "forest",
       ref: "asd",
+      status: "open",
       onlineUsers: 5
     },
     {
@@ -70,8 +72,9 @@ export default function Home() {
       cost: "0.250 WLD",
       desc: "💀",
       type: "Royale",
-      map: "Desert",
+      map: "desert",
       ref: "asd",
+      status: "open",
       onlineUsers: 28
     },
     {
@@ -79,8 +82,9 @@ export default function Home() {
       cost: "0.01 WLD",
       desc: "🏳",
       type: "Flag",
-      map: "Forest",
+      map: "forest",
       ref: "asd",
+      status: "open",
       onlineUsers: 3
     },
     {
@@ -88,8 +92,9 @@ export default function Home() {
       cost: "0.10 WLD",
       desc: "👨🏽‍🤝‍👨🏻",
       type: "Teams",
-      map: "Dungeons",
+      map: "dungeon",
       ref: "asd",
+      status: "open",
       onlineUsers: 8
     }
   ];

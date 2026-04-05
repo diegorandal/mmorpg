@@ -5,6 +5,7 @@ interface Room {
     type: string;
     map: string;
     ref: string;
+    status: string;
     onlineUsers: number;
 }
 
@@ -20,23 +21,28 @@ export default function SectionRooms({ roomsData, handleConnection }: RoomsProps
             {roomsData?.map((room, index) => (
                 <button
                     key={index}
-                    onClick={() => handleConnection(room.ref)} // Usamos type para conectar
+                    onClick={() => handleConnection(room.ref)}
                     className="
-                        relative w-full max-w-md overflow-hidden
-                        border-4 border-[#D1851F] rounded-xl
-                        shadow-[0_0_15px_rgba(209,133,31,0.4)]
-                        transition-all duration-200 hover:scale-[1.02] hover:brightness-110 active:scale-95
-                        flex flex-col text-white
-                    "
-                    style={{
-                        backgroundColor: '#0f9b0a',
-                        backgroundImage: `url('/maps/${room.map}.png')`, // Asume que tienes imágenes con el nombre del mapa
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center'
-                    }}
+        relative w-full max-w-md overflow-hidden
+        border-4 border-[#D1851F] rounded-xl
+        shadow-[0_0_15px_rgba(209,133,31,0.4)]
+        transition-all duration-200 hover:scale-[1.02] hover:brightness-110 active:scale-95
+        flex flex-col text-white
+    "
                 >
-                    {/* Capa de fondo degradado para legibilidad (similar a tu botón) */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(58,4,2,0.6)_0%,rgba(0,0,0,0.85)_100%)] z-0" />
+                    {/* CAPA DE IMAGEN DESENFOCADA */}
+                    <div
+                        className="absolute inset-0 z-0 blur-[4px] scale-110"
+                        style={{
+                            backgroundImage: `url('https://randalrpg.onepixperday.xyz/banner_${room.map}.png')`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundColor: '#0f9b0a'
+                        }}
+                    />
+
+                    {/* Capa de fondo degradado para legibilidad (La tuya, ahora en z-5) */}
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(58,4,2,0.6)_0%,rgba(0,0,0,0.85)_100%)] z-5" />
 
                     {/* CONTENIDO DE LA CARD (Z-10 para estar sobre el fondo) */}
                     <div className="relative z-10 flex flex-col h-full w-full p-3">
@@ -64,7 +70,7 @@ export default function SectionRooms({ roomsData, handleConnection }: RoomsProps
                             </div>
                             <div className="flex flex-col items-end flex-1">
                                 <span className="text-gray-400">Online</span>
-                                <span className="text-green-400">{room.onlineUsers} 👤</span>
+                                <span className="text-green-400">{room.onlineUsers} 👥</span>
                             </div>
                         </div>
                     </div>
