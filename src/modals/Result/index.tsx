@@ -24,20 +24,6 @@ export default function LastResultModal({ address, onClose }: Props) {
     const [showConfetti, setShowConfetti] = useState(false);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
-    useEffect(() => {
-        setDimensions({ width: window.innerWidth, height: window.innerHeight });
-    }, []);
-
-    // ESC close
-    useEffect(() => {
-        const handleEsc = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose();
-        };
-
-        window.addEventListener("keydown", handleEsc);
-        return () => window.removeEventListener("keydown", handleEsc);
-    }, [onClose]);
-
     // FETCH RESULT
     useEffect(() => {
         const fetchResult = async () => {

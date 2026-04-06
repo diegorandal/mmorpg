@@ -64,7 +64,7 @@ export default function Home() {
       case 'cage': return <SecCage></SecCage>;
       case 'profile': return <SecProfile></SecProfile>;
       case 'info': return <SecInfo></SecInfo>;
-      case 'result': return <SecResult></SecResult>;
+      case 'result': return <SecResult address={playerWallet}></SecResult>;
       case 'leaderboard': return <SecLeaderboard loading={loadingLeaderboard} data={leaderboardData}></SecLeaderboard>;
       default: return null;
     }
