@@ -11,26 +11,12 @@ import { MyRoomState } from '@/app/(protected)/home/PlayerState';
 import { useSession } from "next-auth/react"
 import { MiniKit } from '@worldcoin/minikit-js';
 import { ethers } from "ethers";
+import { formatEther } from "ethers";
 import InfoModal from '@/modals/Information'
-import DepositModal from '@/modals/Deposit'
-import WithdrawModal from '@/modals/Withdraw';
-import TransactionsModal from '@/modals/Transactions';
-import CharactersModal from '@/modals/Characters';
-import ResultModal from '@/modals/Result';
 import * as Colyseus from "@colyseus/sdk";
 
 type PlayerProfile = {wallet: string; username: string; balance: string; xp: number; kills: number; characterid: number; characters: number[];};
-
-interface Room {
-  name: string;
-  cost: string;
-  desc: string;
-  type: string;
-  map: string;
-  ref: string;
-  status: string;
-  onlineUsers: number;
-}
+interface Room { name: string; cost: string; desc: string; type: string; map: string; ref: string; status: string; onlineUsers: number;}
 
 export default function Home() {
 
@@ -39,8 +25,6 @@ export default function Home() {
   const clientRef = useRef<Colyseus.Client | null>(null);
   const lobbyRef = useRef<Colyseus.Room | null>(null);
   const [room, setRoom] = useState<Colyseus.Room | null>(null);
-  const [usersOnline, setUsersOnline] = useState<number | null>(null);
-  const [usersOnlineFree, setUsersOnlineFree] = useState<number | null>(null);
   const [lobbyRoom, setLobbyRoom] = useState<Colyseus.Room | null>(null);
   const [error, setError] = useState('');
   const {data: session, status } = useSession();
@@ -53,10 +37,9 @@ export default function Home() {
   const [connectingFree, setConnectingFree] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
-  const [infoSelector, setInfoSelector] = useState<string | null>(null);
-  const MIN_BALANCE = 0.25; // wld
+//  const MIN_BALANCE = 0.25; // wld
   const balanceWld = profile?.balance ? Number(ethers.formatUnits(profile.balance, 18)) : 0;
-  const canPlay = profile && balanceWld >= MIN_BALANCE && !connecting;
+//  const canPlay = profile && balanceWld >= MIN_BALANCE && !connecting;
 
   // Función para renderizar el componente según el estado
   const [activeTab, setActiveTab] = useState('rooms');
@@ -69,37 +52,10 @@ export default function Home() {
   
   const colyseusClient = clientRef.current;
 
-  const dataRoomsEjemplo = [
-    {
-      name: "Desert Royale",
-      cost: "0.250",
-      desc: "💀",
-      type: "Royale",
-      map: "desert",
-      ref: "asd",
-      status: "close",
-      onlineUsers: 28
-    },
-    {
-      name: "Capture the flag",
-      cost: "0.01",
-      desc: "🏳",
-      type: "Flag",
-      map: "forest",
-      ref: "asd",
-      status: "close",
-      onlineUsers: 3
-    },
-    {
-      name: "Color Teams",
-      cost: "0.10",
-      desc: "👨🏽‍🤝‍👨🏻",
-      type: "Teams",
-      map: "dungeon",
-      ref: "asd",
-      status: "close",
-      onlineUsers: 8
-    }
+  const dataRoomsFake = [
+    {name: "Desert Royale", cost: "250000000000000000", desc: "💀", type: "Royale", map: "desert", ref: "sape", status: "close", onlineUsers: 0},
+    {name: "Capture the flag", cost: "100000000000000000", desc: "🏳", type: "Flag", map: "forest", ref: "sape", status: "close", onlineUsers: 0},
+    {name: "Color Teams", cost: "100000000000000000", desc: "👥", type: "Teams", map: "dungeon", ref: "sapent", status: "close", onlineUsers: 0}
   ];
 
   const renderSection = () => {
@@ -159,12 +115,9 @@ export default function Home() {
 
   // #region Lobby realtime rooms
   useEffect(() => {
-
     connectLobby();
     return () => {lobbyRef.current?.leave();};
-
   }, []);
-
 
   const connectLobby = async () => {
     
@@ -188,7 +141,7 @@ export default function Home() {
           onlineUsers: r.clients ?? 0
         }));
 
-        setDataRooms(formatted);
+        setDataRooms([...formatted, ...dataRoomsFake]);
       });
 
       setLobbyRoom(lobby);
@@ -200,7 +153,7 @@ export default function Home() {
   };
 
   // #region Connection
-  const handleConnection = async (roomName: string) => {
+  const handleConnection = async (roomName: string, roomCost: string) => {
 
     if (!profile) return;
 
@@ -248,7 +201,7 @@ export default function Home() {
 
       try {
         const timestamp = new Date().toLocaleString(); 
-        const message = `Enter server ${MIN_BALANCE} wld @ ${timestamp}`;
+        const message = `Enter server ${formatEther(roomCost)} wld @ ${timestamp}`;
         const { finalPayload } = await MiniKit.commandsAsync.signMessage({ message });
         
         if (finalPayload.status !== "success") {

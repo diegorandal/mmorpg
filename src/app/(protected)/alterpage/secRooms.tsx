@@ -1,19 +1,10 @@
 import { formatEther } from "ethers";
 
-interface Room {
-    name: string;
-    cost: string;
-    desc: string;
-    type: string;
-    map: string;
-    ref: string;
-    status: string;
-    onlineUsers: number;
-}
+interface Room {name: string; cost: string; desc: string; type: string; map: string; ref: string; status: string; onlineUsers: number;}
 
 interface RoomsProps {
     roomsData: Room[];
-    handleConnection: (roomName: string) => Promise<void>;
+    handleConnection: (roomName: string, roomCost: string) => Promise<void>;
 }
 
 export default function SectionRooms({ roomsData, handleConnection }: RoomsProps) {
@@ -28,7 +19,7 @@ export default function SectionRooms({ roomsData, handleConnection }: RoomsProps
                         key={index}
                         // Deshabilitamos el clic si está cerrada
                         disabled={isClosed}
-                        onClick={() => !isClosed && handleConnection(room.ref)}
+                        onClick={() => !isClosed && handleConnection(room.ref, room.cost)}
                         className={`
                             relative w-full max-w-md overflow-hidden
                             border-4 rounded-xl flex flex-col text-white
