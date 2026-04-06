@@ -1,3 +1,4 @@
+'use client'
 
 interface LeaderboardProps {
     data: any[]; // O el tipo de dato específico de tu API
@@ -7,7 +8,7 @@ interface LeaderboardProps {
 export default function SectionLeaderboard({ data, loading }: LeaderboardProps) {
     return (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <span className="text-xl bg-gradient-to-b from-yellow-300 to-orange-500 font-bold truncate">
+            <span className="text-2xl bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold truncate">
                 Leaderboard
             </span>
             <div style={{ marginTop: "15px", opacity: 0.9 }}>

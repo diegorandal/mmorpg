@@ -90,7 +90,7 @@ export default function SectionResult({ address }: Props) {
                 />
             )}
 
-            <span className="text-xl bg-gradient-to-b from-yellow-300 to-orange-500 font-bold truncate">
+            <span className="text-2xl bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold truncate">
                 Last Run Result
             </span>
 

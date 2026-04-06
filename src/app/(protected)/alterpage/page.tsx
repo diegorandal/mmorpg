@@ -37,8 +37,9 @@ export default function Home() {
   const [connectingFree, setConnectingFree] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+  
 //  const MIN_BALANCE = 0.25; // wld
-  const balanceWld = profile?.balance ? Number(ethers.formatUnits(profile.balance, 18)) : 0;
+//  const balanceWld = profile?.balance ? Number(ethers.formatUnits(profile.balance, 18)) : 0;
 //  const canPlay = profile && balanceWld >= MIN_BALANCE && !connecting;
 
   // Función para renderizar el componente según el estado
@@ -62,7 +63,7 @@ export default function Home() {
     switch (activeTab) {
       case 'rooms': return <SecRooms roomsData={dataRooms} handleConnection={handleConnection}></SecRooms>;
       case 'cage': return <SecCage></SecCage>;
-      case 'profile': return <SecProfile></SecProfile>;
+      case 'profile': return <SecProfile profile={profile}></SecProfile>;
       case 'info': return <SecInfo></SecInfo>;
       case 'result': return <SecResult address={playerWallet}></SecResult>;
       case 'leaderboard': return <SecLeaderboard loading={loadingLeaderboard} data={leaderboardData}></SecLeaderboard>;
@@ -113,7 +114,7 @@ export default function Home() {
     }
   };
 
-  // #region Lobby realtime rooms
+  // #region Lobby
   useEffect(() => {
     connectLobby();
     return () => {lobbyRef.current?.leave();};
