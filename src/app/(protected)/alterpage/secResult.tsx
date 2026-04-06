@@ -84,13 +84,15 @@ export default function SectionResult({ address }: Props) {
                     width={dimensions.width}
                     height={dimensions.height}
                     recycle={false}
-                    numberOfPieces={300}
+                    numberOfPieces={400}
                     onConfettiComplete={() => setShowConfetti(false)}
                     style={{ position: 'fixed', top: 0, left: 0, zIndex: 10001, pointerEvents: 'none' }}
                 />
             )}
 
-            <h2 className="text-3xl font-bold mb-8">Last Run Result</h2>
+            <span className="text-xl bg-gradient-to-b from-yellow-300 to-orange-500 font-bold truncate">
+                Last Run Result
+            </span>
 
             {loading && <p className="opacity-50">Loading result...</p>}
             {error && <p style={{ color: "#ff5555" }}>{error}</p>}

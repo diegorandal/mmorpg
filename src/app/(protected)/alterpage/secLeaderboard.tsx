@@ -7,7 +7,9 @@ interface LeaderboardProps {
 export default function SectionLeaderboard({ data, loading }: LeaderboardProps) {
     return (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <h2>Leaderboard</h2>
+            <span className="text-xl bg-gradient-to-b from-yellow-300 to-orange-500 font-bold truncate">
+                Leaderboard
+            </span>
             <div style={{ marginTop: "15px", opacity: 0.9 }}>
                 {loading ? (
                     <p>Loading ranking...</p>
