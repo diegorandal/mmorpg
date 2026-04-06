@@ -58,7 +58,7 @@ export default function Home() {
     },
     {
       name: "Forest Stake",
-      cost: "0.250 WLD",
+      cost: "0.250",
       desc: "⚔",
       type: "Stake",
       map: "forest",
@@ -68,7 +68,7 @@ export default function Home() {
     },
     {
       name: "Desert Royale",
-      cost: "0.250 WLD",
+      cost: "0.250",
       desc: "💀",
       type: "Royale",
       map: "desert",
@@ -78,7 +78,7 @@ export default function Home() {
     },
     {
       name: "Capture the flag",
-      cost: "0.01 WLD",
+      cost: "0.01",
       desc: "🏳",
       type: "Flag",
       map: "forest",
@@ -88,7 +88,7 @@ export default function Home() {
     },
     {
       name: "Color Teams",
-      cost: "0.10 WLD",
+      cost: "0.10",
       desc: "👨🏽‍🤝‍👨🏻",
       type: "Teams",
       map: "dungeon",
@@ -131,6 +131,24 @@ export default function Home() {
       setLoadingProfile(false);
     }
   };
+
+
+  // #region get rooms
+  useEffect(() => {
+    const fetchUsersOnline = async () => {
+      try {
+        const res = await fetch("https://randal.onepixperday.xyz/api/rooms");
+        const data = await res.json();
+        console.log('rooms_data', data);
+      } catch (err) {
+        return;
+      }
+    };
+    fetchUsersOnline();
+    const interval = setInterval(fetchUsersOnline, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
 
   useEffect(() => {
     if (status === "authenticated") {
