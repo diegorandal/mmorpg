@@ -18,7 +18,7 @@ export default function SectionResult({ address }: Props) {
     const [error, setError] = useState("");
     const [data, setData] = useState<ResultResponse | null>(null);
     const [showConfetti, setShowConfetti] = useState(false);
-    // Nota: Deberías inicializar dimensions con el tamaño de la ventana o usar un hook personalizado
+    // Nota: Puedes usar un hook para detectar el tamaño real de la ventana si lo necesitas
     const [dimensions, setDimensions] = useState({ width: 1200, height: 800 });
 
     useEffect(() => {
@@ -79,7 +79,7 @@ export default function SectionResult({ address }: Props) {
     const rewardColor = showConfetti ? "#36ff88" : reward > 0 ? "#ff9b2f" : "#ff3b3b";
 
     return (
-        <div style={{ position: 'relative', width: '100%' }}>
+        <section style={{ width: "100%", color: "white", padding: "20px 0" }}>
             {showConfetti && (
                 <Confetti
                     width={dimensions.width}
@@ -87,77 +87,57 @@ export default function SectionResult({ address }: Props) {
                     recycle={false}
                     numberOfPieces={300}
                     onConfettiComplete={() => setShowConfetti(false)}
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        zIndex: 10001,
-                        pointerEvents: 'none'
-                    }}
+                    style={{ position: 'fixed', top: 0, left: 0, zIndex: 10001, pointerEvents: 'none' }}
                 />
             )}
 
-            {/* CONTENEDOR PRINCIPAL: Ahora es una caja normal en el flujo de la página */}
-            <div
-                style={{
-                    width: "100%",
-                    maxWidth: "600px", // Ajusta el ancho a tu gusto
-                    margin: "20px auto", // Centrado horizontal en la página
-                    background: "#1e1e1e",
-                    borderRadius: 14,
-                    padding: 24,
-                    color: "white",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-                    border: "1px solid #333"
-                }}
-            >
-                <h2 className="text-2xl font-bold mb-4" style={{ marginTop: 0 }}>Last Run Result</h2>
+            <h2 className="text-3xl font-bold mb-6">Last Run Result</h2>
 
-                {loading && <p>Loading result...</p>}
-                {error && <p style={{ color: "#ff5555" }}>{error}</p>}
+            {loading && <p className="opacity-50">Loading result...</p>}
+            {error && <p style={{ color: "#ff5555" }}>{error}</p>}
 
-                {!loading && !error && data && (
-                    <>
-                        <div
-                            style={{
-                                marginBottom: 18,
-                                padding: 14,
-                                borderRadius: 10,
-                                background: "#111",
-                                textAlign: "center",
-                                border: `2px solid ${getResultLabel(data.result).color}`
-                            }}
-                        >
-                            <div style={{ fontSize: 22, fontWeight: 600, color: getResultLabel(data.result).color }}>
-                                {getResultLabel(data.result).text}
-                            </div>
+            {!loading && !error && data && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+
+                    {/* STATUS HEADER (Sin fondo de caja, solo borde o texto limpio) */}
+                    <div style={{ borderLeft: `4px solid ${getResultLabel(data.result).color}`, paddingLeft: 16 }}>
+                        <span style={{ fontSize: 14, opacity: 0.6, display: "block", textTransform: "uppercase" }}>Status</span>
+                        <div style={{ fontSize: 32, fontWeight: 800, color: getResultLabel(data.result).color }}>
+                            {getResultLabel(data.result).text}
                         </div>
+                    </div>
 
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                            <Stat label="Final Pot" value={(Number(data.pot) / 1000000)} />
-                            <Stat label="Final HP" value={data.hp} />
-                            <Stat label="Damage (XP)" value={data.xp} />
-                            <Stat label="Kills" value={data.kills} />
-                        </div>
+                    {/* STATS GRID */}
+                    <div style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                        gap: 16
+                    }}>
+                        <Stat label="Final Pot" value={(Number(data.pot) / 1000000)} />
+                        <Stat label="Final HP" value={data.hp} />
+                        <Stat label="Damage (XP)" value={data.xp} />
+                        <Stat label="Kills" value={data.kills} />
+                    </div>
 
-                        <div style={{ marginTop: 20, padding: 16, borderRadius: 10, background: "#111", textAlign: "center" }}>
-                            <div style={{ opacity: 0.7, fontSize: 13 }}>Result</div>
-                            <div style={{ fontSize: 26, fontWeight: 700, color: rewardColor }}>
-                                {reward.toFixed(6)} WLD
-                            </div>
+                    {/* TOTAL REWARD SELECTION */}
+                    <div style={{ marginTop: 10 }}>
+                        <div style={{ opacity: 0.6, fontSize: 14, marginBottom: 4 }}>Total Earned</div>
+                        <div style={{ fontSize: 42, fontWeight: 900, color: rewardColor, letterSpacing: "-1px" }}>
+                            {reward.toFixed(6)} <span style={{ fontSize: 20 }}>WLD</span>
                         </div>
-                    </>
-                )}
-            </div>
-        </div>
+                    </div>
+
+                </div>
+            )}
+        </section>
     );
 }
 
 function Stat({ label, value }: { label: string; value: number }) {
     return (
-        <div style={{ background: "#111", padding: 12, borderRadius: 8, textAlign: "center" }}>
-            <div style={{ fontSize: 12, opacity: 0.7 }}>{label}</div>
-            <div style={{ fontSize: 18, fontWeight: 600 }}>{value}</div>
+        <div style={{ padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+            <div style={{ fontSize: 12, opacity: 0.5, marginBottom: 4, textTransform: "uppercase" }}>{label}</div>
+            <div style={{ fontSize: 24, fontWeight: 600 }}>{value}</div>
         </div>
     );
 }
