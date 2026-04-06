@@ -302,12 +302,10 @@ export default function Home() {
     const handleExitGame = async () => {
 
       setActiveTab('result');
-
-      if (roomRef.current) {
-        await roomRef.current.leave();
-        setRoom(null);
-      }
+      roomRef.current = null;
+      setRoom(null);
       await connectLobby();
+
     };
 
     window.addEventListener('exit-game', handleExitGame);
