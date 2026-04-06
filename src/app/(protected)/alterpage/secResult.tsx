@@ -18,7 +18,6 @@ export default function SectionResult({ address }: Props) {
     const [error, setError] = useState("");
     const [data, setData] = useState<ResultResponse | null>(null);
     const [showConfetti, setShowConfetti] = useState(false);
-    // Nota: Puedes usar un hook para detectar el tamaño real de la ventana si lo necesitas
     const [dimensions, setDimensions] = useState({ width: 1200, height: 800 });
 
     useEffect(() => {
@@ -79,7 +78,7 @@ export default function SectionResult({ address }: Props) {
     const rewardColor = showConfetti ? "#36ff88" : reward > 0 ? "#ff9b2f" : "#ff3b3b";
 
     return (
-        <section style={{ width: "100%", color: "white", padding: "20px 0" }}>
+        <section style={{ width: "100%", color: "white", padding: "40px 0", textAlign: "center" }}>
             {showConfetti && (
                 <Confetti
                     width={dimensions.width}
@@ -91,27 +90,28 @@ export default function SectionResult({ address }: Props) {
                 />
             )}
 
-            <h2 className="text-3xl font-bold mb-6">Last Run Result</h2>
+            <h2 className="text-3xl font-bold mb-8">Last Run Result</h2>
 
             {loading && <p className="opacity-50">Loading result...</p>}
             {error && <p style={{ color: "#ff5555" }}>{error}</p>}
 
             {!loading && !error && data && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "40px", alignItems: "center" }}>
 
-                    {/* STATUS HEADER (Sin fondo de caja, solo borde o texto limpio) */}
-                    <div style={{ borderLeft: `4px solid ${getResultLabel(data.result).color}`, paddingLeft: 16 }}>
-                        <span style={{ fontSize: 14, opacity: 0.6, display: "block", textTransform: "uppercase" }}>Status</span>
-                        <div style={{ fontSize: 32, fontWeight: 800, color: getResultLabel(data.result).color }}>
+                    <div>
+                        <span style={{ fontSize: 14, opacity: 0.6, display: "block", textTransform: "uppercase", marginBottom: 4 }}>Status</span>
+                        <div style={{ fontSize: 36, fontWeight: 800, color: getResultLabel(data.result).color }}>
                             {getResultLabel(data.result).text}
                         </div>
                     </div>
 
-                    {/* STATS GRID */}
+                    {/* STATS GRID (Centrado) */}
                     <div style={{
                         display: "grid",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-                        gap: 16
+                        gridTemplateColumns: "repeat(2, 1fr)",
+                        gap: "24px",
+                        width: "100%",
+                        maxWidth: "400px"
                     }}>
                         <Stat label="Final Pot" value={(Number(data.pot) / 1000000)} />
                         <Stat label="Final HP" value={data.hp} />
@@ -119,11 +119,11 @@ export default function SectionResult({ address }: Props) {
                         <Stat label="Kills" value={data.kills} />
                     </div>
 
-                    {/* TOTAL REWARD SELECTION */}
-                    <div style={{ marginTop: 10 }}>
-                        <div style={{ opacity: 0.6, fontSize: 14, marginBottom: 4 }}>Total Earned</div>
-                        <div style={{ fontSize: 42, fontWeight: 900, color: rewardColor, letterSpacing: "-1px" }}>
-                            {reward.toFixed(6)} <span style={{ fontSize: 20 }}>WLD</span>
+                    {/* TOTAL REWARD (Centrado) */}
+                    <div>
+                        <div style={{ opacity: 0.6, fontSize: 14, marginBottom: 8, textTransform: "uppercase" }}>Total Earned</div>
+                        <div style={{ fontSize: 48, fontWeight: 900, color: rewardColor, letterSpacing: "-1px" }}>
+                            {reward.toFixed(6)} <span style={{ fontSize: 24 }}>WLD</span>
                         </div>
                     </div>
 
@@ -135,7 +135,7 @@ export default function SectionResult({ address }: Props) {
 
 function Stat({ label, value }: { label: string; value: number }) {
     return (
-        <div style={{ padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+        <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 12, opacity: 0.5, marginBottom: 4, textTransform: "uppercase" }}>{label}</div>
             <div style={{ fontSize: 24, fontWeight: 600 }}>{value}</div>
         </div>

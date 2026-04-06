@@ -325,7 +325,6 @@ export default function Home() {
               className="h-10 px-2 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white border-4 border-[#D1851F] rounded-lg transition-all duration-200 active:scale-95 whitespace-nowrap">
               <span className="flex items-center gap-1">
                 <span>🏆</span>
-                <span className="ml-1 text-xs bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold">#123</span>
               </span>
             </button>
           </div>
