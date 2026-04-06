@@ -1,3 +1,5 @@
+import { formatEther } from "ethers";
+
 interface Room {
     name: string;
     cost: string;
@@ -59,7 +61,7 @@ export default function SectionRooms({ roomsData, handleConnection }: RoomsProps
                                 </span>
                                 <div className={`flex items-center gap-1 bg-black/50 px-2 py-1 rounded-lg border ${isClosed ? "border-gray-500" : "border-[#D1851F]/50"}`}>
                                     <span className={`text-sm font-bold ${isClosed ? "text-gray-400" : "text-yellow-400"}`}>
-                                        💰 {room.cost}
+                                        💰 {formatEther(room.cost)}
                                     </span>
                                 </div>
                             </div>

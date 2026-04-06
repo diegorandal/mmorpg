@@ -323,8 +323,15 @@ export default function Home() {
 
   // #region setRoom
   useEffect(() => {
+
     if (!room) return;
     let game: Phaser.Game | null = null;
+
+    room.onLeave((code) => {
+      console.log("Left room. Code:", code);
+      window.dispatchEvent(new Event("exit-game"));
+    });
+    
     const initPhaser = async () => {
       const Phaser = (await import('phaser')).default;
       const { getGameConfig } = await import('../game/PhaserGame');
@@ -338,6 +345,7 @@ export default function Home() {
     };
     initPhaser();
     return () => { game?.destroy(true); };
+
   }, [room]);
 
   if (!room) {
