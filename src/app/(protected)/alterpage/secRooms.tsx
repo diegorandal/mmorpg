@@ -49,13 +49,13 @@ export default function SectionRooms({ roomsData, handleConnection }: RoomsProps
                         />
 
                         {/* Capa de fondo degradado */}
-                        <div className={`absolute inset-0 z-5 ${isClosed ? "bg-black/60" : "bg-[radial-gradient(circle_at_center,rgba(58,4,2,0.4)_0%,rgba(0,0,0,0.5)_100%)]"}`} />
+                        <div className={`absolute inset-0 z-5 ${isClosed ? "bg-[radial-gradient(circle_at_center,rgba(58,4,2,0.6)_0%,rgba(0,0,0,0.7)_100%)]" : "bg-[radial-gradient(circle_at_center,rgba(58,4,2,0.4)_0%,rgba(0,0,0,0.5)_100%)]"}`} />
 
                         {/* CONTENIDO DE LA CARD */}
                         <div className="relative z-10 flex flex-col h-full w-full p-3">
                             <div className="flex justify-between items-center pb-1">
                                 <span className={`text-xl font-bold tracking-tighter uppercase ${isClosed ? "text-gray-300" : ""}`}>
-                                    {room.name} {isClosed && "(CERRADO)"}
+                                    {room.name}
                                 </span>
                                 <div className={`flex items-center gap-1 bg-black/50 px-2 py-1 rounded-lg border ${isClosed ? "border-gray-500" : "border-[#D1851F]/50"}`}>
                                     <span className={`text-sm font-bold ${isClosed ? "text-gray-400" : "text-yellow-400"}`}>
