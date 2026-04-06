@@ -6,7 +6,6 @@ import SecProfile from './secProfile';
 import SecLeaderboard from './secLeaderboard';
 import SecInfo from './secInfo';
 import SecResult from './secResult';
-
 import { useEffect, useRef, useState } from 'react';
 import { MyRoomState } from '@/app/(protected)/home/PlayerState';
 import { useSession } from "next-auth/react"
@@ -22,17 +21,33 @@ import * as Colyseus from "@colyseus/sdk";
 
 type PlayerProfile = {wallet: string; username: string; balance: string; xp: number; kills: number; characterid: number; characters: number[];};
 
+interface Room {
+  name: string;
+  cost: string;
+  desc: string;
+  type: string;
+  map: string;
+  ref: string;
+  status: string;
+  onlineUsers: number;
+}
+
 export default function Home() {
 
   const gameContainerRef = useRef<HTMLDivElement>(null);
+  const roomRef = useRef<Colyseus.Room | null>(null);
+  const clientRef = useRef<Colyseus.Client | null>(null);
+  const lobbyRef = useRef<Colyseus.Room | null>(null);
   const [room, setRoom] = useState<Colyseus.Room | null>(null);
   const [usersOnline, setUsersOnline] = useState<number | null>(null);
   const [usersOnlineFree, setUsersOnlineFree] = useState<number | null>(null);
+  const [lobbyRoom, setLobbyRoom] = useState<Colyseus.Room | null>(null);
   const [error, setError] = useState('');
-  const { data: session, status } = useSession();
+  const {data: session, status } = useSession();
   const [playerName, setPlayerName] = useState('playera');
   const [playerWallet, setPlayerWallet] = useState('');
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
+  const [dataRooms, setDataRooms] = useState<Room[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [connectingFree, setConnectingFree] = useState(false);
@@ -45,27 +60,16 @@ export default function Home() {
 
   // Función para renderizar el componente según el estado
   const [activeTab, setActiveTab] = useState('rooms');
+
+  if (!clientRef.current) {
+    clientRef.current = new Colyseus.Client(
+      "wss://randal.onepixperday.xyz"
+    );
+  }
+  
+  const colyseusClient = clientRef.current;
+
   const dataRoomsEjemplo = [
-    {
-      name: "Forest Training",
-      cost: "0.00",
-      desc: "⚔",
-      type: "Training",
-      map: "forest",
-      ref: "free_room",
-      status: "open",
-      onlineUsers: 12
-    },
-    {
-      name: "Forest Stake",
-      cost: "0.250",
-      desc: "⚔",
-      type: "Stake",
-      map: "forest",
-      ref: "asd",
-      status: "open",
-      onlineUsers: 5
-    },
     {
       name: "Desert Royale",
       cost: "0.250",
@@ -100,7 +104,7 @@ export default function Home() {
 
   const renderSection = () => {
     switch (activeTab) {
-      case 'rooms': return <SecRooms roomsData={dataRoomsEjemplo} handleConnection={handleConnection}></SecRooms>;
+      case 'rooms': return <SecRooms roomsData={dataRooms} handleConnection={handleConnection}></SecRooms>;
       case 'cage': return <SecCage></SecCage>;
       case 'profile': return <SecProfile></SecProfile>;
       case 'info': return <SecInfo></SecInfo>;
@@ -132,24 +136,6 @@ export default function Home() {
     }
   };
 
-
-  // #region get rooms
-  useEffect(() => {
-    const fetchUsersOnline = async () => {
-      try {
-        const res = await fetch("https://randal.onepixperday.xyz/api/rooms");
-        const data = await res.json();
-        console.log('rooms_data', data);
-      } catch (err) {
-        return;
-      }
-    };
-    fetchUsersOnline();
-    const interval = setInterval(fetchUsersOnline, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-
   useEffect(() => {
     if (status === "authenticated") {
       fetchProfile();
@@ -171,12 +157,60 @@ export default function Home() {
     }
   };
 
+  // #region Lobby realtime rooms
+  useEffect(() => {
+
+    connectLobby();
+    return () => {lobbyRef.current?.leave();};
+
+  }, []);
+
+
+  const connectLobby = async () => {
+    
+    if (lobbyRef.current) return;
+
+    try {
+      const lobby = await colyseusClient.joinOrCreate("lobby");
+      
+      lobby.removeAllListeners();
+
+      lobby.onMessage("rooms", (rooms: any[]) => {
+
+        const formatted: Room[] = rooms.map((r) => ({
+          name: r.metadata?.name ?? "",
+          cost: r.metadata?.cost ?? "0",
+          desc: r.metadata?.desc ?? "",
+          type: r.metadata?.type ?? "",
+          map: r.metadata?.map ?? "",
+          ref: r.metadata?.ref ?? "",
+          status: r.metadata?.status ?? "open",
+          onlineUsers: r.clients ?? 0
+        }));
+
+        setDataRooms(formatted);
+      });
+
+      setLobbyRoom(lobby);
+      lobbyRef.current = lobby;
+
+    } catch (err) {
+      console.error("Lobby connection error:", err);
+    }
+  };
+
   // #region Connection
   const handleConnection = async (roomName: string) => {
 
     if (!profile) return;
 
     setError('');
+    
+    if (lobbyRoom) {
+      await lobbyRef.current?.leave();
+      lobbyRef.current = null;
+      setLobbyRoom(null);
+    }
 
     if(roomName == 'my_room'){
       setConnecting(true);
@@ -189,9 +223,9 @@ export default function Home() {
 
       try{
 
-        const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
+        //const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
         const options = { wallet: playerWallet, signature: "sape" };
-        const joinedRoom = await client.join<MyRoomState>(roomName, options);
+        const joinedRoom = await colyseusClient.join<MyRoomState>(roomName, options);
         setRoom(joinedRoom);
         
         return;
@@ -240,9 +274,9 @@ export default function Home() {
           throw new Error(data.body?.error || "Error interno del servidor");
         }
 
-        const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
+        //const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
         const options = { wallet: playerWallet, signature: finalPayload.signature};
-        const joinedRoom = await client.join<MyRoomState>(roomName, options);
+        const joinedRoom = await colyseusClient.join<MyRoomState>(roomName, options);
 
         setRoom(joinedRoom);
 
@@ -261,16 +295,30 @@ export default function Home() {
     }
 
   };
-
+  
   // #region exitGame
   useEffect(() => {
-    const handleExitGame = () => {
+
+    const handleExitGame = async () => {
+
       setActiveTab('result');
-      if(room) setRoom(null);
+
+      if (roomRef.current) {
+        await roomRef.current.leave();
+        setRoom(null);
+      }
+      await connectLobby();
     };
+
     window.addEventListener('exit-game', handleExitGame);
-    fetchProfile();
-    return () => window.removeEventListener('exit-game', handleExitGame);
+
+    return () =>
+      window.removeEventListener('exit-game', handleExitGame);
+
+  }, []);
+
+  useEffect(() => {
+    roomRef.current = room;
   }, [room]);
 
   // #region setRoom
