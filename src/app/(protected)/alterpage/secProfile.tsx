@@ -135,7 +135,7 @@ export default function SectionProfile({ profile, fetchProfile }: Props) {
     return (
         <section style={{ width: "100%", color: "white", padding: "20px 0", textAlign: "center" }}>
 
-            <div style={{ marginBottom: "32px" }}>
+            <div style={{ marginBottom: "20px" }}>
                 <h1 className="text-4xl bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold">
                     {profile.username}
                 </h1>
@@ -144,7 +144,7 @@ export default function SectionProfile({ profile, fetchProfile }: Props) {
                 </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", maxWidth: "280px", margin: "0 auto 40px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", maxWidth: "280px", margin: "0 auto 20px" }}>
                 <Stat label="Total XP" value={profile.xp} />
                 <Stat label="Total Kills" value={profile.kills} />
             </div>
@@ -152,7 +152,7 @@ export default function SectionProfile({ profile, fetchProfile }: Props) {
             {loading ? <p style={{ opacity: 0.5 }}>Loading Arsenal...</p> : (
                 <>
                     {/* CAROUSEL 1: TUS PERSONAJES (Independiente) */}
-                    <div style={{ marginBottom: "30px" }}>
+                    <div style={{ marginBottom: "20px" }}>
                         <SectionLabel label="Your Characters" />
                         <div ref={carouselRef} style={{
                             ...carouselStyle,
@@ -171,7 +171,7 @@ export default function SectionProfile({ profile, fetchProfile }: Props) {
                     </div>
 
                     {/* CAROUSEL 2: MARKET (Independiente) */}
-                    <div style={{ marginBottom: "40px" }}>
+                    <div style={{ marginBottom: "20px" }}>
                         <SectionLabel label="Market Characters" />
                         <div style={{
                             ...carouselStyle,
@@ -196,12 +196,19 @@ export default function SectionProfile({ profile, fetchProfile }: Props) {
 
                 {/* Si hay algo en el market seleccionado, el botón es verde y para comprar */}
                 {selectedMarketChar ? (
-                    <button onClick={handleBuy} style={{ ...mainButtonStyle, background: "#36ff88" }}>
+                    /* BOTÓN HABILITADO (CON GRADIENTE Y BORDES DORADOS) */
+                    <button
+                        onClick={handleBuy}
+                        className="w-full py-4 flex items-center justify-center bg-[radial-gradient(circle_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white font-bold text-xl tracking-widest border-4 border-[#D1851F] rounded-xl shadow-[0_0_10px_rgba(209,133,31,0.6)] transition-all duration-200 hover:brightness-125 hover:scale-[1.02] active:scale-95 overflow-hidden"
+                    >
                         Buy Character ({ethers.formatUnits(selectedMarketChar.price, 18)} WLD)
                     </button>
                 ) : (
-                    /* Si no hay nada en el market, el botón muestra el estado del equipado */
-                    <button disabled style={{ ...mainButtonStyle, background: "#333", color: "#888", cursor: "default" }}>
+                    /* BOTÓN DESHABILITADO (GRISÁCEO) */
+                    <button
+                        disabled
+                        className="w-full py-4 flex items-center justify-center bg-[#222] text-gray-400 font-bold text-xl tracking-widest border-4 border-gray-500 opacity-75 cursor-not-allowed grayscale-[0.5] rounded-xl"
+                    >
                         Select a Store Character to Buy
                     </button>
                 )}
@@ -237,7 +244,7 @@ function CharacterItem({ id, isSelected, onClick, price, ...props }: { id: numbe
                 src={`https://randalrpg.onepixperday.xyz/char${id}.png`}
                 style={{
                     width: 85, height: 85, imageRendering: "pixelated", borderRadius: 12, background: "#111",
-                    border: isSelected ? "3px solid #facc15" : "2px solid #222",
+                    border: isSelected ? "4px solid #d1851f" : "2px solid #222",
                     transition: "border 0.2s ease"
                 }}
             />
