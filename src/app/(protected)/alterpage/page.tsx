@@ -63,7 +63,7 @@ export default function Home() {
     switch (activeTab) {
       case 'rooms': return <SecRooms roomsData={dataRooms} handleConnection={handleConnection}></SecRooms>;
       case 'cage': return <SecCage></SecCage>;
-      case 'profile': return <SecProfile profile={profile}></SecProfile>;
+      case 'profile': return <SecProfile profile={profile} fetchProfile={fetchProfile}></SecProfile>;
       case 'info': return <SecInfo></SecInfo>;
       case 'result': return <SecResult address={playerWallet}></SecResult>;
       case 'leaderboard': return <SecLeaderboard loading={loadingLeaderboard} data={leaderboardData}></SecLeaderboard>;

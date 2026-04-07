@@ -8,9 +8,12 @@ type PlayerProfile = {wallet: string; username: string; balance: string; xp: num
 type StoreCharacter = { characterid: number; price: string; };
 type WalletCharacter = { characterid: number; };
 
-type Props = { profile: PlayerProfile};
+type Props = { 
+    profile: PlayerProfile, 
+    fetchProfile: () => Promise<void>;
+}
 
-export default function SectionProfile({ profile }: Props) {
+export default function SectionProfile({ profile, fetchProfile }: Props) {
     const [walletCharacters, setWalletCharacters] = useState<number[]>([]);
     const [storeCharacters, setStoreCharacters] = useState<StoreCharacter[]>([]);
     const [loading, setLoading] = useState(true);
@@ -81,7 +84,9 @@ export default function SectionProfile({ profile }: Props) {
                 console.error(data);
                 return;
             }
-            
+        
+            await fetchProfile();
+
             setEquippedId(id);
             profile.characterid = id;
 
@@ -91,7 +96,7 @@ export default function SectionProfile({ profile }: Props) {
         }
 
     }
-    
+
     const handleSelectOwned = async (id: number) => {
         try {
             const res = await fetch(`https://randal.onepixperday.xyz/api/set-character?address=${profile.wallet}&character=${id}`);
