@@ -260,6 +260,7 @@ export default function Home() {
 
     const handleExitGame = async () => {
 
+      fetchProfile();
       setActiveTab('result');
       roomRef.current = null;
       setRoom(null);

@@ -197,7 +197,7 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
 
                 {/* Si hay algo en el market seleccionado, el botón es verde y para comprar */}
                 {selectedMarketChar ? (
-                    /* BOTÓN HABILITADO (CON GRADIENTE Y BORDES DORADOS) */
+                    /* BOTÓN HABILITADO */
                     <button
                         onClick={handleBuy}
                         className="w-72 py-3 mx-auto flex items-center justify-center bg-[radial-gradient(circle_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white font-bold text-lg tracking-widest border-4 border-[#D1851F] rounded-xl shadow-[0_0_10px_rgba(209,133,31,0.6)] transition-all duration-200 hover:brightness-125 hover:scale-[1.02] active:scale-95 overflow-hidden"
@@ -205,13 +205,13 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
                         Buy character ({ethers.formatUnits(selectedMarketChar.price, 18)} WLD)
                     </button>
                 ) : (
-                    /* BOTÓN DESHABILITADO (GRISÁCEO) */
-                    <button
-                        disabled
-                        className="w-full py-4 flex items-center justify-center bg-[#222] text-gray-400 font-bold text-xl tracking-widest border-4 border-gray-500 opacity-75 cursor-not-allowed grayscale-[0.5] rounded-xl"
-                    >
-                        Select a market character to buy
-                    </button>
+                    /* BOTÓN DESHABILITADO */
+                        <button
+                            disabled
+                            className="w-72 py-3 mx-auto flex items-center justify-center bg-[#222] text-gray-400 font-bold text-lg tracking-widest border-4 border-gray-500 opacity-75 cursor-not-allowed grayscale-[0.5] rounded-xl"
+                        >
+                            Select to buy
+                        </button>
                 )}
 
                 <div style={{ display: "flex", gap: 8, width: "100%", maxWidth: "300px" }}>
