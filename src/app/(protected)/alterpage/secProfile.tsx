@@ -21,26 +21,25 @@ export default function SectionProfile({ profile }: Props) {
     const [walletCharacters, setWalletCharacters] = useState<number[]>([]);
     const [storeCharacters, setStoreCharacters] = useState<StoreCharacter[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedMarketChar, setSelectedMarketChar] = useState<StoreCharacter | null>(null);
-    const [currentCharacterId, setCurrentCharacterId] = useState(profile.characterid);
 
-    // FETCH REAL DE DATOS
+    // ESTADOS INDEPENDIENTES
+    const [equippedId, setEquippedId] = useState(profile.characterid); // El que tienes puesto
+    const [selectedMarketChar, setSelectedMarketChar] = useState<StoreCharacter | null>(null); // El que quieres comprar
+
     useEffect(() => {
         const fetchCharacters = async () => {
             try {
                 setLoading(true);
                 const res = await fetch(`https://randal.onepixperday.xyz/api/get-characters?address=${profile.wallet}`);
                 if (!res.ok) throw new Error("fetch failed");
-
                 const data = await res.json();
                 const owned: WalletCharacter[] = data.body.wallet_characters ?? [];
                 const store: StoreCharacter[] = data.body.characters_store ?? [];
                 const ownedIds = owned.map(c => c.characterid);
-
                 setWalletCharacters(ownedIds);
                 setStoreCharacters(store.filter(c => !ownedIds.includes(c.characterid)));
             } catch (err) {
-                console.error("Error loading characters:", err);
+                console.error(err);
             } finally {
                 setLoading(false);
             }
@@ -48,12 +47,11 @@ export default function SectionProfile({ profile }: Props) {
         fetchCharacters();
     }, [profile.wallet]);
 
-    // Handlers
     const handleSelectOwned = async (id: number) => {
-        setSelectedMarketChar(null);
+        // Al seleccionar uno propio, NO quitamos la selección del market por si el usuario aún quiere comprar
         try {
             const res = await fetch(`https://randal.onepixperday.xyz/api/set-character?address=${profile.wallet}&character=${id}`);
-            if (res.ok) setCurrentCharacterId(id);
+            if (res.ok) setEquippedId(id);
         } catch (err) {
             console.error("Failed to set character", err);
         }
@@ -62,17 +60,15 @@ export default function SectionProfile({ profile }: Props) {
     return (
         <section style={{ width: "100%", color: "white", padding: "20px 0", textAlign: "center" }}>
 
-            {/* CABECERA */}
             <div style={{ marginBottom: "32px" }}>
                 <h1 className="text-4xl bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold">
                     {profile.username}
                 </h1>
-                <p style={{ fontSize: 11, opacity: 0.4, marginTop: 6, fontFamily: 'monospace' }}>
+                <p style={{ fontSize: 10, opacity: 0.4, marginTop: 6, fontFamily: 'monospace' }}>
                     {profile.wallet}
                 </p>
             </div>
 
-            {/* STATS */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", maxWidth: "280px", margin: "0 auto 40px" }}>
                 <Stat label="Total XP" value={profile.xp} />
                 <Stat label="Total Kills" value={profile.kills} />
@@ -80,31 +76,37 @@ export default function SectionProfile({ profile }: Props) {
 
             {loading ? <p style={{ opacity: 0.5 }}>Loading Arsenal...</p> : (
                 <>
-                    {/* YOUR CHARACTERS */}
+                    {/* CAROUSEL 1: TUS PERSONAJES (Independiente) */}
                     <div style={{ marginBottom: "30px" }}>
                         <SectionLabel label="Your Characters" />
-                        <div style={carouselStyle}>
+                        <div style={{
+                            ...carouselStyle,
+                            justifyContent: (walletCharacters.length < 4) ? "center" : "flex-start"
+                        }}>
                             {walletCharacters.map((id) => (
                                 <CharacterItem
                                     key={id}
                                     id={id}
-                                    isSelected={currentCharacterId === id && !selectedMarketChar}
+                                    isSelected={equippedId === id} // Basado solo en lo que tienes puesto
                                     onClick={() => handleSelectOwned(id)}
                                 />
                             ))}
                         </div>
                     </div>
 
-                    {/* MARKET CHARACTERS */}
+                    {/* CAROUSEL 2: MARKET (Independiente) */}
                     <div style={{ marginBottom: "40px" }}>
                         <SectionLabel label="Market Characters" />
-                        <div style={carouselStyle}>
+                        <div style={{
+                            ...carouselStyle,
+                            justifyContent: (storeCharacters.length < 4) ? "center" : "flex-start"
+                        }}>
                             {storeCharacters.map((char) => (
                                 <CharacterItem
                                     key={char.characterid}
                                     id={char.characterid}
                                     price={char.price}
-                                    isSelected={selectedMarketChar?.characterid === char.characterid}
+                                    isSelected={selectedMarketChar?.characterid === char.characterid} // Basado solo en el market
                                     onClick={() => setSelectedMarketChar(char)}
                                 />
                             ))}
@@ -113,19 +115,23 @@ export default function SectionProfile({ profile }: Props) {
                 </>
             )}
 
-            {/* ACCIONES */}
+            {/* BOTONES DE ACCIÓN */}
             <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
-                <button style={{
-                    ...mainButtonStyle,
-                    background: selectedMarketChar ? "#36ff88" : "#facc15",
-                }}>
-                    {selectedMarketChar
-                        ? `Buy Character (${ethers.formatUnits(selectedMarketChar.price, 18)} WLD)`
-                        : "Select a Character"}
-                </button>
+
+                {/* Si hay algo en el market seleccionado, el botón es verde y para comprar */}
+                {selectedMarketChar ? (
+                    <button style={{ ...mainButtonStyle, background: "#36ff88" }}>
+                        Buy Character ({ethers.formatUnits(selectedMarketChar.price, 18)} WLD)
+                    </button>
+                ) : (
+                    /* Si no hay nada en el market, el botón muestra el estado del equipado */
+                    <button disabled style={{ ...mainButtonStyle, background: "#333", color: "#888", cursor: "default" }}>
+                        Select a Store Character to Buy
+                    </button>
+                )}
 
                 <div style={{ display: "flex", gap: 8, width: "100%", maxWidth: "300px" }}>
-                    <button style={secondaryButtonStyle}>Last Run</button>
+                    <button style={secondaryButtonStyle}>Last Run Result</button>
                     <button style={secondaryButtonStyle}>History</button>
                 </div>
             </div>
@@ -133,7 +139,7 @@ export default function SectionProfile({ profile }: Props) {
     );
 }
 
-// --- COMPONENTES AUXILIARES ---
+// --- HELPERS (Sin cambios en lógica, solo consistencia) ---
 
 function Stat({ label, value }: { label: string; value: number }) {
     return (
@@ -155,7 +161,8 @@ function CharacterItem({ id, isSelected, onClick, price }: { id: number, isSelec
                 src={`https://randalrpg.onepixperday.xyz/char${id}.png`}
                 style={{
                     width: 85, height: 85, imageRendering: "pixelated", borderRadius: 12, background: "#111",
-                    border: isSelected ? "3px solid #facc15" : "2px solid #222"
+                    border: isSelected ? "3px solid #facc15" : "2px solid #222",
+                    transition: "border 0.2s ease"
                 }}
             />
             {price && <div style={{ fontSize: 10, marginTop: 4, opacity: 0.7 }}>{ethers.formatUnits(price, 18)} WLD</div>}
@@ -163,13 +170,12 @@ function CharacterItem({ id, isSelected, onClick, price }: { id: number, isSelec
     );
 }
 
-// --- ESTILOS ---
 const carouselStyle: React.CSSProperties = {
-    display: "flex", gap: 12, overflowX: "auto", justifyContent: "center", padding: "0 20px 10px"
+    display: "flex", gap: 12, overflowX: "auto", padding: "0 20px 10px", WebkitOverflowScrolling: "touch"
 };
 
 const mainButtonStyle: React.CSSProperties = {
-    width: "100%", maxWidth: "300px", padding: "16px", borderRadius: "12px", color: "#000", fontWeight: "800", border: "none", cursor: "pointer"
+    width: "100%", maxWidth: "300px", padding: "16px", borderRadius: "12px", color: "#000", fontWeight: "800", border: "none", cursor: "pointer", fontSize: "13px"
 };
 
 const secondaryButtonStyle: React.CSSProperties = {

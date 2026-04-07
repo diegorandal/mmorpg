@@ -90,7 +90,7 @@ export default function SectionResult({ address }: Props) {
                 />
             )}
 
-            <span className="text-2xl bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold truncate">
+            <span className="text-4xl bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold truncate">
                 Last Run Result
             </span>
 
@@ -101,8 +101,8 @@ export default function SectionResult({ address }: Props) {
                 <div style={{ display: "flex", flexDirection: "column", gap: "40px", alignItems: "center" }}>
 
                     <div>
-                        <span style={{ fontSize: 14, opacity: 0.6, display: "block", textTransform: "uppercase", marginBottom: 4 }}>Status</span>
-                        <div style={{ fontSize: 36, fontWeight: 800, color: getResultLabel(data.result).color }}>
+                        <span style={{ fontSize: 14, opacity: 0.6, display: "block", textTransform: "uppercase", marginBottom: 2 }}>Status</span>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: getResultLabel(data.result).color }}>
                             {getResultLabel(data.result).text}
                         </div>
                     </div>
