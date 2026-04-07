@@ -52,7 +52,7 @@ export default function SectionProfile({ profile, fetchProfile }: Props) {
     const handleBuy = async () => {
         
         const id = selectedMarketChar.characterid;
-        const price = storeCharacters[id].price;
+        const price = selectedMarketChar.price;
         const balanceWLD = BigInt(profile.balance);
 
         try {
@@ -161,9 +161,9 @@ export default function SectionProfile({ profile, fetchProfile }: Props) {
                             {walletCharacters.map((id) => (
                                 <CharacterItem
                                     key={id}
-                                    data-selected={equippedId === id}
                                     id={id}
-                                    isSelected={equippedId === id} // Basado solo en lo que tienes puesto
+                                    data-selected={equippedId === id}
+                                    isSelected={equippedId === id}
                                     onClick={() => handleSelectOwned(id)}
                                 />
                             ))}
@@ -230,9 +230,9 @@ function SectionLabel({ label }: { label: string }) {
     return <span style={{ fontSize: 10, opacity: 0.5, display: "block", textTransform: "uppercase", marginBottom: 12 }}>{label}</span>;
 }
 
-function CharacterItem({ id, isSelected, onClick, price }: { id: number, isSelected: boolean, onClick: () => void, price?: string }) {
+function CharacterItem({ id, isSelected, onClick, price, ...props }: { id: number, isSelected: boolean, onClick: () => void, price?: string }) {
     return (
-        <div onClick={onClick} style={{ minWidth: 85, cursor: "pointer" }}>
+        <div onClick={onClick} style={{ minWidth: 85, cursor: "pointer" }} {...props} >
             <img
                 src={`https://randalrpg.onepixperday.xyz/char${id}.png`}
                 style={{
@@ -247,7 +247,7 @@ function CharacterItem({ id, isSelected, onClick, price }: { id: number, isSelec
 }
 
 const carouselStyle: React.CSSProperties = {
-    display: "flex", gap: 12, overflowX: "auto", padding: "0 20px 10px", WebkitOverflowScrolling: "touch"
+    display: "flex", gap: 12, overflowX: "auto", padding: "0 20px 10px", WebkitOverflowScrolling: "touch", scrollBehavior: "smooth", scrollPadding: "0 20px"
 };
 
 const mainButtonStyle: React.CSSProperties = {
