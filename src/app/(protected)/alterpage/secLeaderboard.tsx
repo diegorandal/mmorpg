@@ -7,7 +7,7 @@ interface LeaderboardProps {
 
 export default function SectionLeaderboard({ data, loading }: LeaderboardProps) {
     return (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+        <div className="px-8 mt-5 text-center">
             <span className="text-4xl bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold truncate">
                 Leaderboard
             </span>

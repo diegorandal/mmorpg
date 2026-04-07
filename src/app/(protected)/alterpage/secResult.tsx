@@ -78,7 +78,7 @@ export default function SectionResult({ address }: Props) {
     const rewardColor = showConfetti ? "#36ff88" : reward > 0 ? "#ff9b2f" : "#ff3b3b";
 
     return (
-        <section style={{ width: "100%", color: "white", padding: "40px 0", textAlign: "center" }}>
+        <section style={{ width: "100%", color: "white", padding: "20px 0", textAlign: "center" }}>
             {showConfetti && (
                 <Confetti
                     width={dimensions.width}

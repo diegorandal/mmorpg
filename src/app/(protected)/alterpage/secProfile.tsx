@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { ethers } from "ethers";
 import { MiniKit } from '@worldcoin/minikit-js';
 
@@ -45,10 +45,10 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
         fetchCharacters();
     }, [profile.wallet, refreshKey]);
 
-    useEffect(() => {
-        const timer = setTimeout(scrollToSelected, 100);         // Pequeño delay para asegurar que el DOM se actualizó con el nuevo borde
+    useLayoutEffect(() => {
+        const timer = setTimeout(scrollToSelected, 150);         // Pequeño delay para asegurar que el DOM se actualizó con el nuevo borde
         return () => clearTimeout(timer);
-    }, [equippedId]);
+    }, [equippedId, loading, refreshKey]);
 
     const handleBuy = async () => {
         
@@ -122,17 +122,22 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
     };
 
     const scrollToSelected = () => {
-        // Buscamos el elemento que tenga el "border" de seleccionado dentro del carrusel
-        const selectedElement = carouselRef.current?.querySelector('[data-selected="true"]');
-        if (selectedElement) {
+        const container = carouselRef.current;
+        const selectedElement = container?.querySelector('[data-selected="true"]') as HTMLElement;
+
+        if (container && selectedElement) {
+            // Opción A: Método nativo (mejorado con center)
             selectedElement.scrollIntoView({
-                behavior: "smooth", // Movimiento fluido
-                block: "nearest",   // No mueve la página verticalmente
-                inline: "center"    // <--- LA CLAVE: Lo centra horizontalmente
+                behavior: "smooth",
+                block: "nearest",
+                inline: "center"
             });
+
+            // Opción B: Backup manual si el nativo se porta mal
+            // const offset = selectedElement.offsetLeft - (container.offsetWidth / 2) + (selectedElement.offsetWidth / 2);
+            // container.scrollTo({ left: offset, behavior: 'smooth' });
         }
     };
-
     return (
         <section style={{ width: "100%", color: "white", padding: "20px 0", textAlign: "center" }}>
 
@@ -240,7 +245,7 @@ function SectionLabel({ label }: { label: string }) {
 
 function CharacterItem({ id, isSelected, onClick, price, ...props }: { id: number, isSelected: boolean, onClick: () => void, price?: string }) {
     return (
-        <div onClick={onClick} style={{ minWidth: 85, cursor: "pointer" }} {...props} >
+        <div onClick={onClick} style={{ minWidth: 85, cursor: "pointer" }} data-selected={isSelected ? "true" : "false"} {...props} >
             <img
                 src={`https://randalrpg.onepixperday.xyz/char${id}.png`}
                 style={{
