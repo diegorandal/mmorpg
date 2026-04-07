@@ -2,20 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
+import { MiniKit } from '@worldcoin/minikit-js';
 
-type PlayerProfile = {
-    wallet: string;
-    username: string;
-    balance: string;
-    xp: number;
-    kills: number;
-    characterid: number;
-};
-
+type PlayerProfile = {wallet: string; username: string; balance: string; xp: number; kills: number; characterid: number;};
 type StoreCharacter = { characterid: number; price: string; };
 type WalletCharacter = { characterid: number; };
 
-type Props = { profile: PlayerProfile; };
+type Props = { profile: PlayerProfile};
 
 export default function SectionProfile({ profile }: Props) {
     const [walletCharacters, setWalletCharacters] = useState<number[]>([]);
@@ -46,12 +39,67 @@ export default function SectionProfile({ profile }: Props) {
         };
         fetchCharacters();
     }, [profile.wallet]);
+    const handleBuy = async () => {
+        
+        const id = selectedMarketChar.characterid;
+        const price = storeCharacters[id].price;
+        const balanceWLD = BigInt(profile.balance);
 
+        try {
+
+            const priceWLD = BigInt(price);
+
+            // VALIDACION LOCAL
+            if (balanceWLD < priceWLD) {
+                console.error('falta teka');
+                return;
+            }
+
+            const timestamp = new Date().toLocaleString();
+            const message = `Buy character ${id} @ ${timestamp}`;
+
+            const { finalPayload } =
+                await MiniKit.commandsAsync.signMessage({ message });
+
+            if (finalPayload.status !== "success") return;
+
+            const res = await fetch(
+                "https://randal.onepixperday.xyz/api/buy-character",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        character: id,
+                        address: finalPayload.address,
+                        signature: finalPayload.signature,
+                        message
+                    })
+                }
+            );
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                console.error(data);
+                return;
+            }
+            
+            setEquippedId(id);
+            profile.characterid = id;
+
+
+        } catch (err) {
+            console.error("buy failed", err);
+        }
+
+    }
     const handleSelectOwned = async (id: number) => {
-        // Al seleccionar uno propio, NO quitamos la selección del market por si el usuario aún quiere comprar
         try {
             const res = await fetch(`https://randal.onepixperday.xyz/api/set-character?address=${profile.wallet}&character=${id}`);
-            if (res.ok) setEquippedId(id);
+            if (res.ok) {
+                setEquippedId(id);
+                profile.characterid = id;
+            }
         } catch (err) {
             console.error("Failed to set character", err);
         }
@@ -120,7 +168,7 @@ export default function SectionProfile({ profile }: Props) {
 
                 {/* Si hay algo en el market seleccionado, el botón es verde y para comprar */}
                 {selectedMarketChar ? (
-                    <button style={{ ...mainButtonStyle, background: "#36ff88" }}>
+                    <button onClick={handleBuy} style={{ ...mainButtonStyle, background: "#36ff88" }}>
                         Buy Character ({ethers.formatUnits(selectedMarketChar.price, 18)} WLD)
                     </button>
                 ) : (

@@ -318,10 +318,10 @@ export default function Home() {
         }}>
 
           <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-            <button onClick={() => setActiveTab('info')} className="h-10 px-2 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white border-4 border-[#D1851F] rounded-lg transition-all duration-200 active:scale-95">
+            <button onClick={() => setActiveTab('config')} className="h-10 px-2 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white border-4 border-[#D1851F] rounded-lg transition-all duration-200 active:scale-95">
               ⚙
             </button>
-            <button onClick={() => setActiveTab('config')} className="h-10 px-2 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white border-4 border-[#D1851F] rounded-lg transition-all duration-200 active:scale-95">
+            <button onClick={() => setActiveTab('info')} className="h-10 px-2 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white border-4 border-[#D1851F] rounded-lg transition-all duration-200 active:scale-95">
               📄
             </button>
             <button onClick={() => setActiveTab('leaderboard')} className="h-10 px-2 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white border-4 border-[#D1851F] rounded-lg transition-all duration-200 active:scale-95 whitespace-nowrap">
