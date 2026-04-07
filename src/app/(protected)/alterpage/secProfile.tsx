@@ -57,9 +57,7 @@ export default function SectionProfile({ profile }: Props) {
 
             const timestamp = new Date().toLocaleString();
             const message = `Buy character ${id} @ ${timestamp}`;
-
-            const { finalPayload } =
-                await MiniKit.commandsAsync.signMessage({ message });
+            const { finalPayload } = await MiniKit.commandsAsync.signMessage({ message });
 
             if (finalPayload.status !== "success") return;
 
@@ -93,6 +91,7 @@ export default function SectionProfile({ profile }: Props) {
         }
 
     }
+    
     const handleSelectOwned = async (id: number) => {
         try {
             const res = await fetch(`https://randal.onepixperday.xyz/api/set-character?address=${profile.wallet}&character=${id}`);
