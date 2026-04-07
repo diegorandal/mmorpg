@@ -12,7 +12,6 @@ import { useSession } from "next-auth/react"
 import { MiniKit } from '@worldcoin/minikit-js';
 import { ethers } from "ethers";
 import { formatEther } from "ethers";
-import InfoModal from '@/modals/Information'
 import * as Colyseus from "@colyseus/sdk";
 
 type PlayerProfile = {wallet: string; username: string; balance: string; xp: number; kills: number; characterid: number; characters: number[];};
@@ -63,7 +62,7 @@ export default function Home() {
     switch (activeTab) {
       case 'rooms': return <SecRooms roomsData={dataRooms} handleConnection={handleConnection}></SecRooms>;
       case 'cage': return <SecCage></SecCage>;
-      case 'profile': return <SecProfile profile={profile} fetchProfile={fetchProfile}></SecProfile>;
+      case 'profile': return <SecProfile profile={profile} fetchProfile={fetchProfile} handleSetActiveTab={handleSetActiveTab}></SecProfile>;
       case 'info': return <SecInfo></SecInfo>;
       case 'result': return <SecResult address={playerWallet}></SecResult>;
       case 'leaderboard': return <SecLeaderboard loading={loadingLeaderboard} data={leaderboardData}></SecLeaderboard>;
@@ -152,6 +151,12 @@ export default function Home() {
       console.error("Lobby connection error:", err);
     }
   };
+
+  const handleSetActiveTab = (selectTab : string) => {
+
+    setActiveTab(selectTab);
+    
+  }
 
   // #region Connection
   const handleConnection = async (roomName: string, roomCost: string) => {

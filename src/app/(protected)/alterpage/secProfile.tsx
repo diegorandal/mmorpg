@@ -11,9 +11,10 @@ type WalletCharacter = { characterid: number; };
 type Props = { 
     profile: PlayerProfile, 
     fetchProfile: () => Promise<void>;
+    handleSetActiveTab: (selectTab: string) => void;
 }
 
-export default function SectionProfile({ profile, fetchProfile }: Props) {
+export default function SectionProfile({ profile, fetchProfile, handleSetActiveTab }: Props) {
 
     const [walletCharacters, setWalletCharacters] = useState<number[]>([]);
     const [storeCharacters, setStoreCharacters] = useState<StoreCharacter[]>([]);
@@ -199,9 +200,9 @@ export default function SectionProfile({ profile, fetchProfile }: Props) {
                     /* BOTÓN HABILITADO (CON GRADIENTE Y BORDES DORADOS) */
                     <button
                         onClick={handleBuy}
-                        className="w-full py-4 flex items-center justify-center bg-[radial-gradient(circle_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white font-bold text-xl tracking-widest border-4 border-[#D1851F] rounded-xl shadow-[0_0_10px_rgba(209,133,31,0.6)] transition-all duration-200 hover:brightness-125 hover:scale-[1.02] active:scale-95 overflow-hidden"
+                        className="w-72 py-3 mx-auto flex items-center justify-center bg-[radial-gradient(circle_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white font-bold text-lg tracking-widest border-4 border-[#D1851F] rounded-xl shadow-[0_0_10px_rgba(209,133,31,0.6)] transition-all duration-200 hover:brightness-125 hover:scale-[1.02] active:scale-95 overflow-hidden"
                     >
-                        Buy Character ({ethers.formatUnits(selectedMarketChar.price, 18)} WLD)
+                        Buy character ({ethers.formatUnits(selectedMarketChar.price, 18)} WLD)
                     </button>
                 ) : (
                     /* BOTÓN DESHABILITADO (GRISÁCEO) */
@@ -209,12 +210,12 @@ export default function SectionProfile({ profile, fetchProfile }: Props) {
                         disabled
                         className="w-full py-4 flex items-center justify-center bg-[#222] text-gray-400 font-bold text-xl tracking-widest border-4 border-gray-500 opacity-75 cursor-not-allowed grayscale-[0.5] rounded-xl"
                     >
-                        Select a Store Character to Buy
+                        Select a market character to buy
                     </button>
                 )}
 
                 <div style={{ display: "flex", gap: 8, width: "100%", maxWidth: "300px" }}>
-                    <button style={secondaryButtonStyle}>Last Run Result</button>
+                    <button onClick={() => handleSetActiveTab('result')} style={secondaryButtonStyle}>Last Run Result</button>
                     <button style={secondaryButtonStyle}>History</button>
                 </div>
             </div>
