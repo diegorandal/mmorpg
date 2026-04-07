@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ethers } from "ethers";
 import { MiniKit } from '@worldcoin/minikit-js';
 
@@ -14,13 +14,14 @@ type Props = {
 }
 
 export default function SectionProfile({ profile, fetchProfile }: Props) {
+
     const [walletCharacters, setWalletCharacters] = useState<number[]>([]);
     const [storeCharacters, setStoreCharacters] = useState<StoreCharacter[]>([]);
     const [loading, setLoading] = useState(true);
-
-    // ESTADOS INDEPENDIENTES
+    const [refreshKey, setRefreshKey] = useState(0);
     const [equippedId, setEquippedId] = useState(profile.characterid); // El que tienes puesto
     const [selectedMarketChar, setSelectedMarketChar] = useState<StoreCharacter | null>(null); // El que quieres comprar
+    const carouselRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const fetchCharacters = async () => {
@@ -41,7 +42,13 @@ export default function SectionProfile({ profile, fetchProfile }: Props) {
             }
         };
         fetchCharacters();
-    }, [profile.wallet]);
+    }, [profile.wallet, refreshKey]);
+
+    useEffect(() => {
+        const timer = setTimeout(scrollToSelected, 100);         // Pequeño delay para asegurar que el DOM se actualizó con el nuevo borde
+        return () => clearTimeout(timer);
+    }, [equippedId]);
+
     const handleBuy = async () => {
         
         const id = selectedMarketChar.characterid;
@@ -79,16 +86,20 @@ export default function SectionProfile({ profile, fetchProfile }: Props) {
             );
 
             const data = await res.json();
+       
+            if (res.ok) {
+                // 3. REFRESCAR TODO
+                await fetchProfile(); // Actualiza el balance global
+                setRefreshKey(prev => prev + 1); // Dispara el useEffect para recargar carruseles
+                // 4. LIMPIAR SELECCIÓN
+                setEquippedId(id);
+                setSelectedMarketChar(null); // Quita la selección del market porque ya lo compraste
+            } else {
 
-            if (!res.ok) {
                 console.error(data);
                 return;
-            }
-        
-            await fetchProfile();
 
-            setEquippedId(id);
-            profile.characterid = id;
+            }
 
 
         } catch (err) {
@@ -106,6 +117,18 @@ export default function SectionProfile({ profile, fetchProfile }: Props) {
             }
         } catch (err) {
             console.error("Failed to set character", err);
+        }
+    };
+
+    const scrollToSelected = () => {
+        // Buscamos el elemento que tenga el "border" de seleccionado dentro del carrusel
+        const selectedElement = carouselRef.current?.querySelector('[data-selected="true"]');
+        if (selectedElement) {
+            selectedElement.scrollIntoView({
+                behavior: "smooth", // Movimiento fluido
+                block: "nearest",   // No mueve la página verticalmente
+                inline: "center"    // <--- LA CLAVE: Lo centra horizontalmente
+            });
         }
     };
 
@@ -131,13 +154,14 @@ export default function SectionProfile({ profile, fetchProfile }: Props) {
                     {/* CAROUSEL 1: TUS PERSONAJES (Independiente) */}
                     <div style={{ marginBottom: "30px" }}>
                         <SectionLabel label="Your Characters" />
-                        <div style={{
+                        <div ref={carouselRef} style={{
                             ...carouselStyle,
                             justifyContent: (walletCharacters.length < 4) ? "center" : "flex-start"
                         }}>
                             {walletCharacters.map((id) => (
                                 <CharacterItem
                                     key={id}
+                                    data-selected={equippedId === id}
                                     id={id}
                                     isSelected={equippedId === id} // Basado solo en lo que tienes puesto
                                     onClick={() => handleSelectOwned(id)}
