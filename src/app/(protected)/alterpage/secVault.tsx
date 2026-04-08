@@ -123,6 +123,12 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
         fetchHistory();
         setActiveAction(null);
     };
+    
+    function formatToken(value: bigint | string, decimals = 18, precision = 6) {
+        const formatted = ethers.formatUnits(value, decimals);
+        const [int, dec = ""] = formatted.split(".");
+        return dec ? `${int}.${dec.slice(0, precision)}` : int;
+    }
 
     const numericAmount = Number(amount) || 0;
     const isWithdrawValid = activeAction === 'withdraw' && numericAmount > 0 && BigInt(numericAmount) <= BigInt(inGameBalance);
@@ -139,8 +145,8 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
 
             {/* BALANCES - Sin fondo, siguiendo el estilo de secProfile */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", maxWidth: "280px", margin: "0 auto 10px" }}>
-                <Stat label="On-Chain WLD" value={`${ethers.formatUnits(onChainBalance, 18) }`} />
-                <Stat label="In-Game 💰" value={`${ethers.formatUnits(inGameBalance, 18) }`} />
+                <Stat label="On-Chain WLD" value={`${formatToken(onChainBalance, 18) }`} />
+                <Stat label="In-Game 💰" value={`${formatToken(inGameBalance, 18) }`} />
             </div>
             <SectionLabel label="💰 1 = 1 WLD" />
             {/* ACTION BUTTONS */}
