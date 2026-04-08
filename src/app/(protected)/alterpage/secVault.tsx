@@ -135,7 +135,7 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
     };
 
     const handleRetryWithdraw = async (tx: Transaction) => {
-        console.log("Reintentando retiro:", tx.tx_hash);
+        console.log("Reintentando retiro:", tx);
         // Aquí la lógica para consultar el estado del retiro en tu backend
     };
 
