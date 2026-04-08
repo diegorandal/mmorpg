@@ -54,14 +54,21 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
     }, [address]);
 
     // 3. Función para hacer el scroll
-    const handleInputFocus = () => {
-        // Pequeño timeout para esperar a que el teclado del móvil empiece a subir
+    const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+        // 1. Usamos la referencia del elemento que disparó el evento para mayor precisión
+        const target = e.target;
+
+        // 2. Esperamos un poco más para que el teclado se despliegue totalmente
         setTimeout(() => {
             actionRef.current?.scrollIntoView({
                 behavior: 'smooth',
-                block: 'start' // Lo ubica al inicio de la pantalla
+                block: 'start', // Intenta poner el inicio del contenedor arriba
             });
-        }, 100);
+
+            // 3. Truco adicional: si el scrollIntoView falla, forzamos un pequeño ajuste manual
+            // para asegurar que el input sea visible y no quede tras el teclado
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
     };
 
     const fetchWldBalance = async () => {
@@ -137,7 +144,7 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
 
             {/* BALANCES - Sin fondo, siguiendo el estilo de secProfile */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", maxWidth: "280px", margin: "0 auto 10px" }}>
-                <Stat label="On-Chain WLD" value={`${onChainBalance}`} />
+                <Stat label="On-Chain WLD" value={`${ethers.formatUnits(onChainBalance, 18) }`} />
                 <Stat label="In-Game 💰" value={`${ethers.formatUnits(inGameBalance, 18) }`} />
             </div>
             <SectionLabel label="💰 1 = 1 WLD" />
