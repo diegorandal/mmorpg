@@ -15,32 +15,25 @@ type Transaction = {
 
 type Props = {
     address: string;
-    inGameBalance: number;
+    inGameBalance: string;
     fetchProfile: () => Promise<void>;
 };
 
 export default function SectionVault({ address, inGameBalance, fetchProfile }: Props) {
-    // Estados para balances
     const [onChainBalance, setOnChainBalance] = useState<string>("0.00");
-
-    // Estados de UI
     const [activeAction, setActiveAction] = useState<'deposit' | 'withdraw' | null>(null);
     const [amount, setAmount] = useState<string>("");
-
-    // Estados de transacciones
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loadingTx, setLoadingTx] = useState(true);
 
-    // Effect para On-Chain Balance (Placeholder solicitado)
     useEffect(() => {
         const fetchOnChain = async () => {
-            // Lógica futura aquí
+            // Lógica para obtener balance de la wallet
             setOnChainBalance("123.45");
         };
         fetchOnChain();
     }, [address]);
 
-    // Fetch historial de transacciones
     const fetchHistory = async () => {
         try {
             setLoadingTx(true);
@@ -79,7 +72,7 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
     };
 
     const numericAmount = Number(amount) || 0;
-    const isWithdrawValid = activeAction === 'withdraw' && numericAmount > 0 && numericAmount <= inGameBalance;
+    const isWithdrawValid = activeAction === 'withdraw' && numericAmount > 0 && BigInt(numericAmount) <= BigInt(inGameBalance);
     const isDepositValid = activeAction === 'deposit' && numericAmount > 0;
 
     return (
@@ -91,14 +84,15 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
                 </h1>
             </div>
 
-            {/* BALANCES GRID */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", maxWidth: "320px", margin: "0 auto 25px" }}>
+            {/* BALANCES - Sin fondo, siguiendo el estilo de secProfile */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", maxWidth: "280px", margin: "0 auto 25px" }}>
                 <Stat label="On-Chain Balance" value={`${onChainBalance} WLD`} />
-                <Stat label="In-Game Balance" value={`${inGameBalance.toFixed(2)} WLD`} />
+                <Stat label="In-Game Balance" value={`💰 ${ethers.formatUnits(inGameBalance, 18) }`} />
+                <SectionLabel label="💰 1 = 1 WLD" />
             </div>
 
             {/* ACTION BUTTONS */}
-            <div style={{ display: "flex", gap: 12, width: "100%", maxWidth: "320px", margin: "0 auto 20px" }}>
+            <div style={{ display: "flex", gap: 12, width: "100%", maxWidth: "300px", margin: "0 auto 20px" }}>
                 <button
                     onClick={() => toggleAction('deposit')}
                     style={{ ...secondaryButtonStyle, borderColor: activeAction === 'deposit' ? '#D1851F' : '#222' }}
@@ -113,10 +107,10 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
                 </button>
             </div>
 
-            {/* DYNAMIC ACTION CONTENT (Deposit/Withdraw) */}
+            {/* DYNAMIC ACTION CONTENT - Este sí mantiene un recuadro para separar la UI de interacción */}
             {activeAction && (
                 <div style={actionContainerStyle}>
-                    <h3 style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 15, textTransform: 'uppercase', color: '#D1851F' }}>
+                    <h3 style={{ fontSize: 10, opacity: 0.5, marginBottom: 12, textTransform: 'uppercase' }}>
                         {activeAction === 'deposit' ? 'Add Funds to Game' : 'Withdraw to Wallet'}
                     </h3>
 
@@ -133,15 +127,12 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
                             <button
                                 key={v}
                                 onClick={() => setAmount(String(v))}
-                                disabled={activeAction === 'withdraw' && v > inGameBalance}
-                                style={presetButtonStyle(activeAction === 'withdraw' && v > inGameBalance)}
+                                disabled={activeAction === 'withdraw' && BigInt(v) > BigInt(inGameBalance)}
+                                style={presetButtonStyle(activeAction === 'withdraw' && BigInt(v) > BigInt(inGameBalance))}
                             >
                                 {v}
                             </button>
                         ))}
-                        {activeAction === 'withdraw' && (
-                            <button onClick={() => setAmount(String(inGameBalance))} style={presetButtonStyle(false)}>MAX</button>
-                        )}
                     </div>
 
                     <div style={{ opacity: (activeAction === 'deposit' ? isDepositValid : isWithdrawValid) ? 1 : 0.5 }}>
@@ -155,11 +146,12 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
                 </div>
             )}
 
-            {/* TRANSACTIONS LIST */}
+            {/* TRANSACTIONS LIST - Sin fondo oscuro, directo sobre la sección */}
             <div style={{ maxWidth: "340px", margin: "0 auto", textAlign: "left" }}>
-                <span style={sectionLabelStyle}>Recent Activity</span>
-                <div style={tableContainerStyle}>
-                    {/* HEADER */}
+                <SectionLabel label="Recent Activity" />
+
+                <div style={{ width: "100%" }}>
+                    {/* TABLE HEADER - Solo borde inferior */}
                     <div style={tableHeaderStyle}>
                         <div>TYPE</div>
                         <div>AMOUNT</div>
@@ -167,11 +159,11 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
                     </div>
 
                     {/* ROWS */}
-                    <div style={{ maxHeight: "200px", overflowY: "auto" }}>
+                    <div style={{ maxHeight: "250px", overflowY: "auto" }}>
                         {loadingTx ? (
-                            <p style={{ padding: 15, fontSize: 12, opacity: 0.5 }}>Loading transactions...</p>
+                            <p style={{ padding: 15, fontSize: 12, opacity: 0.5, textAlign: 'center' }}>Loading transactions...</p>
                         ) : transactions.length === 0 ? (
-                            <p style={{ padding: 15, fontSize: 12, opacity: 0.5 }}>No history found.</p>
+                            <p style={{ padding: 15, fontSize: 12, opacity: 0.5, textAlign: 'center' }}>No history found.</p>
                         ) : transactions.map((tx) => (
                             <div key={tx.id} style={tableRowStyle}>
                                 <div style={{ textTransform: "uppercase", fontWeight: 'bold' }}>{tx.type}</div>
@@ -191,45 +183,41 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
     );
 }
 
-// --- STYLES & HELPERS ---
+// --- HELPERS (Estilo secProfile) ---
 
 function Stat({ label, value }: { label: string; value: string }) {
     return (
-        <div style={{ textAlign: "center", background: "#111", padding: "12px", borderRadius: "12px", border: "1px solid #222" }}>
-            <div style={{ fontSize: 9, opacity: 0.5, textTransform: "uppercase", marginBottom: 4 }}>{label}</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#eee" }}>{value}</div>
+        <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 10, opacity: 0.5, textTransform: "uppercase" }}>{label}</div>
+            <div style={{ fontSize: 22, fontWeight: 700 }}>{value}</div>
         </div>
     );
 }
 
-const sectionLabelStyle: React.CSSProperties = {
-    fontSize: 10, opacity: 0.5, display: "block", textTransform: "uppercase", marginBottom: 12, textAlign: "center"
-};
+function SectionLabel({ label }: { label: string }) {
+    return <span style={{ fontSize: 10, opacity: 0.5, display: "block", textTransform: "uppercase", marginBottom: 12, textAlign: "center" }}>{label}</span>;
+}
 
 const secondaryButtonStyle: React.CSSProperties = {
-    flex: 1, padding: "14px", borderRadius: "12px", background: "#161616", color: "white", fontSize: "12px", border: "2px solid #222", cursor: "pointer", fontWeight: "bold", transition: "all 0.2s"
+    flex: 1, padding: "14px", borderRadius: "12px", background: "#161616", color: "white", fontSize: "12px", border: "1px solid #222", cursor: "pointer"
 };
 
 const actionContainerStyle: React.CSSProperties = {
-    background: "#111", margin: "0 auto 25px", maxWidth: "320px", padding: "20px", borderRadius: "16px", border: "1px solid #333"
+    background: "#0a0a0a", margin: "0 auto 30px", maxWidth: "300px", padding: "20px", borderRadius: "16px", border: "1px solid #222"
 };
 
 const inputStyle: React.CSSProperties = {
-    width: "100%", padding: "12px", fontSize: "1.2rem", borderRadius: "8px", border: "none", outline: "none", background: "#1a1a1a", color: "white", marginBottom: "12px", textAlign: "center"
+    width: "100%", padding: "12px", fontSize: "1.4rem", borderRadius: "10px", border: "none", outline: "none", background: "#111", color: "white", marginBottom: "12px", textAlign: "center"
 };
 
 const presetButtonStyle = (disabled: boolean): React.CSSProperties => ({
-    flex: 1, padding: "8px", borderRadius: "6px", border: "none", cursor: disabled ? "not-allowed" : "pointer", background: "#222", color: "white", fontSize: "11px", fontWeight: "bold", opacity: disabled ? 0.3 : 1
+    flex: 1, padding: "10px", borderRadius: "8px", border: "none", cursor: disabled ? "not-allowed" : "pointer", background: "#222", color: "white", fontSize: "12px", fontWeight: "bold", opacity: disabled ? 0.3 : 1
 });
 
-const tableContainerStyle: React.CSSProperties = {
-    background: "#111", borderRadius: "12px", border: "1px solid #222", overflow: "hidden"
-};
-
 const tableHeaderStyle: React.CSSProperties = {
-    display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "10px 15px", fontSize: "10px", fontWeight: "bold", background: "#181818", borderBottom: "1px solid #222", opacity: 0.6
+    display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "10px 5px", fontSize: "9px", fontWeight: "bold", borderBottom: "1px solid #222", opacity: 0.4, letterSpacing: '1px'
 };
 
 const tableRowStyle: React.CSSProperties = {
-    display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "12px 15px", borderBottom: "1px solid #1a1a1a", fontSize: "11px"
+    display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "14px 5px", borderBottom: "1px solid #ffffff0a", fontSize: "11px"
 };

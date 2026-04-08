@@ -61,7 +61,7 @@ export default function Home() {
   const renderSection = () => {
     switch (activeTab) {
       case 'rooms': return <SecRooms roomsData={dataRooms} handleConnection={handleConnection}></SecRooms>;
-      case 'vault': return <SecVault address={profile.wallet} inGameBalance={Number(profile.balance)} fetchProfile={fetchProfile}></SecVault>;
+      case 'vault': return <SecVault address={profile.wallet} inGameBalance={profile.balance} fetchProfile={fetchProfile}></SecVault>;
       case 'profile': return <SecProfile profile={profile} fetchProfile={fetchProfile} handleSetActiveTab={handleSetActiveTab}></SecProfile>;
       case 'info': return <SecInfo></SecInfo>;
       case 'result': return <SecResult address={playerWallet}></SecResult>;
