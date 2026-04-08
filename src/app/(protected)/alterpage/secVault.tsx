@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState, useRef } from "react";
+import { MiniKit, Tokens, tokenToDecimals } from '@worldcoin/minikit-js';
 import { ethers } from "ethers";
 import { Pay } from "@/components/Pay";
 import { Withdraw } from "@/components/Withdraw";
 import { createPublicClient, http, formatEther } from 'viem';
 import { worldchain } from 'viem/chains';
+import skillstakeABI from '@/abi/skillstake.json';
 
 type Transaction = {
     id: number;
@@ -21,7 +23,10 @@ type Props = {
     fetchProfile: () => Promise<void>;
 };
 
+const API = "https://randal.onepixperday.xyz/api";
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const WLD_TOKEN_ADDRESS = '0x2cFc85d8E48F8EAB294be644d9E25C3030863003';
+const contract = '0x2CBD6A60069B95C85f3b230164A0a166b0576dE7';
 const publicClient = createPublicClient({ // Cliente público para Worldchain
     chain: worldchain,
     transport: http('https://worldchain-mainnet.g.alchemy.com/public'),
@@ -135,8 +140,44 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
     };
 
     const handleRetryWithdraw = async (tx: Transaction) => {
-        console.log("Reintentando retiro:", tx);
-        // Aquí la lógica para consultar el estado del retiro en tu backend
+
+            // 2️⃣ Enviar transacción vía MiniKit
+            const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
+                transaction: [
+                    {
+                        address: contract,
+                        abi: skillstakeABI,
+                        functionName: 'gameclaim',
+                        args: [
+                            {
+                                to: address,
+                                amount: tx.amount,
+                                uuid: tx.id,
+                                signature: tx.tx_hash,
+                            }
+                        ],
+                    },
+                ],
+            });
+
+        if (finalPayload.status === 'success') {
+            
+            await sleep(2000);
+
+            // 3️⃣ Confirmar en backend
+            const confirmRes = await fetch(`${API}/confirm-withdraw`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reference: tx.id, transaction_id: finalPayload.transaction_id }),
+            });
+
+            if (!confirmRes.ok) throw new Error('Failed to confirm withdraw.');
+
+            fetchHistory();
+
+        } 
+
+
     };
 
     const numericAmount = Number(amount) || 0;
