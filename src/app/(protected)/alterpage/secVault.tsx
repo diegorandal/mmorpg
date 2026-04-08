@@ -75,7 +75,10 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
                 functionName: 'balanceOf',
                 args: [address as `0x${string}`],
             });
-            setOnChainBalance(formatEther(raw as bigint));
+            if (typeof raw !== "bigint") {
+                throw new Error("Invalid balance type");
+            }
+            setOnChainBalance(raw.toString());
         } catch (e) {
             setOnChainBalance(null);
         }
