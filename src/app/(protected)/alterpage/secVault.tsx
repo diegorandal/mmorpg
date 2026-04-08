@@ -106,7 +106,6 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
     useEffect(() => {
         fetchHistory();
         fetchWldBalance();
-
     }, [address]);
 
     const toggleAction = (action: 'deposit' | 'withdraw') => {
@@ -129,6 +128,16 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
         const [int, dec = ""] = formatted.split(".");
         return dec ? `${int}.${dec.slice(0, precision)}` : int;
     }
+
+    const handleRetryDeposit = async (tx: Transaction) => {
+        console.log("Reintentando depósito:", tx.tx_hash);
+        // Aquí llamarías a la lógica de MiniKit o a tu API para re-verificar el hash
+    };
+
+    const handleRetryWithdraw = async (tx: Transaction) => {
+        console.log("Reintentando retiro:", tx.tx_hash);
+        // Aquí la lógica para consultar el estado del retiro en tu backend
+    };
 
     const numericAmount = Number(amount) || 0;
     const amountInWei = amount ? ethers.parseUnits(amount, 18) : BigInt(0);
@@ -153,7 +162,7 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
                 <Stat label="On-Chain WLD" value={`${formatToken(onChainBalance, 18) }`} />
                 <Stat label="In-Game 💰" value={`${formatToken(inGameBalance, 18) }`} />
             </div>
-            <SectionLabel label="💰 1 = 1 WLD" />
+            <SectionLabel label="On-Chain WLD 1 = 1 In-Game 💰" />
             {/* ACTION BUTTONS */}
             <div style={{ display: "flex", gap: 12, width: "100%", maxWidth: "300px", margin: "0 auto 20px" }}>
                 <button
@@ -257,17 +266,41 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
                         ) : transactions.length === 0 ? (
                             <p style={{ padding: 15, fontSize: 12, opacity: 0.5, textAlign: 'center' }}>No history found.</p>
                         ) : transactions.map((tx) => (
-                            <div key={tx.id} style={tableRowStyle}>
-                                <div style={{ textTransform: "uppercase", fontWeight: 'bold' }}>{tx.type}</div>
-                                <div>{ethers.formatUnits(tx.amount, 18)}</div>
-                                <div style={{
-                                    textAlign: 'right',
-                                    color: tx.status === "confirmed" ? "#4CAF50" : tx.status === "pending" ? "#f0ad4e" : "#ff5555"
-                                }}>
-                                    {tx.status}
+                                <div key={tx.id} style={tableRowStyle}>
+                                    <div style={{ textTransform: "uppercase", fontWeight: 'bold' }}>{tx.type}</div>
+                                    <div>{formatToken(tx.amount, 18, 2)}</div>
+                                    <div style={{
+                                        textAlign: 'right',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'flex-end',
+                                        gap: '8px',
+                                        color: tx.status === "confirmed" ? "#4CAF50" : tx.status === "pending" ? "#f0ad4e" : "#ff5555"
+                                    }}>
+                                        {tx.status}
+
+                                        {tx.status === "pending" && (
+                                            <button
+                                                onClick={() => tx.type === 'deposit' ? handleRetryDeposit(tx) : handleRetryWithdraw(tx)}
+                                                style={{
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                    fontSize: '14px',
+                                                    padding: '0',
+                                                    display: 'flex',
+                                                    alignItems: 'center'
+                                                }}
+                                                title="Check status"
+                                            >
+                                                🔄
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))
+                        }
+                        
                     </div>
                 </div>
             </div>

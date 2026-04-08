@@ -337,7 +337,7 @@ export default function Home() {
 
           {/* DERECHA: Este es el que debe adaptarse si el espacio es crítico */}
           <div style={{ minWidth: 0, flexShrink: 1 }}>
-            <button onClick={() => setActiveTab('cage')} className="h-10 px-2 w-full flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] border-4 border-[#D1851F] rounded-lg overflow-hidden">
+            <button onClick={() => setActiveTab('vault')} className="h-10 px-2 w-full flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] border-4 border-[#D1851F] rounded-lg overflow-hidden">
               <span className="flex items-center gap-1">
                 <span>💰</span>
                 <span className="text-xs bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold truncate">
