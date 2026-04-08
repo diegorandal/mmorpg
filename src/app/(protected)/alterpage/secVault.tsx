@@ -78,30 +78,27 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
     return (
         <section style={{ width: "100%", color: "white", padding: "20px 0", textAlign: "center" }}>
 
-            <div style={{ marginBottom: "30px" }}>
+            <div style={{ marginBottom: "20px" }}>
                 <h1 className="text-4xl bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold">
                     Vault
                 </h1>
             </div>
 
             {/* BALANCES - Sin fondo, siguiendo el estilo de secProfile */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", maxWidth: "280px", margin: "0 auto 25px" }}>
-                <Stat label="On-Chain Balance" value={`${onChainBalance} WLD`} />
-                <Stat label="In-Game Balance" value={`💰 ${ethers.formatUnits(inGameBalance, 18) }`} />
-                <SectionLabel label="💰 1 = 1 WLD" />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", maxWidth: "280px", margin: "0 auto 20px" }}>
+                <Stat label="On-Chain WLD Balance" value={`${onChainBalance}`} />
+                <Stat label="In-Game 💰 Balance" value={`${ethers.formatUnits(inGameBalance, 18) }`} />
             </div>
-
+            <SectionLabel label="💰 1 = 1 WLD" />
             {/* ACTION BUTTONS */}
             <div style={{ display: "flex", gap: 12, width: "100%", maxWidth: "300px", margin: "0 auto 20px" }}>
                 <button
-                    onClick={() => toggleAction('deposit')}
-                    style={{ ...secondaryButtonStyle, borderColor: activeAction === 'deposit' ? '#D1851F' : '#222' }}
+                    onClick={() => toggleAction('deposit')} style={{ ...secondaryButtonStyle, borderColor: activeAction === 'deposit' ? '#D1851F' : '#222' }}
                 >
                     Deposit
                 </button>
                 <button
-                    onClick={() => toggleAction('withdraw')}
-                    style={{ ...secondaryButtonStyle, borderColor: activeAction === 'withdraw' ? '#D1851F' : '#222' }}
+                    onClick={() => toggleAction('withdraw')} style={{ ...secondaryButtonStyle, borderColor: activeAction === 'withdraw' ? '#D1851F' : '#222' }}
                 >
                     Withdraw
                 </button>
@@ -147,7 +144,7 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
             )}
 
             {/* TRANSACTIONS LIST - Sin fondo oscuro, directo sobre la sección */}
-            <div style={{ maxWidth: "340px", margin: "0 auto", textAlign: "left" }}>
+            <div style={{ maxWidth: "340px", margin: "0 auto 40px", textAlign: "left" }}>
                 <SectionLabel label="Recent Activity" />
 
                 <div style={{ width: "100%" }}>
