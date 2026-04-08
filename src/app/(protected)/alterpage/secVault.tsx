@@ -85,7 +85,7 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
             </div>
 
             {/* BALANCES - Sin fondo, siguiendo el estilo de secProfile */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", maxWidth: "280px", margin: "0 auto 20px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", maxWidth: "280px", margin: "0 auto 10px" }}>
                 <Stat label="On-Chain WLD Balance" value={`${onChainBalance}`} />
                 <Stat label="In-Game 💰 Balance" value={`${ethers.formatUnits(inGameBalance, 18) }`} />
             </div>
@@ -185,7 +185,7 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
 function Stat({ label, value }: { label: string; value: string }) {
     return (
         <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 10, opacity: 0.5, textTransform: "uppercase" }}>{label}</div>
+            <div style={{ fontSize: 10, opacity: 0.5, textTransform: "uppercase", whiteSpace: "nowrap"}}>{label}</div>
             <div style={{ fontSize: 22, fontWeight: 700 }}>{value}</div>
         </div>
     );
