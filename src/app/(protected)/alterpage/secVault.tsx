@@ -132,15 +132,13 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
 
     const numericAmount = Number(amount) || 0;
     const amountInWei = amount ? ethers.parseUnits(amount, 18) : BigInt(0);
+    const isWithdrawValid = activeAction === 'withdraw' && amountInWei > BigInt(0) && amountInWei <= BigInt(inGameBalance);
+    const isDepositValid = activeAction === 'deposit' && amountInWei > BigInt(0) && amountInWei <= BigInt(onChainBalance || 0);
+    const setMaxWithdraw = () => {
+        const formattedMax = ethers.formatUnits(inGameBalance, 18);
+        setAmount(formattedMax);
+    };
 
-    const isWithdrawValid =
-        activeAction === 'withdraw' &&
-        amountInWei > BigInt(0) &&
-        amountInWei <= BigInt(inGameBalance);
-    const isDepositValid =
-        activeAction === 'deposit' &&
-        amountInWei > BigInt(0) &&
-        amountInWei <= BigInt(onChainBalance || 0);
     return (
         <section style={{ width: "100%", color: "white", padding: "20px 0", textAlign: "center" }}>
 
@@ -211,6 +209,22 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
                                 </button>
                             );
                         })}
+
+                        {/* BOTÓN MAX - Solo se muestra o habilita con sentido en Withdraw */}
+                        {activeAction === 'withdraw' && (
+                            <button
+                                onClick={setMaxWithdraw}
+                                style={{
+                                    ...presetButtonStyle(BigInt(inGameBalance) === BigInt(0)),
+                                    background: "linear-gradient(to bottom, #d1851f, #a66a19)",
+                                    color: "black",
+                                    minWidth: "60px"
+                                }}
+                                disabled={BigInt(inGameBalance) === BigInt(0)}
+                            >
+                                MAX
+                            </button>
+                        )}
                     </div>
 
                     <div style={{ opacity: (activeAction === 'deposit' ? isDepositValid : isWithdrawValid) ? 1 : 0.5 }}>
