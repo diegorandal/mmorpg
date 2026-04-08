@@ -172,7 +172,7 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
 
             {/* DYNAMIC ACTION CONTENT */}
             {activeAction && (
-                <div style={actionContainerStyle}>
+                <div ref={actionRef} style={actionContainerStyle}>
                     <h3 style={{ fontSize: 10, opacity: 0.5, marginBottom: 12, textTransform: 'uppercase' }}>
                         {activeAction === 'deposit' ? 'Add Funds to Game' : 'Withdraw to Wallet'}
                     </h3>
