@@ -131,9 +131,16 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
     }
 
     const numericAmount = Number(amount) || 0;
-    const isWithdrawValid = activeAction === 'withdraw' && numericAmount > 0 && BigInt(numericAmount) <= BigInt(inGameBalance);
-    const isDepositValid = activeAction === 'deposit' && numericAmount > 0;
+    const amountInWei = amount ? ethers.parseUnits(amount, 18) : BigInt(0);
 
+    const isWithdrawValid =
+        activeAction === 'withdraw' &&
+        amountInWei > BigInt(0) &&
+        amountInWei <= BigInt(inGameBalance);
+    const isDepositValid =
+        activeAction === 'deposit' &&
+        amountInWei > BigInt(0) &&
+        amountInWei <= BigInt(onChainBalance || 0);
     return (
         <section style={{ width: "100%", color: "white", padding: "20px 0", textAlign: "center" }}>
 
@@ -143,7 +150,7 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
                 </h1>
             </div>
 
-            {/* BALANCES - Sin fondo, siguiendo el estilo de secProfile */}
+            {/* BALANCES */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", maxWidth: "280px", margin: "0 auto 10px" }}>
                 <Stat label="On-Chain WLD" value={`${formatToken(onChainBalance, 18) }`} />
                 <Stat label="In-Game 💰" value={`${formatToken(inGameBalance, 18) }`} />
@@ -163,7 +170,7 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
                 </button>
             </div>
 
-            {/* DYNAMIC ACTION CONTENT - Este sí mantiene un recuadro para separar la UI de interacción */}
+            {/* DYNAMIC ACTION CONTENT */}
             {activeAction && (
                 <div style={actionContainerStyle}>
                     <h3 style={{ fontSize: 10, opacity: 0.5, marginBottom: 12, textTransform: 'uppercase' }}>
@@ -179,17 +186,31 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
                         style={inputStyle}
                     />
 
+                    {amount && (
+                        <div style={{ fontSize: '10px', marginBottom: '10px', color: '#ff5555' }}>
+                            {activeAction === 'withdraw' && amountInWei > BigInt(inGameBalance) && "Insufficient In-Game balance"}
+                            {activeAction === 'deposit' && amountInWei > BigInt(onChainBalance || 0) && "Insufficient Wallet balance"}
+                        </div>
+                    )}
+                    
                     <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
-                        {[1, 5, 10].map(v => (
-                            <button
-                                key={v}
-                                onClick={() => setAmount(String(v))}
-                                disabled={activeAction === 'withdraw' && BigInt(v) > BigInt(inGameBalance)}
-                                style={presetButtonStyle(activeAction === 'withdraw' && BigInt(v) > BigInt(inGameBalance))}
-                            >
-                                {v}
-                            </button>
-                        ))}
+                        {[1, 5, 10].map(v => {
+                            const presetInWei = ethers.parseUnits(String(v), 18);
+                            const canAfford = activeAction === 'withdraw'
+                                ? presetInWei <= BigInt(inGameBalance)
+                                : presetInWei <= BigInt(onChainBalance || 0);
+
+                            return (
+                                <button
+                                    key={v}
+                                    onClick={() => setAmount(String(v))}
+                                    disabled={!canAfford}
+                                    style={presetButtonStyle(!canAfford)}
+                                >
+                                    {v}
+                                </button>
+                            );
+                        })}
                     </div>
 
                     <div style={{ opacity: (activeAction === 'deposit' ? isDepositValid : isWithdrawValid) ? 1 : 0.5 }}>
