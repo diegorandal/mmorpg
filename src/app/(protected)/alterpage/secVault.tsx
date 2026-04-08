@@ -93,12 +93,12 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
             {/* ACTION BUTTONS */}
             <div style={{ display: "flex", gap: 12, width: "100%", maxWidth: "300px", margin: "0 auto 20px" }}>
                 <button
-                    onClick={() => toggleAction('withdraw')} style={{ ...secondaryButtonStyle, borderColor: activeAction === 'withdraw' ? '#D1851F' : '#222' }}
+                    onClick={() => toggleAction('withdraw')} style={getButtonStyle(activeAction === 'withdraw')}
                 >
                     Withdraw
                 </button>
                 <button
-                    onClick={() => toggleAction('deposit')} style={{ ...secondaryButtonStyle, borderColor: activeAction === 'deposit' ? '#D1851F' : '#222' }}
+                    onClick={() => toggleAction('deposit')} style={getButtonStyle(activeAction === 'deposit')}
                 >
                     Deposit
                 </button>
@@ -185,8 +185,8 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
 function Stat({ label, value }: { label: string; value: string }) {
     return (
         <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 10, opacity: 0.5, textTransform: "uppercase", whiteSpace: "nowrap"}}>{label}</div>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>{value}</div>
+            <div style={{ fontSize: 12, opacity: 0.4, textTransform: "uppercase", whiteSpace: "nowrap"}}>{label}</div>
+            <div style={{ fontSize: 24, fontWeight: 700 }}>{value}</div>
         </div>
     );
 }
@@ -217,4 +217,41 @@ const tableHeaderStyle: React.CSSProperties = {
 
 const tableRowStyle: React.CSSProperties = {
     display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "14px 5px", borderBottom: "1px solid #ffffff0a", fontSize: "11px"
+};
+
+const getButtonStyle = (isActive: boolean): React.CSSProperties => {
+    if (isActive) {
+        return {
+            ...secondaryButtonStyle, // Mantenemos la base si es necesaria
+            flex: 1, // Para que ocupen el mismo espacio en el flex container
+            background: "radial-gradient(circle at center, #3a0402 0%, #4F0603 45%, #000000 100%)",
+            color: "white",
+            fontWeight: "bold",
+            fontSize: "14px", // Ajustado para que quepa en el Vault
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            border: "4px solid #D1851F",
+            borderRadius: "12px",
+            boxShadow: "0 0 10px rgba(209, 133, 31, 0.6)",
+            transition: "all 0.2s ease",
+            cursor: "pointer",
+        };
+    }
+
+    // Estilo DESACTIVADO
+    return {
+        ...secondaryButtonStyle,
+        flex: 1,
+        background: "#222",
+        color: "#9ca3af", // text-gray-400
+        fontWeight: "bold",
+        fontSize: "14px",
+        letterSpacing: "0.1em",
+        textTransform: "uppercase",
+        border: "4px solid #6b7280", // border-gray-500
+        borderRadius: "12px",
+        opacity: 0.75,
+        cursor: "pointer",
+        filter: "grayscale(0.5)",
+    };
 };

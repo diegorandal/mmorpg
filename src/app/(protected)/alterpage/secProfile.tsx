@@ -233,8 +233,8 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
 function Stat({ label, value }: { label: string; value: number }) {
     return (
         <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 10, opacity: 0.5, textTransform: "uppercase" }}>{label}</div>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>{value}</div>
+            <div style={{ fontSize: 12, opacity: 0.4, textTransform: "uppercase" }}>{label}</div>
+            <div style={{ fontSize: 24, fontWeight: 700 }}>{value}</div>
         </div>
     );
 }
@@ -261,10 +261,6 @@ function CharacterItem({ id, isSelected, onClick, price, ...props }: { id: numbe
 
 const carouselStyle: React.CSSProperties = {
     display: "flex", gap: 12, overflowX: "auto", padding: "0 20px 10px", WebkitOverflowScrolling: "touch", scrollBehavior: "smooth", scrollPadding: "0 20px"
-};
-
-const mainButtonStyle: React.CSSProperties = {
-    width: "100%", maxWidth: "300px", padding: "16px", borderRadius: "12px", color: "#000", fontWeight: "800", border: "none", cursor: "pointer", fontSize: "13px"
 };
 
 const secondaryButtonStyle: React.CSSProperties = {

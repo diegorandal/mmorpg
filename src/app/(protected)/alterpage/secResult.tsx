@@ -138,8 +138,8 @@ export default function SectionResult({ address }: Props) {
 function Stat({ label, value }: { label: string; value: number }) {
     return (
         <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 12, opacity: 0.5, marginBottom: 4, textTransform: "uppercase" }}>{label}</div>
-            <div style={{ fontSize: 24, fontWeight: 600 }}>{value}</div>
+            <div style={{ fontSize: 12, opacity: 0.4, marginBottom: 4, textTransform: "uppercase" }}>{label}</div>
+            <div style={{ fontSize: 24, fontWeight: 700 }}>{value}</div>
         </div>
     );
 }
