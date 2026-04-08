@@ -86,8 +86,8 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
 
             {/* BALANCES - Sin fondo, siguiendo el estilo de secProfile */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", maxWidth: "280px", margin: "0 auto 10px" }}>
-                <Stat label="On-Chain WLD Balance" value={`${onChainBalance}`} />
-                <Stat label="In-Game 💰 Balance" value={`${ethers.formatUnits(inGameBalance, 18) }`} />
+                <Stat label="On-Chain WLD" value={`${onChainBalance}`} />
+                <Stat label="In-Game 💰" value={`${ethers.formatUnits(inGameBalance, 18) }`} />
             </div>
             <SectionLabel label="💰 1 = 1 WLD" />
             {/* ACTION BUTTONS */}
@@ -185,14 +185,14 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
 function Stat({ label, value }: { label: string; value: string }) {
     return (
         <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 12, opacity: 0.4, textTransform: "uppercase", whiteSpace: "nowrap"}}>{label}</div>
+            <div style={{ fontSize: 12, opacity: 0.4, textTransform: "uppercase"}}>{label}</div>
             <div style={{ fontSize: 24, fontWeight: 700 }}>{value}</div>
         </div>
     );
 }
 
 function SectionLabel({ label }: { label: string }) {
-    return <span style={{ fontSize: 10, opacity: 0.5, display: "block", textTransform: "uppercase", marginBottom: 12, textAlign: "center" }}>{label}</span>;
+    return <span style={{ fontSize: 12, opacity: 0.5, display: "block", textTransform: "uppercase", marginBottom: 12, textAlign: "center" }}>{label}</span>;
 }
 
 const secondaryButtonStyle: React.CSSProperties = {
@@ -222,12 +222,12 @@ const tableRowStyle: React.CSSProperties = {
 const getButtonStyle = (isActive: boolean): React.CSSProperties => {
     if (isActive) {
         return {
-            ...secondaryButtonStyle, // Mantenemos la base si es necesaria
-            flex: 1, // Para que ocupen el mismo espacio en el flex container
+            ...secondaryButtonStyle, 
+            flex: 1, 
             background: "radial-gradient(circle at center, #3a0402 0%, #4F0603 45%, #000000 100%)",
             color: "white",
             fontWeight: "bold",
-            fontSize: "14px", // Ajustado para que quepa en el Vault
+            fontSize: "14px", 
             letterSpacing: "0.1em",
             textTransform: "uppercase",
             border: "4px solid #D1851F",
@@ -243,15 +243,13 @@ const getButtonStyle = (isActive: boolean): React.CSSProperties => {
         ...secondaryButtonStyle,
         flex: 1,
         background: "#222",
-        color: "#9ca3af", // text-gray-400
+        color: "white",
         fontWeight: "bold",
         fontSize: "14px",
         letterSpacing: "0.1em",
         textTransform: "uppercase",
-        border: "4px solid #6b7280", // border-gray-500
+        border: "4px solid #D1851F",
         borderRadius: "12px",
-        opacity: 0.75,
         cursor: "pointer",
-        filter: "grayscale(0.5)",
     };
 };

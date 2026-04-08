@@ -240,7 +240,7 @@ function Stat({ label, value }: { label: string; value: number }) {
 }
 
 function SectionLabel({ label }: { label: string }) {
-    return <span style={{ fontSize: 10, opacity: 0.5, display: "block", textTransform: "uppercase", marginBottom: 12 }}>{label}</span>;
+    return <span style={{ fontSize: 12, opacity: 0.5, display: "block", textTransform: "uppercase", marginBottom: 12 }}>{label}</span>;
 }
 
 function CharacterItem({ id, isSelected, onClick, price, ...props }: { id: number, isSelected: boolean, onClick: () => void, price?: string }) {
