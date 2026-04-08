@@ -124,7 +124,8 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
 
     const handleSuccess = async () => {
         await fetchProfile();
-        fetchHistory();
+        await fetchHistory();
+        await fetchWldBalance();
         setActiveAction(null);
     };
     
@@ -173,7 +174,9 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
 
             if (!confirmRes.ok) throw new Error('Failed to confirm withdraw.');
 
-            fetchHistory();
+            await fetchProfile();
+            await fetchHistory();
+            await fetchWldBalance();
 
         } 
 

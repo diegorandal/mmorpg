@@ -1,25 +1,54 @@
+'use client';
+
+import { useState } from "react";
 import { formatEther } from "ethers";
 
-interface Room {name: string; cost: string; desc: string; type: string; map: string; ref: string; status: string; onlineUsers: number;}
+interface Room { name: string; cost: string; desc: string; type: string; map: string; ref: string; status: string; onlineUsers: number; }
+type PlayerProfile = { wallet: string; username: string; balance: string; xp: number; kills: number; characterid: number; characters: number[]; };
 
 interface RoomsProps {
     roomsData: Room[];
     handleConnection: (roomName: string, roomCost: string) => Promise<void>;
+    profile: PlayerProfile;
 }
 
-export default function SectionRooms({ roomsData, handleConnection }: RoomsProps) {
+export default function SectionRooms({ roomsData, handleConnection, profile }: RoomsProps) {
+    // Estado para controlar qué tarjeta está resaltando su costo
+    const [highlightingIndex, setHighlightingIndex] = useState<number | null>(null);
+
+    const onRoomClick = (room: Room, index: number) => {
+        const isClosed = room.status === "close";
+        if (isClosed) return;
+
+        // Comparación de saldos en BigInt (manejando wei)
+        const userBalance = BigInt(profile.balance || "0");
+        const roomCost = BigInt(room.cost);
+
+        if (userBalance < roomCost) {
+            // Activa el resaltado visual
+            setHighlightingIndex(index);
+            setTimeout(() => setHighlightingIndex(null), 1000);
+            return;
+        }
+
+        // Si tiene saldo, procede con la conexión
+        handleConnection(room.ref, room.cost);
+    };
+
     return (
         <div className="flex flex-col gap-4 p-4 items-center">
             {roomsData?.map((room, index) => {
-                // Definimos si la sala está cerrada
                 const isClosed = room.status === "close";
+
+                // Lógica de saldo insuficiente
+                const hasEnoughBalance = BigInt(profile.balance || "0") >= BigInt(room.cost);
+                const isHighlighting = highlightingIndex === index;
 
                 return (
                     <button
                         key={index}
-                        // Deshabilitamos el clic si está cerrada
                         disabled={isClosed}
-                        onClick={() => !isClosed && handleConnection(room.ref, room.cost)}
+                        onClick={() => onRoomClick(room, index)}
                         className={`
                             relative w-full max-w-md overflow-hidden
                             border-4 rounded-xl flex flex-col text-white
@@ -37,7 +66,7 @@ export default function SectionRooms({ roomsData, handleConnection }: RoomsProps
                                 backgroundImage: `url('https://randalrpg.onepixperday.xyz/banner_${room.map}.png')`,
                                 backgroundSize: 'cover',
                                 backgroundPosition: 'center',
-                                backgroundColor: isClosed ? '#4a4a4a' : '#0f9b0a' // Color más apagado si está cerrado
+                                backgroundColor: isClosed ? '#4a4a4a' : '#0f9b0a'
                             }}
                         />
 
@@ -50,8 +79,16 @@ export default function SectionRooms({ roomsData, handleConnection }: RoomsProps
                                 <span className={`text-xl font-bold tracking-tighter uppercase ${isClosed ? "text-gray-300" : ""}`}>
                                     {room.name}
                                 </span>
-                                <div className={`flex items-center gap-1 bg-black/50 px-2 py-1 rounded-lg border ${isClosed ? "border-gray-500" : "border-[#D1851F]/50"}`}>
-                                    <span className={`text-sm font-bold ${isClosed ? "text-gray-400" : "text-yellow-400"}`}>
+
+                                {/* RECUADRO DEL COSTO CON LÓGICA DE COLOR Y RESALTADO */}
+                                <div className={`
+                                    flex items-center gap-1 bg-black/50 px-2 py-1 rounded-lg border transition-all duration-300
+                                    ${isClosed ? "border-gray-500" : (isHighlighting ? "border-red-500 scale-110 shadow-[0_0_10px_#ef4444]" : "border-[#D1851F]/50")}
+                                `}>
+                                    <span className={`
+                                        text-sm font-bold transition-colors duration-300
+                                        ${isClosed ? "text-gray-400" : (hasEnoughBalance ? "text-yellow-400" : "text-red-500")}
+                                    `}>
                                         💰 {formatEther(room.cost)}
                                     </span>
                                 </div>
