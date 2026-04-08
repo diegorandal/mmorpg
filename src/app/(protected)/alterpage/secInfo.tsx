@@ -24,10 +24,9 @@ export default function SectionInformation() {
 
             {/* TÍTULO PRINCIPAL - Estilo similar al nombre de usuario en Profile */}
             <div style={{ marginBottom: "20px" }}>
-                <h1 className="text-4xl bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold uppercase tracking-tighter">
+                <h1 className="text-4xl bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold">
                     Information
                 </h1>
-                <div style={{ height: "2px", width: "40px", background: "#D1851F", margin: "10px auto", opacity: 0.5 }} />
             </div>
 
             <div style={{ maxWidth: "340px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "25px" }}>
@@ -36,18 +35,31 @@ export default function SectionInformation() {
                 <div style={{ textAlign: "left" }}>
                     <SectionLabel label="About Game" />
                     <div style={infoBoxStyle}>
-                        <p style={textContentStyle}>
-                            sKillsTake is a high-stakes Action RPG featuring a persistent extraction map where player skill directly dictates financial rewards. Moving away from traditional Play-to-Earn models, it introduces a sustainable Skill-to-Earn.
-
-                            <p>Key Features
-                                <ul style={{ ...textContentStyle, paddingLeft: "15px", listStyleType: "circle" }}>
-                                    <li style={{ marginBottom: "8px" }}>Skill-Based Economy: A zero-sum ecosystem where value is transferred through combat. Players extract digital assets (WLD) from opponents by dealing damage, effectively turning high-performing players into natural "bounties" with growing visual auras.</li>
-                                    <li style={{ marginBottom: "8px" }}>High-Stakes Extraction: Players enter the map with a buy-in that converts to health (HP). Success depends on navigating variable extraction portals to secure accumulated gains and remaining health.</li>
-                                    <li style={{ marginBottom: "8px" }}>Level Playing Field: To eliminate "Pay-to-Win" mechanics, all characters feature identical base stats, including damage, speed, and equipment, ensuring that only mechanical skill determines the victor.</li>
-                                    <li style={{ marginBottom: "8px" }}>Dynamic Survival: A strategic risk-management system allows players to use their earnings to heal during combat, balancing the protection of their "Pot" against the necessity of survival.</li>
-                                </ul>
+                        <div style={textContentStyle}>
+                            <p>
+                                sKillsTake is a high-stakes Action RPG featuring a persistent extraction map where player skill directly dictates financial rewards. Moving away from traditional Play-to-Earn models, it introduces a sustainable Skill-to-Earn.
                             </p>
-                        </p>
+
+                            {/* Salto de línea antes y después usando márgenes o br */}
+                            <p style={{ margin: "10px 0", fontWeight: "bold", color: "#D1851F" }}>
+                                Key Features
+                            </p>
+
+                            <ul style={{ ...textContentStyle, paddingLeft: "15px", listStyleType: "circle" }}>
+                                <li style={{ marginBottom: "8px" }}>
+                                    <strong style={{ color: "#fff" }}>Skill-Based Economy:</strong> A zero-sum ecosystem where value is transferred through combat...
+                                </li>
+                                <li style={{ marginBottom: "8px" }}>
+                                    <strong style={{ color: "#fff" }}>High-Stakes Extraction:</strong> Players enter the map with a buy-in...
+                                </li>
+                                <li style={{ marginBottom: "8px" }}>
+                                    <strong style={{ color: "#fff" }}>Level Playing Field:</strong> To eliminate "Pay-to-Win" mechanics...
+                                </li>
+                                <li style={{ marginBottom: "8px" }}>
+                                    <strong style={{ color: "#fff" }}>Dynamic Survival:</strong> A strategic risk-management system...
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
@@ -66,10 +78,10 @@ export default function SectionInformation() {
                     <SectionLabel label="How to play" />
                     <div style={infoBoxStyle}>
                         <ul style={{ ...textContentStyle, paddingLeft: "15px", listStyleType: "circle" }}>
-                            <li style={{ marginBottom: "8px" }}>Rooms.</li>
-                            <li style={{ marginBottom: "8px" }}>Controls.</li>
-                            <li style={{ marginBottom: "8px" }}>Pot.</li>
-                            <li style={{ marginBottom: "8px" }}>Portals.</li>
+                            <li style={{ marginBottom: "8px" }}>Rooms: [Coming soon]</li>
+                            <li style={{ marginBottom: "8px" }}>Controls: [Coming soon]</li>
+                            <li style={{ marginBottom: "8px" }}>Pot: [Coming soon]</li>
+                            <li style={{ marginBottom: "8px" }}>Portals: [Coming soon]</li>
                         </ul>
                     </div>
                 </div>

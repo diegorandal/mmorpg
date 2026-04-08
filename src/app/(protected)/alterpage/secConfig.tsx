@@ -24,10 +24,10 @@ export default function SectionConfig() {
 
             {/* TÍTULO PRINCIPAL - Estilo similar al nombre de usuario en Profile */}
             <div style={{ marginBottom: "20px" }}>
-                <h1 className="text-4xl bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold uppercase tracking-tighter">
+                <h1 className="text-4xl bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold">
                     Configuration
                 </h1>
-                <div style={{ height: "2px", width: "40px", background: "#D1851F", margin: "10px auto", opacity: 0.5 }} />
+                [Coming soon]
             </div>
 
             <div style={{ maxWidth: "340px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "25px" }}>
