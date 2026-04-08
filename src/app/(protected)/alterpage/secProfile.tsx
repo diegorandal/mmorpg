@@ -47,9 +47,18 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
     }, [profile.wallet, refreshKey]);
 
     useEffect(() => {
-        if (BigInt(profile.balance) >= BigInt(selectedMarketChar.price)){
-            setCanBuy(true);
-        } else {
+        
+        if (!selectedMarketChar) {
+            setCanBuy(false);
+            return;
+        }
+
+        try {
+            const balance = BigInt(profile.balance || "0");
+            const price = BigInt(selectedMarketChar.price || "0");
+            setCanBuy(balance >= price);
+        } catch (error) {
+            console.error("Error calculando balance:", error);
             setCanBuy(false);
         }
     }, [profile.balance, selectedMarketChar]);
@@ -206,7 +215,7 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
                         onClick={handleBuy}
                         className="w-72 py-3 mx-auto flex items-center justify-center bg-[radial-gradient(circle_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white font-bold text-lg tracking-widest border-4 border-[#D1851F] rounded-xl shadow-[0_0_10px_rgba(209,133,31,0.6)] transition-all duration-200 hover:brightness-125 hover:scale-[1.02] active:scale-95 overflow-hidden"
                     >
-                        Buy {ethers.formatUnits(selectedMarketChar.price, 18)} WLD
+                        Buy with 💰 {ethers.formatUnits(selectedMarketChar.price, 18)}
                     </button>
                 ) : (
                     /* BOTÓN DESHABILITADO */
