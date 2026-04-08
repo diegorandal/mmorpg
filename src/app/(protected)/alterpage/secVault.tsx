@@ -45,14 +45,6 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
     const [loadingTx, setLoadingTx] = useState(true);
     const actionRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const fetchOnChain = async () => {
-            // Lógica para obtener balance de la wallet
-            setOnChainBalance("123.45");
-        };
-        fetchOnChain();
-    }, [address]);
-
     // 3. Función para hacer el scroll
     const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
         // 1. Usamos la referencia del elemento que disparó el evento para mayor precisión
