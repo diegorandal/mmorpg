@@ -209,22 +209,24 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
             <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
 
                 {/* Si hay algo en el market seleccionado, el botón es verde y para comprar */}
-                {selectedMarketChar && canBuy ? (
-                    /* BOTÓN HABILITADO */
+                {selectedMarketChar ? (
                     <button
                         onClick={handleBuy}
-                        className="w-72 py-3 mx-auto flex items-center justify-center bg-[radial-gradient(circle_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white font-bold text-lg tracking-widest border-4 border-[#D1851F] rounded-xl shadow-[0_0_10px_rgba(209,133,31,0.6)] transition-all duration-200 hover:brightness-125 hover:scale-[1.02] active:scale-95 overflow-hidden"
+                        disabled={!canBuy}
+                        className={`w-72 py-3 mx-auto flex items-center justify-center rounded-xl font-bold text-lg tracking-widest border-4 transition-all duration-200 
+                            ${canBuy
+                                ? "bg-[radial-gradient(circle_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white border-[#D1851F] shadow-[0_0_10px_rgba(209,133,31,0.6)] hover:scale-[1.02]"
+                                : "bg-[#222] text-red-500 border-red-900 opacity-80 cursor-not-allowed"
+                            }`}
                     >
-                        Buy with 💰 {ethers.formatUnits(selectedMarketChar.price, 18)}
+                        {canBuy
+                            ? `Buy with 💰 ${ethers.formatUnits(selectedMarketChar.price, 18)}`
+                            : "Insufficient In-game balance"}
                     </button>
                 ) : (
-                    /* BOTÓN DESHABILITADO */
-                        <button
-                            disabled
-                            className="w-72 py-3 mx-auto flex items-center justify-center bg-[#222] text-gray-400 font-bold text-lg tracking-widest border-4 border-gray-500 opacity-75 cursor-not-allowed grayscale-[0.5] rounded-xl"
-                        >
-                            Select to buy
-                        </button>
+                    <button disabled className="w-72 py-3 mx-auto ...">
+                        Select to buy
+                    </button>
                 )}
 
                 <div style={{ display: "flex", gap: 8, width: "100%", maxWidth: "300px" }}>
