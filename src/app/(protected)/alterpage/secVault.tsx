@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ethers } from "ethers";
 import { Pay } from "@/components/Pay";
 import { Withdraw } from "@/components/Withdraw";
@@ -25,6 +25,7 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
     const [amount, setAmount] = useState<string>("");
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loadingTx, setLoadingTx] = useState(true);
+    const actionRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const fetchOnChain = async () => {
@@ -33,6 +34,17 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
         };
         fetchOnChain();
     }, [address]);
+
+    // 3. Función para hacer el scroll
+    const handleInputFocus = () => {
+        // Pequeño timeout para esperar a que el teclado del móvil empiece a subir
+        setTimeout(() => {
+            actionRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start' // Lo ubica al inicio de la pantalla
+            });
+        }, 100);
+    };
 
     const fetchHistory = async () => {
         try {
@@ -115,6 +127,7 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
                         type="number"
                         placeholder="0.0"
                         value={amount}
+                        onFocus={handleInputFocus}
                         onChange={(e) => setAmount(e.target.value)}
                         style={inputStyle}
                     />
