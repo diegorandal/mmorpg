@@ -4,6 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import { ethers } from "ethers";
 import { Pay } from "@/components/Pay";
 import { Withdraw } from "@/components/Withdraw";
+import { createPublicClient, http, formatEther } from 'viem';
+import { worldchain } from 'viem/chains';
 
 type Transaction = {
     id: number;
@@ -18,6 +20,22 @@ type Props = {
     inGameBalance: string;
     fetchProfile: () => Promise<void>;
 };
+
+const WLD_TOKEN_ADDRESS = '0x2cFc85d8E48F8EAB294be644d9E25C3030863003';
+const publicClient = createPublicClient({ // Cliente público para Worldchain
+    chain: worldchain,
+    transport: http('https://worldchain-mainnet.g.alchemy.com/public'),
+});
+const WLD_ABI = [
+    {
+        "constant": true,
+        "inputs": [{"name": "account", "type": "address"}],
+        "name": "balanceOf",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
 
 export default function SectionVault({ address, inGameBalance, fetchProfile }: Props) {
     const [onChainBalance, setOnChainBalance] = useState<string>("0.00");
@@ -46,6 +64,25 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
         }, 100);
     };
 
+    const fetchWldBalance = async () => {
+        
+        if (!address) return;
+
+        try {
+
+            const raw = await publicClient.readContract({
+                address: WLD_TOKEN_ADDRESS as `0x${string}`,
+                abi: WLD_ABI,
+                functionName: 'balanceOf',
+                args: [address as `0x${string}`],
+            });
+            setOnChainBalance(formatEther(raw as bigint));
+        } catch (e) {
+            setOnChainBalance(null);
+        }
+
+    };
+
     const fetchHistory = async () => {
         try {
             setLoadingTx(true);
@@ -66,6 +103,8 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
 
     useEffect(() => {
         fetchHistory();
+        fetchWldBalance();
+
     }, [address]);
 
     const toggleAction = (action: 'deposit' | 'withdraw') => {
