@@ -6,6 +6,7 @@ import SecProfile from './secProfile';
 import SecLeaderboard from './secLeaderboard';
 import SecInfo from './secInfo';
 import SecResult from './secResult';
+import SecConfig from './secConfig';
 import { useEffect, useRef, useState } from 'react';
 import { MyRoomState } from '@/app/(protected)/home/PlayerState';
 import { useSession } from "next-auth/react"
@@ -64,6 +65,7 @@ export default function Home() {
       case 'vault': return <SecVault address={profile.wallet} inGameBalance={profile.balance} fetchProfile={fetchProfile}></SecVault>;
       case 'profile': return <SecProfile profile={profile} fetchProfile={fetchProfile} handleSetActiveTab={handleSetActiveTab}></SecProfile>;
       case 'info': return <SecInfo></SecInfo>;
+      case 'config': return <SecConfig></SecConfig>;
       case 'result': return <SecResult address={playerWallet}></SecResult>;
       case 'leaderboard': return <SecLeaderboard loading={loadingLeaderboard} data={leaderboardData}></SecLeaderboard>;
       default: return null;

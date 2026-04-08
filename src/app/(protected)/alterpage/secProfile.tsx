@@ -153,11 +153,7 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
                 <h1 className="text-4xl bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold">
                     {profile.username}
                 </h1>
-                <p style={{ fontSize: 10, opacity: 0.4, marginTop: 6, fontFamily: 'monospace' }}>
-                    {profile.wallet}
-                </p>
             </div>
-
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", maxWidth: "280px", margin: "0 auto 20px" }}>
                 <Stat label="Total XP" value={profile.xp} />
                 <Stat label="Total Kills" value={profile.kills} />
@@ -165,7 +161,7 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
 
             {loading ? <p style={{ opacity: 0.5 }}>Loading Arsenal...</p> : (
                 <>
-                    {/* CAROUSEL 1: TUS PERSONAJES (Independiente) */}
+                    {/* CAROUSEL 1: TUS PERSONAJES */}
                     <div style={{ marginBottom: "20px" }}>
                         <SectionLabel label="Your Characters" />
                         <div ref={carouselRef} style={{
@@ -184,7 +180,7 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
                         </div>
                     </div>
 
-                    {/* CAROUSEL 2: MARKET (Independiente) */}
+                    {/* CAROUSEL 2: MARKET */}
                     <div style={{ marginBottom: "20px" }}>
                         <SectionLabel label="Market Characters" />
                         <div style={{
