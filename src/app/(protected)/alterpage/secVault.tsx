@@ -38,7 +38,7 @@ const WLD_ABI = [
 ];
 
 export default function SectionVault({ address, inGameBalance, fetchProfile }: Props) {
-    const [onChainBalance, setOnChainBalance] = useState<string>("0.00");
+    const [onChainBalance, setOnChainBalance] = useState<string>("0");
     const [activeAction, setActiveAction] = useState<'deposit' | 'withdraw' | null>(null);
     const [amount, setAmount] = useState<string>("");
     const [transactions, setTransactions] = useState<Transaction[]>([]);
