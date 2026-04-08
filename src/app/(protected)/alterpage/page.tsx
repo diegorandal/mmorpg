@@ -1,6 +1,6 @@
 'use client';
 
-import SecCage from './secCage';
+import SecVault from './secVault';
 import SecRooms from './secRooms';
 import SecProfile from './secProfile';
 import SecLeaderboard from './secLeaderboard';
@@ -61,7 +61,7 @@ export default function Home() {
   const renderSection = () => {
     switch (activeTab) {
       case 'rooms': return <SecRooms roomsData={dataRooms} handleConnection={handleConnection}></SecRooms>;
-      case 'cage': return <SecCage></SecCage>;
+      case 'vault': return <SecVault address={profile.wallet} inGameBalance={Number(profile.balance)} fetchProfile={fetchProfile}></SecVault>;
       case 'profile': return <SecProfile profile={profile} fetchProfile={fetchProfile} handleSetActiveTab={handleSetActiveTab}></SecProfile>;
       case 'info': return <SecInfo></SecInfo>;
       case 'result': return <SecResult address={playerWallet}></SecResult>;
@@ -358,7 +358,7 @@ export default function Home() {
 
           <button onClick={() => setActiveTab('profile')} className="w-16 h-16 flex items-center justify-center bg-[radial-gradient(circle_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white font-bold text-3xl tracking-widest border-4 border-[#D1851F] rounded-full shadow-[0_0_10px_rgba(209,133,31,0.6)] transition-all duration-200 hover:brightness-125 hover:scale-105 active:scale-95 overflow-hidden">👤</button>
           <button onClick={() => setActiveTab('rooms')} className="w-16 h-16 flex items-center justify-center bg-[radial-gradient(circle_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white font-bold text-3xl tracking-widest border-4 border-[#D1851F] rounded-full shadow-[0_0_10px_rgba(209,133,31,0.6)] transition-all duration-200 hover:brightness-125 hover:scale-105 active:scale-95 overflow-hidden">⚔</button>
-          <button onClick={() => setActiveTab('cage')} className="w-16 h-16 flex items-center justify-center bg-[radial-gradient(circle_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white font-bold text-3xl tracking-widest border-4 border-[#D1851F] rounded-full shadow-[0_0_10px_rgba(209,133,31,0.6)] transition-all duration-200 hover:brightness-125 hover:scale-105 active:scale-95 overflow-hidden">💸</button>
+          <button onClick={() => setActiveTab('vault')} className="w-16 h-16 flex items-center justify-center bg-[radial-gradient(circle_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white font-bold text-3xl tracking-widest border-4 border-[#D1851F] rounded-full shadow-[0_0_10px_rgba(209,133,31,0.6)] transition-all duration-200 hover:brightness-125 hover:scale-105 active:scale-95 overflow-hidden">💸</button>
 
         </nav>
 
