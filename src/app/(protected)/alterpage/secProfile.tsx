@@ -19,6 +19,7 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
     const [walletCharacters, setWalletCharacters] = useState<number[]>([]);
     const [storeCharacters, setStoreCharacters] = useState<StoreCharacter[]>([]);
     const [loading, setLoading] = useState(true);
+    const [canBuy, setCanBuy] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
     const [equippedId, setEquippedId] = useState(profile.characterid); // El que tienes puesto
     const [selectedMarketChar, setSelectedMarketChar] = useState<StoreCharacter | null>(null); // El que quieres comprar
@@ -45,6 +46,14 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
         fetchCharacters();
     }, [profile.wallet, refreshKey]);
 
+    useEffect(() => {
+        if (BigInt(profile.balance) >= BigInt(selectedMarketChar.price)){
+            setCanBuy(true);
+        } else {
+            setCanBuy(false);
+        }
+    }, [profile.balance, selectedMarketChar]);
+
     useLayoutEffect(() => {
         const timer = setTimeout(scrollToSelected, 150);         // Pequeño delay para asegurar que el DOM se actualizó con el nuevo borde
         return () => clearTimeout(timer);
@@ -62,7 +71,6 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
 
             // VALIDACION LOCAL
             if (balanceWLD < priceWLD) {
-                console.error('falta teka');
                 return;
             }
 
@@ -124,20 +132,11 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
     const scrollToSelected = () => {
         const container = carouselRef.current;
         const selectedElement = container?.querySelector('[data-selected="true"]') as HTMLElement;
-
         if (container && selectedElement) {
-            // Opción A: Método nativo (mejorado con center)
-            selectedElement.scrollIntoView({
-                behavior: "smooth",
-                block: "nearest",
-                inline: "center"
-            });
-
-            // Opción B: Backup manual si el nativo se porta mal
-            // const offset = selectedElement.offsetLeft - (container.offsetWidth / 2) + (selectedElement.offsetWidth / 2);
-            // container.scrollTo({ left: offset, behavior: 'smooth' });
+            selectedElement.scrollIntoView({behavior: "smooth", block: "nearest", inline: "center"});
         }
     };
+
     return (
         <section style={{ width: "100%", color: "white", padding: "20px 0", textAlign: "center" }}>
 
@@ -201,7 +200,7 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
             <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
 
                 {/* Si hay algo en el market seleccionado, el botón es verde y para comprar */}
-                {selectedMarketChar ? (
+                {selectedMarketChar && canBuy ? (
                     /* BOTÓN HABILITADO */
                     <button
                         onClick={handleBuy}
