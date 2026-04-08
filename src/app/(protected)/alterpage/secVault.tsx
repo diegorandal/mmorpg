@@ -93,14 +93,14 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
             {/* ACTION BUTTONS */}
             <div style={{ display: "flex", gap: 12, width: "100%", maxWidth: "300px", margin: "0 auto 20px" }}>
                 <button
-                    onClick={() => toggleAction('deposit')} style={{ ...secondaryButtonStyle, borderColor: activeAction === 'deposit' ? '#D1851F' : '#222' }}
-                >
-                    Deposit
-                </button>
-                <button
                     onClick={() => toggleAction('withdraw')} style={{ ...secondaryButtonStyle, borderColor: activeAction === 'withdraw' ? '#D1851F' : '#222' }}
                 >
                     Withdraw
+                </button>
+                <button
+                    onClick={() => toggleAction('deposit')} style={{ ...secondaryButtonStyle, borderColor: activeAction === 'deposit' ? '#D1851F' : '#222' }}
+                >
+                    Deposit
                 </button>
             </div>
 
