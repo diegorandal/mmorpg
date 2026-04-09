@@ -34,7 +34,6 @@ export default function Home() {
   const [dataRooms, setDataRooms] = useState<Room[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [connecting, setConnecting] = useState(false);
-  const [connectingFree, setConnectingFree] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
 
@@ -164,7 +163,10 @@ export default function Home() {
   const handleConnection = async (roomName: string, roomCost: string) => {
 
     if (!profile) return;
+    if (connecting) return;
+    if (room) return;
 
+    setConnecting(true);
     setError('');
     
     if (lobbyRoom) {
@@ -173,18 +175,12 @@ export default function Home() {
       setLobbyRoom(null);
     }
 
-    if(roomName == 'my_room'){
-      setConnecting(true);
-    } 
 
     // ======================================== SERVER FREE ===================================
     if (roomName == 'free_room') {
 
-      setConnectingFree(true);
-
       try{
 
-        //const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
         const options = { wallet: playerWallet, signature: "sape" };
         const joinedRoom = await colyseusClient.join<MyRoomState>(roomName, options);
         setRoom(joinedRoom);
@@ -198,7 +194,7 @@ export default function Home() {
           setTimeout(() => { setError(''); }, 2000);
           console.error("Error en handleConnection:", e);
         } finally {
-          setConnectingFree(false);
+          setConnecting(false);
         }
 
     }
