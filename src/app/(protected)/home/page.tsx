@@ -308,6 +308,26 @@ export default function Home() {
 
   }, [room]);
 
+  useEffect(() => {
+
+    if (!room) return;
+
+    const handler = () => {
+      if (document.visibilityState === 'hidden') {
+        room.send("hidden");
+      } else {
+        room.send("unhidden");
+      }
+    };
+
+    document.addEventListener('visibilitychange', handler);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handler);
+    };
+
+  }, [room]);
+
   if (!room) {
     // #region return
     return (
