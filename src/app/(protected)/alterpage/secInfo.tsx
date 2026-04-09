@@ -47,16 +47,16 @@ export default function SectionInformation() {
 
                             <ul style={{ ...textContentStyle, paddingLeft: "15px", listStyleType: "circle" }}>
                                 <li style={{ marginBottom: "8px" }}>
-                                    <strong style={{ color: "#fff" }}>Skill-Based Economy:</strong> A zero-sum ecosystem where value is transferred through combat...
+                                    <strong style={{ color: "#fff" }}>Skill-Based Economy:</strong> A zero-sum ecosystem where value is transferred through combat. Players extract digital assets (WLD) from opponents by dealing damage, effectively turning high-performing players into natural "bounties" with growing visual auras.
                                 </li>
                                 <li style={{ marginBottom: "8px" }}>
-                                    <strong style={{ color: "#fff" }}>High-Stakes Extraction:</strong> Players enter the map with a buy-in...
+                                    <strong style={{ color: "#fff" }}>High-Stakes Extraction:</strong> Players enter the map with a buy-in that converts to health (HP). Success depends on navigating variable extraction portals to secure accumulated gains and remaining health.
                                 </li>
                                 <li style={{ marginBottom: "8px" }}>
-                                    <strong style={{ color: "#fff" }}>Level Playing Field:</strong> To eliminate "Pay-to-Win" mechanics...
+                                    <strong style={{ color: "#fff" }}>Level Playing Field:</strong> To eliminate "Pay-to-Win" mechanics, all characters feature identical base stats, including damage, speed, and equipment, ensuring that only mechanical skill determines the victor.
                                 </li>
                                 <li style={{ marginBottom: "8px" }}>
-                                    <strong style={{ color: "#fff" }}>Dynamic Survival:</strong> A strategic risk-management system...
+                                    <strong style={{ color: "#fff" }}>Dynamic Survival:</strong> A strategic risk-management system allows players to use their earnings to heal during combat, balancing the protection of their "Pot" against the necessity of survival.
                                 </li>
                             </ul>
                         </div>
