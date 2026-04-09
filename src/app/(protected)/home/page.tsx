@@ -1,107 +1,91 @@
 'use client';
 
+import SecVault from './secVault';
+import SecRooms from './secRooms';
+import SecProfile from './secProfile';
+import SecLeaderboard from './secLeaderboard';
+import SecInfo from './secInfo';
+import SecResult from './secResult';
+import SecConfig from './secConfig';
 import { useEffect, useRef, useState } from 'react';
-import { MyRoomState } from '@/app/(protected)/home/PlayerState';
+import { MyRoomState } from './PlayerState';
 import { useSession } from "next-auth/react"
 import { MiniKit } from '@worldcoin/minikit-js';
 import { ethers } from "ethers";
-import InfoModal from '@/modals/Information'
-import DepositModal from '@/modals/Deposit'
-import WithdrawModal from '@/modals/Withdraw';
-import TransactionsModal from '@/modals/Transactions';
-import CharactersModal from '@/modals/Characters';
-import ResultModal from '@/modals/Result';
+import { formatEther } from "ethers";
 import * as Colyseus from "@colyseus/sdk";
 
-type PlayerProfile = {
-  wallet: string;
-  username: string;
-  balance: string;
-  xp: number;
-  kills: number;
-  characterid: number;
-  characters: number[];
-};
+type PlayerProfile = {wallet: string; username: string; balance: string; xp: number; kills: number; characterid: number; characters: number[];};
+interface Room { name: string; cost: string; desc: string; type: string; map: string; ref: string; status: string; onlineUsers: number;}
 
 export default function Home() {
+
   const gameContainerRef = useRef<HTMLDivElement>(null);
+  const roomRef = useRef<Colyseus.Room | null>(null);
+  const clientRef = useRef<Colyseus.Client | null>(null);
+  const lobbyRef = useRef<Colyseus.Room | null>(null);
   const [room, setRoom] = useState<Colyseus.Room | null>(null);
-  const [usersOnline, setUsersOnline] = useState<number | null>(null);
-  const [usersOnlineFree, setUsersOnlineFree] = useState<number | null>(null);
+  const [lobbyRoom, setLobbyRoom] = useState<Colyseus.Room | null>(null);
   const [error, setError] = useState('');
-  const { data: session, status } = useSession();
+  const {data: session, status } = useSession();
   const [playerName, setPlayerName] = useState('playera');
   const [playerWallet, setPlayerWallet] = useState('');
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
+  const [dataRooms, setDataRooms] = useState<Room[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(false);
-  const [showDepositModal, setShowDepositModal] = useState(false);
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
-  const [showTransactionsModal, setShowTransactionsModal] = useState(false);
-  const [showCharactersModal, setShowCharactersModal] = useState(false);
-  const [showResultModal, setShowResultModal] = useState(false);
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
-  const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [connectingFree, setConnectingFree] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
-  const [infoSelector, setInfoSelector] = useState<string | null>(null);
 
-  const MIN_BALANCE = 0.25; // wld
+//  const MIN_BALANCE = 0.25; // wld
+//  const balanceWld = profile?.balance ? Number(ethers.formatUnits(profile.balance, 18)) : 0;
+//  const canPlay = profile && balanceWld >= MIN_BALANCE && !connecting;
 
-  // calcular balance disponible
-  const balanceWld = profile?.balance
-    ? Number(ethers.formatUnits(profile.balance, 18))
-    : 0;
+  // Función para renderizar el componente según el estado
+  const [activeTab, setActiveTab] = useState('rooms');
 
-  const canPlay = profile && balanceWld >= MIN_BALANCE && !connecting;
+  if (!clientRef.current) {
+    clientRef.current = new Colyseus.Client(
+      "wss://randal.onepixperday.xyz"
+    );
+  }
+  
+  const colyseusClient = clientRef.current;
 
-  useEffect(() => {
+  const dataRoomsFake = [
+    {name: "Desert Royale", cost: "250000000000000000", desc: "💀", type: "Royale", map: "desert", ref: "sape", status: "close", onlineUsers: 0},
+    {name: "Capture the flag", cost: "100000000000000000", desc: "🏳", type: "Flag", map: "forest", ref: "sape", status: "close", onlineUsers: 0},
+    {name: "Color Teams", cost: "100000000000000000", desc: "👨🏽‍🤝‍👨🏻", type: "Teams", map: "dungeon", ref: "sapent", status: "close", onlineUsers: 0}
+  ];
 
-    if (!room) return;
+  const renderSection = () => {
+    switch (activeTab) {
+      case 'rooms': return <SecRooms roomsData={dataRooms} handleConnection={handleConnection} profile={profile}></SecRooms>;
+      case 'vault': return <SecVault address={profile.wallet} inGameBalance={profile.balance} fetchProfile={fetchProfile}></SecVault>;
+      case 'profile': return <SecProfile profile={profile} fetchProfile={fetchProfile} handleSetActiveTab={handleSetActiveTab}></SecProfile>;
+      case 'info': return <SecInfo></SecInfo>;
+      case 'config': return <SecConfig></SecConfig>;
+      case 'result': return <SecResult address={playerWallet}></SecResult>;
+      case 'leaderboard': return <SecLeaderboard loading={loadingLeaderboard} data={leaderboardData}></SecLeaderboard>;
+      default: return null;
+    }
+  };
 
-    const handler = () => {
-      if (document.visibilityState === 'hidden') {
-        room.send("hidden");
-      } else {
-        room.send("unhidden");
-      }
-    };
-
-    document.addEventListener('visibilitychange', handler);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handler);
-    };
-
-  }, [room]);
-
-// #region fetchProfile
+  // #region fetchProfile
   const fetchProfile = async () => {
-
     if (!session?.user?.id || !session.user.username) return;
-
     try {
-
       setLoadingProfile(true);
-
       const wallet = session.user.id.toLowerCase();
       const username = session.user.username;
-
       setPlayerName(username);
-
-      const res = await fetch(
-        `https://randal.onepixperday.xyz/api/profile?wallet=${wallet}&username=${username}`
-      );
-
+      const res = await fetch(`https://randal.onepixperday.xyz/api/profile?wallet=${wallet}&username=${username}`);
       if (!res.ok) throw new Error("Perfil no encontrado");
-
       const data = await res.json();
-
       setProfile(data);
       setPlayerName(data.username);
       setPlayerWallet(data.wallet);
-
     } catch (err) {
       console.error(err);
       setError("No se pudo cargar el perfil");
@@ -113,18 +97,11 @@ export default function Home() {
   useEffect(() => {
     if (status === "authenticated") {
       fetchProfile();
+      fetchLeaderboard();
     }
   }, [session?.user?.id]);
 
-  useEffect(() => {
-    // Solo disparamos la petición si el acordeón se abre Y no tenemos datos aún
-    // (o puedes quitar 'leaderboardData.length === 0' si quieres que se actualice siempre)
-    if (showLeaderboard && leaderboardData.length === 0) {
-      fetchLeaderboard();
-    }
-  }, [showLeaderboard]);
-
-  // #region load LeaderBoard
+  // #region fetchLeaderboard
   const fetchLeaderboard = async () => {
     setLoadingLeaderboard(true);
     try {
@@ -138,29 +115,63 @@ export default function Home() {
     }
   };
 
-  // #region online users
+  // #region Lobby
   useEffect(() => {
-    const fetchUsersOnline = async () => {
-      try {
-        const res = await fetch("https://randal.onepixperday.xyz/api/usersonline");
-        const data = await res.json();
-        setUsersOnline(data.totalClients);
-        setUsersOnlineFree(data.totalClientsFree);
-      } catch (err) {
-        return;
-      }
-    };
-    fetchUsersOnline();
-    const interval = setInterval(fetchUsersOnline, 5000);
-    return () => clearInterval(interval);
+    connectLobby();
+    return () => {lobbyRef.current?.leave();};
   }, []);
 
+  const connectLobby = async () => {
+    
+    if (lobbyRef.current) return;
+
+    try {
+      const lobby = await colyseusClient.joinOrCreate("lobby");
+      
+      lobby.removeAllListeners();
+
+      lobby.onMessage("rooms", (rooms: any[]) => {
+
+        const formatted: Room[] = rooms.map((r) => ({
+          name: r.metadata?.name ?? "",
+          cost: r.metadata?.cost ?? "0",
+          desc: r.metadata?.desc ?? "",
+          type: r.metadata?.type ?? "",
+          map: r.metadata?.map ?? "",
+          ref: r.metadata?.ref ?? "",
+          status: r.metadata?.status ?? "open",
+          onlineUsers: r.clients ?? 0
+        }));
+
+        setDataRooms([...formatted, ...dataRoomsFake]);
+      });
+
+      setLobbyRoom(lobby);
+      lobbyRef.current = lobby;
+
+    } catch (err) {
+      console.error("Lobby connection error:", err);
+    }
+  };
+
+  const handleSetActiveTab = (selectTab : string) => {
+
+    setActiveTab(selectTab);
+    
+  }
+
   // #region Connection
-  const handleConnection = async (roomName: string) => {
+  const handleConnection = async (roomName: string, roomCost: string) => {
 
     if (!profile) return;
 
     setError('');
+    
+    if (lobbyRoom) {
+      await lobbyRef.current?.leave();
+      lobbyRef.current = null;
+      setLobbyRoom(null);
+    }
 
     if(roomName == 'my_room'){
       setConnecting(true);
@@ -173,9 +184,9 @@ export default function Home() {
 
       try{
 
-        const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
+        //const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
         const options = { wallet: playerWallet, signature: "sape" };
-        const joinedRoom = await client.join<MyRoomState>(roomName, options);
+        const joinedRoom = await colyseusClient.join<MyRoomState>(roomName, options);
         setRoom(joinedRoom);
         
         return;
@@ -198,7 +209,7 @@ export default function Home() {
 
       try {
         const timestamp = new Date().toLocaleString(); 
-        const message = `Enter server ${MIN_BALANCE} wld @ ${timestamp}`;
+        const message = `Enter server ${formatEther(roomCost)} wld @ ${timestamp}`;
         const { finalPayload } = await MiniKit.commandsAsync.signMessage({ message });
         
         if (finalPayload.status !== "success") {
@@ -224,9 +235,9 @@ export default function Home() {
           throw new Error(data.body?.error || "Error interno del servidor");
         }
 
-        const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
+        //const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
         const options = { wallet: playerWallet, signature: finalPayload.signature};
-        const joinedRoom = await client.join<MyRoomState>(roomName, options);
+        const joinedRoom = await colyseusClient.join<MyRoomState>(roomName, options);
 
         setRoom(joinedRoom);
 
@@ -245,23 +256,42 @@ export default function Home() {
     }
 
   };
-
+  
   // #region exitGame
   useEffect(() => {
-    const handleExitGame = () => {
-      setShowResultModal(true);
-      if(room) setRoom(null);
+
+    const handleExitGame = async () => {
+
+      fetchProfile();
+      setActiveTab('result');
+      roomRef.current = null;
+      setRoom(null);
+      await connectLobby();
+
     };
+
     window.addEventListener('exit-game', handleExitGame);
-    fetchProfile();
-    return () => window.removeEventListener('exit-game', handleExitGame);
 
-  }, [room]);
+    return () =>
+      window.removeEventListener('exit-game', handleExitGame);
 
+  }, []);
 
   useEffect(() => {
+    roomRef.current = room;
+  }, [room]);
+
+  // #region setRoom
+  useEffect(() => {
+
     if (!room) return;
     let game: Phaser.Game | null = null;
+
+    room.onLeave((code) => {
+      console.log("Left room. Code:", code);
+      window.dispatchEvent(new Event("exit-game"));
+    });
+    
     const initPhaser = async () => {
       const Phaser = (await import('phaser')).default;
       const { getGameConfig } = await import('../game/PhaserGame');
@@ -275,389 +305,66 @@ export default function Home() {
     };
     initPhaser();
     return () => { game?.destroy(true); };
+
   }, [room]);
 
-  // #region Return
   if (!room) {
-
+    // #region return
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        height: '100vh',
-        overflowY: 'auto',
-        background: '#25201c',
-        color: 'white',
-        fontFamily: 'sans-serif',
-        padding: '20px'
-      }}>
+      <main style={{minHeight: '100vh', background: '#25201c', color: 'white', display: 'flex', flexDirection: 'column'}}>
 
-        {/* PROFILE CARD */}
-        {loadingProfile && <p>Cargando perfil...</p>}
-        {profile && (
-          <div style={{
-            display: "flex",
-            background: "#2a2a2a",
-            borderRadius: "12px",
-            padding: "16px",
-            width: "100%",
-            maxWidth: "600px",
-            marginBottom: "25px",
-            gap: "16px",
-            alignItems: "center"
-          }}>
+        {/* HEADER DIVIDIDO EN 2 */}
+        <header style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '10px 15px',
+          background: '#1a1a1a',
+          borderBottom: '1px solid #444',
+          gap: '10px',
+          flexWrap: 'nowrap'
+        }}>
 
-            {/* CHARACTER IMAGE */}
-            <div style={{ position: "relative" }}>
-
-              <img
-                src={`https://randalrpg.onepixperday.xyz/char${profile.characterid}.png`}
-                style={{
-                  width: 96,
-                  height: 96,
-                  imageRendering: "pixelated",
-                  borderRadius: "8px",
-                  background: "#69ae55"
-                }}
-              />
-
-              {/* SHOP LINK */}
-              <button
-                onClick={() => setShowCharactersModal(true)}
-                style={{
-                  position: "absolute",
-                  bottom: 0,
-                  right: 0,
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                  textDecoration: "none",
-                }}
-              >
-                🔄
-              </button>
-
-            </div>
-
-            {/* PLAYER INFO */}
-            <div style={{ flex: 1 }}>
-              <h3 className="text-2xl font-bold mb-4" style={{ margin: 0 }}>{profile.username} 
-                {/* Result Modal */}
-                <button onClick={() => setShowResultModal(true)} 
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                  cursor: 'pointer',
-                  fontSize: 'inherit',
-                  marginLeft: '8px'
-                  }}>📄</button>                
-              </h3>
-              <p style={{ margin: 0 }}>XP: {profile.xp}</p>
-              <p style={{ margin: 0 }}>Kills: {profile.kills}</p>
-            </div>
-
+          <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+            <button onClick={() => setActiveTab('config')} className="h-10 px-2 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white border-4 border-[#D1851F] rounded-lg transition-all duration-200 active:scale-95">
+              ⚙
+            </button>
+            <button onClick={() => setActiveTab('info')} className="h-10 px-2 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white border-4 border-[#D1851F] rounded-lg transition-all duration-200 active:scale-95">
+              📄
+            </button>
+            <button onClick={() => setActiveTab('leaderboard')} className="h-10 px-2 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white border-4 border-[#D1851F] rounded-lg transition-all duration-200 active:scale-95 whitespace-nowrap">
+              🏆
+            </button>
           </div>
 
-        )}
-
-
-        {/* WALLET ACTIONS */}
-        {profile && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column", // Balance arriba, botones abajo
-              background: "#2a2a2a",
-              borderRadius: "12px",
-              padding: "20px",
-              width: "100%",
-              maxWidth: "600px",
-              marginBottom: "25px",
-              gap: "20px",              // Espacio entre el balance y la fila de botones
-              alignItems: "center"
-            }}
-          >
-            {/* BALANCE - Centrado arriba */}
-            <p style={{
-              margin: 0,
-              fontSize: "1.2rem",
-              fontWeight: "bold",
-              color: "white"
-            }}>
-              In-game Balance: {profile?.balance
-                ? ethers.formatUnits(profile.balance, 18)
-                : "0"} wld
-            </p>
-
-            {/* CONTENEDOR DE BOTONES - En una fila */}
-            <div style={{
-              display: "flex",
-              flexDirection: "row",    // Botones uno al lado del otro
-              gap: "6px",             // Espacio entre botones
-              flexWrap: "nowrap",        // Por si la pantalla es muy pequeña, que bajen
-              justifyContent: "center" // Centra los botones
-            }}>
-              <button
-                onClick={() => setShowDepositModal(true)}
-                style={{
-                  padding: "8px 12px",
-                  fontSize: 12,
-                  background: "#477fe7",
-                  border: "none",
-                  borderRadius: "8px",
-                  color: "white",
-                  fontWeight: "bold",
-                  cursor: "pointer"
-                }}
-              >
-                DEPOSIT
-              </button>
-
-              <button
-                onClick={() => setShowWithdrawModal(true)}
-                style={{
-                  padding: "8px 12px",
-                  fontSize: 12,
-                  background: "#e76f51",
-                  border: "none",
-                  borderRadius: "8px",
-                  color: "white",
-                  fontWeight: "bold",
-                  cursor: "pointer"
-                }}
-              >
-                WITHDRAW
-              </button>
-
-              <button
-                onClick={() => setShowTransactionsModal(true)}
-                style={{
-                  padding: "8px 12px",
-                  fontSize: 12,
-                  background: "#2e7c62",
-                  border: "none",
-                  borderRadius: "8px",
-                  color: "white", 
-                  fontWeight: "bold",
-                  cursor: "pointer"
-                }}
-              >
-                HISTORY
-              </button>
-            </div>
-            Funds are held in-game. Withdraw to your wallet anytime.
+          {/* DERECHA: Este es el que debe adaptarse si el espacio es crítico */}
+          <div style={{ minWidth: 0, flexShrink: 1 }}>
+            <button onClick={() => setActiveTab('vault')} className="h-10 px-2 w-full flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] border-4 border-[#D1851F] rounded-lg overflow-hidden">
+              <span className="flex items-center gap-1">
+                <span>💰</span>
+                <span className="text-xs bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold truncate">
+                  {profile?.balance ? ethers.formatUnits(profile.balance, 18) : "0"}
+                </span>
+              </span>
+            </button>
           </div>
-        )}
+        </header>
 
+        {/* CONTENIDO DINÁMICO */}
+        <section style={{ flex: 1, paddingBottom: '80px', overflowY: 'auto' }}>
+          {renderSection()}
+        </section>
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column", // Esto pone los elementos en vertical
-            background: "#2a2a2a",
-            borderRadius: "12px",
-            padding: "24px",         // Aumenté un poco el padding para mejor balance
-            width: "100%",
-            maxWidth: "600px",
-            marginBottom: "25px",
-            gap: "12px",             // Espacio entre el texto y el botón
-            alignItems: "center",    // Centra ambos elementos horizontalmente
-            textAlign: "center"
-          }}
-        >
-          {/* USERS ONLINE PAY MODE */}
-          <p style={{
-            margin: 0,
-            fontSize: "1.2rem",
-            fontWeight: "bold",
-            color: "white"
-          }}>
-            {usersOnline !== null
-              ? `${usersOnline}/25 player${usersOnline === 1 ? '' : 's'} online `
-              : 'Loading data...'}
-            <button onClick={() => setInfoSelector('pay')}>📄</button>
-          </p>
+        {/* FOOTER FLOTANTE */}
+        <nav style={{position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '15px', background: '#1a1a1a', padding: '10px 10px', borderRadius: '100px', border: '1px solid #444', backdropFilter: 'blur(5px)', zIndex: 100}}>
 
-          <button
-            disabled={!canPlay || usersOnline > 24}
-            onClick={() => handleConnection("my_room")}
-            style={{
-              padding: '18px 40px',
-              fontSize: '1.4rem',
-              cursor: canPlay ? 'pointer' : 'not-allowed',
-              backgroundColor: '#4CAF50',
-              color: 'white',
-              border: 'none',
-              borderRadius: '10px',
-              fontWeight: 'bold',
-              width: '100%',
-              maxWidth: '300px',
-              opacity: canPlay ? 1 : 0.5,
-              transition: '0.2s'
-            }}
-          >
-            {usersOnline > 24
-              ? "SERVER FULL"
-              : (connecting ? "CONNECTING..." : `PLAY (${MIN_BALANCE} wld)`)}
-          </button>
+          <button onClick={() => setActiveTab('profile')} className="w-16 h-16 flex items-center justify-center bg-[radial-gradient(circle_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white font-bold text-3xl tracking-widest border-4 border-[#D1851F] rounded-full shadow-[0_0_10px_rgba(209,133,31,0.6)] transition-all duration-200 hover:brightness-125 hover:scale-105 active:scale-95 overflow-hidden">👤</button>
+          <button onClick={() => setActiveTab('rooms')} className="w-16 h-16 flex items-center justify-center bg-[radial-gradient(circle_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white font-bold text-3xl tracking-widest border-4 border-[#D1851F] rounded-full shadow-[0_0_10px_rgba(209,133,31,0.6)] transition-all duration-200 hover:brightness-125 hover:scale-105 active:scale-95 overflow-hidden">⚔</button>
+          <button onClick={() => setActiveTab('vault')} className="w-16 h-16 flex items-center justify-center bg-[radial-gradient(circle_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white font-bold text-3xl tracking-widest border-4 border-[#D1851F] rounded-full shadow-[0_0_10px_rgba(209,133,31,0.6)] transition-all duration-200 hover:brightness-125 hover:scale-105 active:scale-95 overflow-hidden">💸</button>
 
-          {/* USERS ONLINE FREE MODE */}
-          <p style={{
-            margin: 0,
-            fontSize: "1.2rem",
-            fontWeight: "bold",
-            color: "white"
-          }}>
-            {usersOnlineFree !== null
-              ? `${usersOnlineFree}/10 player${usersOnlineFree === 1 ? '' : 's'} online `
-              : 'Loading data...'}
-            <button onClick={() => setInfoSelector('free')}>📄</button>
-          </p>
+        </nav>
 
-          <button
-            disabled={usersOnlineFree > 9}
-            onClick={() => handleConnection("free_room")}
-            style={{
-              padding: '18px 40px',
-              fontSize: '1.4rem',
-              cursor: 'pointer',
-              backgroundColor: '#75864b',
-              color: 'white',
-              border: 'none',
-              borderRadius: '10px',
-              fontWeight: 'bold',
-              width: '100%',
-              maxWidth: '300px',
-              opacity: 1,
-              transition: '0.2s'
-            }}
-          >
-            {usersOnlineFree > 9
-              ? "SERVER FULL"
-              : (connectingFree ? "CONNECTING..." : `FREE (0.00 wld)`)}
-          </button>
-
-        </div>
-
-        {/* LEADERBOARD CARD */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            background: "#2a2a2a",
-            borderRadius: "12px",
-            padding: "20px",
-            width: "100%",
-            maxWidth: "600px",
-            marginBottom: "15px",
-            cursor: "pointer"
-          }}
-          onClick={() => setShowLeaderboard(!showLeaderboard)}
-        >
-          <h3 style={{ margin: 0 }}>
-            Leaderboard {showLeaderboard ? "▲" : "▼"}
-          </h3>
-
-          {showLeaderboard && (
-            <div style={{ marginTop: "15px", opacity: 0.9 }}>
-              {loadingLeaderboard ? (
-                <p>Loading ranking...</p>
-              ) : leaderboardData.length > 0 ? (
-                leaderboardData.map((player, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      padding: "8px 0",
-                      borderBottom: "1px solid #444"
-                    }}
-                  >
-                    <span>{index + 1}. {player.username || "Anonymous"}</span>
-                    <span style={{ fontWeight: "bold", color: "#ffd700" }}>
-                      {player.xp} XP <span style={{ fontSize: "0.8em", color: "#aaa" }}>({player.kills} Kills)</span>
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p>No data</p>
-              )}
-            </div>
-          )}
-        </div>
-
-
-        {/* HOW TO PLAY CARD */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            background: "#2a2a2a",
-            borderRadius: "12px",
-            padding: "20px",
-            width: "100%",
-            maxWidth: "600px",
-            marginBottom: "25px",
-            cursor: "pointer"
-          }}
-          onClick={() => setShowHowToPlay(!showHowToPlay)}
-        >
-          <h3 style={{ margin: 0 }}>
-            Information {showHowToPlay ? "▲" : "▼"}
-          </h3>
-
-          {showHowToPlay && (
-            <div style={{ marginTop: "15px", opacity: 0.9 }}>
-
-            </div>
-          )}
-        </div>
-
-        {/* MODALs */}
-        <InfoModal selector={infoSelector} onClose={() => setInfoSelector(null)}/>
-
-        {showDepositModal && (
-          <DepositModal onClose={() => setShowDepositModal(false)} onSuccess={fetchProfile}/>
-        )}
-        {showWithdrawModal && (
-          <WithdrawModal balance={Number(ethers.formatUnits(profile.balance, 18))} onClose={() => setShowWithdrawModal(false)} onSuccess={fetchProfile}/>
-        )}
-        {showTransactionsModal && (
-          <TransactionsModal address={profile.wallet} onClose={() => setShowTransactionsModal(false)} />
-        )}
-        {showResultModal && (
-          <ResultModal address={profile.wallet} onClose={() => setShowResultModal(false)} />
-        )}
-        {showCharactersModal && profile && (
-          <CharactersModal
-            address={profile.wallet}
-            balance={Number(ethers.formatUnits(profile.balance, 18))}
-            onSelect={(id, refetechar?) => {
-              
-              if (refetechar) fetchProfile();
-              
-              setProfile(prev =>
-                prev
-                  ? { ...prev, characterid: id }
-                  : prev
-              );
-
-            }}
-            onClose={() => setShowCharactersModal(false)}
-          />
-        )}
-
-        {error && (
-          <p style={{ color: '#ff5555', marginTop: '20px' }}>
-            {error}
-          </p>
-        )}
-
-        sKillsTake (Alpha 0.1.1) diegorandal
-
-      </div>
+      </main>
     );
   }
 

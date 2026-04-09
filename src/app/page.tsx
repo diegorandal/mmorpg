@@ -11,8 +11,11 @@ export default function Home() {
   useEffect(() => {
     if (status === 'authenticated') {
 
-      if (!session?.user?.id || !session.user.username) return;
+      router.push('/home');
 
+
+      /*
+      if (!session?.user?.id || !session.user.username) return;
       if (session.user.id.toLowerCase() === '0x10fed80b87407320cfb2affbd68be78868937a6e'){
         console.log('yendo a alter');
         router.push('/alterpage');
@@ -20,6 +23,7 @@ export default function Home() {
         console.log(`yendo a home id: ${session.user.id.toLowerCase()}`);
         router.push('/home');
       }
+      */
 
     } else if (status === 'unauthenticated') {
       walletAuth();
