@@ -362,7 +362,7 @@ export default function Home() {
               <span className="flex items-center gap-1">
                 <span>💰</span>
                 <span className="text-xs bg-gradient-to-b from-yellow-300 to-orange-500 bg-clip-text text-transparent font-bold truncate">
-                  {profile?.balance ? ethers.formatUnits(profile.balance, 18) : "0"}
+                  {profile?.balance ? ethers.formatUnits(profile?.balance, 18) : "0"}
                 </span>
               </span>
             </button>

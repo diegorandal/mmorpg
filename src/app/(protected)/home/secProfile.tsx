@@ -72,11 +72,11 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
         
         const id = selectedMarketChar.characterid;
         const price = selectedMarketChar.price;
-        const balanceWLD = BigInt(profile.balance);
 
         try {
 
-            const priceWLD = BigInt(price);
+            const balanceWLD = BigInt(profile.balance || "0");
+            const priceWLD = BigInt(price || "0");
 
             // VALIDACION LOCAL
             if (balanceWLD < priceWLD) {
@@ -216,7 +216,7 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
                             }`}
                     >
                         {canBuy
-                            ? `Buy with 💰 ${ethers.formatUnits(selectedMarketChar.price, 18)}`
+                            ? `Buy with 💰 ${ethers.formatUnits(selectedMarketChar?.price || "0", 18)}`
                             : "Insufficient In-game balance"}
                     </button>
                 ) : (
