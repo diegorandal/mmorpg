@@ -85,7 +85,7 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
             }
             setOnChainBalance(raw.toString());
         } catch (e) {
-            setOnChainBalance(null);
+            setOnChainBalance("0");
         }
 
     };
@@ -129,10 +129,15 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
         setActiveAction(null);
     };
     
-    function formatToken(value: bigint | string, decimals = 18, precision = 6) {
-        const formatted = ethers.formatUnits(value, decimals);
-        const [int, dec = ""] = formatted.split(".");
-        return dec ? `${int}.${dec.slice(0, precision)}` : int;
+    function formatToken(value: bigint | string | null | undefined, decimals = 18, precision = 6) {
+        if (!value) return "0"; // Maneja null, undefined y ""
+        try {
+            const formatted = ethers.formatUnits(value, decimals);
+            const [int, dec = ""] = formatted.split(".");
+            return dec ? `${int}.${dec.slice(0, precision)}` : int;
+        } catch (e) {
+            return "0";
+        }
     }
 
     const handleRetryDeposit = async (tx: Transaction) => {
@@ -185,7 +190,8 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
 
     const numericAmount = Number(amount) || 0;
     const amountInWei = amount ? ethers.parseUnits(amount, 18) : BigInt(0);
-    const isWithdrawValid = activeAction === 'withdraw' && amountInWei > BigInt(0) && amountInWei <= BigInt(inGameBalance);
+    const inGameBalanceSafe = inGameBalance ?? "0";
+    const isWithdrawValid = activeAction === 'withdraw' && amountInWei > BigInt(0) && amountInWei <= BigInt(inGameBalanceSafe);
     const isDepositValid = activeAction === 'deposit' && amountInWei > BigInt(0) && amountInWei <= BigInt(onChainBalance || 0);
     const setMaxWithdraw = () => {
         const formattedMax = ethers.formatUnits(inGameBalance, 18);
