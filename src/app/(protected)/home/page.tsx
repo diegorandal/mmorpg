@@ -61,7 +61,7 @@ export default function Home() {
   const renderSection = () => {
     switch (activeTab) {
       case 'rooms': return <SecRooms roomsData={dataRooms} handleConnection={handleConnection} profile={profile}></SecRooms>;
-      case 'vault': return <SecVault address={profile.wallet} inGameBalance={profile.balance} fetchProfile={fetchProfile}></SecVault>;
+      case 'vault': return (<SecVault address={profile!.wallet} inGameBalance={profile!.balance} fetchProfile={fetchProfile}/>);
       case 'profile': return <SecProfile profile={profile} fetchProfile={fetchProfile} handleSetActiveTab={handleSetActiveTab}></SecProfile>;
       case 'info': return <SecInfo></SecInfo>;
       case 'config': return <SecConfig></SecConfig>;
@@ -82,7 +82,10 @@ export default function Home() {
       const res = await fetch(`https://randal.onepixperday.xyz/api/profile?wallet=${wallet}&username=${username}`);
       if (!res.ok) throw new Error("Perfil no encontrado");
       const data = await res.json();
-      setProfile(data);
+      setProfile({
+        ...data,
+        balance: data.balance ?? "0"
+      });
       setPlayerName(data.username);
       setPlayerWallet(data.wallet);
     } catch (err) {
