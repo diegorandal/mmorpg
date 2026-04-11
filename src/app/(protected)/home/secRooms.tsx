@@ -43,7 +43,8 @@ export default function SectionRooms({ roomsData, handleConnection, profile }: R
                 const isClosed = room.status === "close";
 
                 // Lógica de saldo insuficiente
-                const hasEnoughBalance = BigInt(profile?.balance || "0") >= BigInt(room.cost);
+                const hasEnoughBalance = profile ? BigInt(profile.balance || "0") >= BigInt(room.cost) : false;
+
                 const isHighlighting = highlightingIndex === index;
 
                 return (

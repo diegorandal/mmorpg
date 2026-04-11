@@ -327,6 +327,17 @@ export default function Home() {
 
   }, [room]);
 
+
+  if (!profile && activeTab !== 'info' && activeTab !== 'config') {
+    return (
+      <main style={{ minHeight: '100vh', background: '#25201c', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="text-center">
+          <p className="text-2xl animate-pulse">Loading profile...</p>
+        </div>
+      </main>
+    );
+  }
+
   if (!room) {
     // #region return
     return (
