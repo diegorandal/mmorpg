@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Confetti from 'react-confetti';
+import { ethers } from "ethers";
+
 type PlayerProfile = { wallet: string; username: string; balance: string; xp: number; kills: number; characterid: number; };
 
 type Props = { address: string; profile: PlayerProfile };
@@ -79,7 +81,7 @@ export default function SectionResult({ address, profile }: Props) {
                     walletAddress: profile.wallet,
                     stats: {
                         username: profile.username,
-                        balance: profile.balance, 
+                        balance: ethers.formatUnits(profile.balance, 18), 
                         xp: profile.xp,
                         kills: profile.kills,
                     }
