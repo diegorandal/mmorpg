@@ -225,10 +225,6 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
                     </button>
                 )}
 
-                <div style={{ display: "flex", gap: 8, width: "100%", maxWidth: "300px" }}>
-                    <button onClick={() => handleSetActiveTab('result')} style={secondaryButtonStyle}>Last Run Result</button>
-                    <button style={secondaryButtonStyle}>History</button>
-                </div>
             </div>
         </section>
     );

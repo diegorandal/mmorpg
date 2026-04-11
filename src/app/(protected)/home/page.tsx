@@ -65,7 +65,7 @@ export default function Home() {
       case 'profile': return <SecProfile profile={profile} fetchProfile={fetchProfile} handleSetActiveTab={handleSetActiveTab}></SecProfile>;
       case 'info': return <SecInfo></SecInfo>;
       case 'config': return <SecConfig></SecConfig>;
-      case 'result': return <SecResult address={playerWallet}></SecResult>;
+      case 'result': return <SecResult address={playerWallet} profile={profile}></SecResult>;
       case 'leaderboard': return <SecLeaderboard loading={loadingLeaderboard} data={leaderboardData}></SecLeaderboard>;
       default: return null;
     }
@@ -381,6 +381,9 @@ export default function Home() {
             </button>
             <button onClick={() => setActiveTab('leaderboard')} className="h-10 px-2 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white border-4 border-[#D1851F] rounded-lg transition-all duration-200 active:scale-95 whitespace-nowrap">
               🏆
+            </button>
+            <button onClick={() => setActiveTab('result')} className="h-10 px-2 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#3a0402_0%,#4F0603_45%,#000000_100%)] text-white border-4 border-[#D1851F] rounded-lg transition-all duration-200 active:scale-95 whitespace-nowrap">
+              ✔
             </button>
           </div>
 

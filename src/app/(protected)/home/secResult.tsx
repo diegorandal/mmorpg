@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Confetti from 'react-confetti';
+type PlayerProfile = { wallet: string; username: string; balance: string; xp: number; kills: number; characterid: number; };
 
-type Props = { address: string; };
+type Props = { address: string; profile: PlayerProfile };
 
 type ResultResponse = {
     result: "exit" | "death" | "disconnect" | "exit_free" | "death_free" | "disconnect_free";
@@ -13,8 +14,9 @@ type ResultResponse = {
     xp: number;
 };
 
-export default function SectionResult({ address }: Props) {
+export default function SectionResult({ address, profile }: Props) {
     const [loading, setLoading] = useState(true);
+    const [feedbackLoading, setFeedbackLoading] = useState(false);
     const [error, setError] = useState("");
     const [data, setData] = useState<ResultResponse | null>(null);
     const [showConfetti, setShowConfetti] = useState(false);
@@ -64,6 +66,36 @@ export default function SectionResult({ address }: Props) {
     };
 
     const reward = calculateReward();
+
+    const handleFeedback = async () => {
+        if (!data || !address) return;
+
+        setFeedbackLoading(true);
+        try {
+            const response = await fetch('/api/get-feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    walletAddress: profile.wallet,
+                    stats: {
+                        username: profile.username,
+                        balance: profile.balance, 
+                        xp: profile.xp,
+                        kills: profile.kills,
+                    }
+                }),
+            });
+
+            const resData = await response.json();
+            if (resData.url) {
+                window.location.href = resData.url;
+            }
+        } catch (err) {
+            console.error("Error al obtener link de feedback", err);
+        } finally {
+            setFeedbackLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (data) {
@@ -127,6 +159,27 @@ export default function SectionResult({ address }: Props) {
                         <div style={{ fontSize: 48, fontWeight: 900, color: rewardColor, letterSpacing: "-1px" }}>
                             {reward.toFixed(6)} <span style={{ fontSize: 24 }}>WLD</span>
                         </div>
+                    </div>
+
+                    {/* BOTÓN DE FEEDBACK */}
+                    <div style={{ marginTop: "20px" }}>
+                        <button
+                            onClick={handleFeedback}
+                            disabled={feedbackLoading}
+                            style={{
+                                padding: "12px 24px",
+                                borderRadius: "12px",
+                                border: "1px solid rgba(255,255,255,0.2)",
+                                background: feedbackLoading ? "rgba(255, 255, 255, 0)" : "rgba(255,255,255,0.1)",
+                                color: "white",
+                                fontWeight: "bold",
+                                fontSize: "16px",
+                                cursor: feedbackLoading ? "not-allowed" : "pointer",
+                                transition: "all 0.2s"
+                            }}
+                        >
+                            {feedbackLoading ? "Loading..." : "Feedback"}
+                        </button>
                     </div>
 
                 </div>
