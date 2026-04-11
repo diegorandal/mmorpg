@@ -75,6 +75,7 @@ export default function Home() {
   const fetchProfile = async () => {
     if (!session?.user?.id || !session.user.username) return;
     try {
+
       setLoadingProfile(true);
       const wallet = session.user.id.toLowerCase();
       const username = session.user.username;
@@ -83,11 +84,13 @@ export default function Home() {
       if (!res.ok) throw new Error("Perfil no encontrado");
       const data = await res.json();
       setProfile({...data, balance: data.balance ?? "0"});
-      setPlayerName(data.username);
-      setPlayerWallet(data.wallet);
+      setPlayerName(username);
+      setPlayerWallet(wallet);
+
     } catch (err) {
-      console.error(err);
+      console.error('fprofile', err);
       setError("No se pudo cargar el perfil");
+      setLoadingProfile(false);
     } finally {
       setLoadingProfile(false);
     }

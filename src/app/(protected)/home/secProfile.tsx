@@ -38,7 +38,7 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
                 setWalletCharacters(ownedIds);
                 setStoreCharacters(store.filter(c => !ownedIds.includes(c.characterid)));
             } catch (err) {
-                console.error(err);
+                console.error('fcharacters', err);
             } finally {
                 setLoading(false);
             }
@@ -114,7 +114,7 @@ export default function SectionProfile({ profile, fetchProfile, handleSetActiveT
                 setSelectedMarketChar(null); // Quita la selección del market porque ya lo compraste
             } else {
 
-                console.error(data);
+                console.error('hbuy',data);
                 return;
 
             }

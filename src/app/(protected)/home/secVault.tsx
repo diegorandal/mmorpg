@@ -102,7 +102,7 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
             const data = await res.json();
             setTransactions(Array.isArray(data.body.transactions) ? data.body.transactions : []);
         } catch (err) {
-            console.error(err);
+            console.error('hhistory', err);
         } finally {
             setLoadingTx(false);
         }

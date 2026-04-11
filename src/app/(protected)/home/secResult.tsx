@@ -29,7 +29,7 @@ export default function SectionResult({ address }: Props) {
                 const json = await res.json();
                 setData(json.body.result);
             } catch (err) {
-                console.error(err);
+                console.error('getlastr', err);
                 setError("Could not load result");
             } finally {
                 setLoading(false);
