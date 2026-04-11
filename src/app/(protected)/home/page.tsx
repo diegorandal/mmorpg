@@ -82,10 +82,7 @@ export default function Home() {
       const res = await fetch(`https://randal.onepixperday.xyz/api/profile?wallet=${wallet}&username=${username}`);
       if (!res.ok) throw new Error("Perfil no encontrado");
       const data = await res.json();
-      setProfile({
-        ...data,
-        balance: data.balance ?? "0"
-      });
+      setProfile({...data, balance: data.balance ?? "0"});
       setPlayerName(data.username);
       setPlayerWallet(data.wallet);
     } catch (err) {
@@ -328,6 +325,22 @@ export default function Home() {
   }, [room]);
 
 
+  if (!profile && error) {
+    return (
+      <main style={{ minHeight: '100vh', background: '#25201c', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="text-center flex flex-col gap-4">
+          <p className="text-xl text-red-400">{error}</p>
+          <button
+            onClick={() => fetchProfile()}
+            className="px-6 py-2 bg-[#D1851F] rounded-lg font-bold active:scale-95 transition-transform"
+          >
+            🔄 Retry Connection
+          </button>
+        </div>
+      </main>
+    );
+  }
+
   if (!profile && activeTab !== 'info' && activeTab !== 'config') {
     return (
       <main style={{ minHeight: '100vh', background: '#25201c', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -337,6 +350,7 @@ export default function Home() {
       </main>
     );
   }
+
 
   if (!room) {
     // #region return
