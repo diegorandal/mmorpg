@@ -13,6 +13,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@app-oracle/insights": "^0.3.0",
     "@colyseus/schema": "4.0.0",
     "@colyseus/sdk": "^0.17.25",
     "@worldcoin/mini-apps-ui-kit-react": "^1.0.2",
