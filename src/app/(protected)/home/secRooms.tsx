@@ -14,6 +14,8 @@ interface RoomsProps {
 
 export default function SectionRooms({ roomsData, handleConnection, profile }: RoomsProps) {
     // Estado para controlar qué tarjeta está resaltando su costo
+    if (!profile) return <div className="text-white">Loading profile...</div>;
+
     const [highlightingIndex, setHighlightingIndex] = useState<number | null>(null);
 
     const onRoomClick = (room: Room, index: number) => {
@@ -21,7 +23,7 @@ export default function SectionRooms({ roomsData, handleConnection, profile }: R
         if (isClosed) return;
 
         // Comparación de saldos en BigInt (manejando wei)
-        const userBalance = BigInt(profile.balance || "0");
+        const userBalance = BigInt(profile?.balance || "0");
         const roomCost = BigInt(room.cost);
 
         if (userBalance < roomCost) {
@@ -41,7 +43,7 @@ export default function SectionRooms({ roomsData, handleConnection, profile }: R
                 const isClosed = room.status === "close";
 
                 // Lógica de saldo insuficiente
-                const hasEnoughBalance = BigInt(profile.balance || "0") >= BigInt(room.cost);
+                const hasEnoughBalance = BigInt(profile?.balance || "0") >= BigInt(room.cost);
                 const isHighlighting = highlightingIndex === index;
 
                 return (
