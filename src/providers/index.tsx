@@ -15,7 +15,7 @@ interface ClientProvidersProps {
   children: ReactNode;
   session: Session | null; // Use the appropriate type for session from next-auth
 }
-/*
+
 export default function ClientProviders({
   children,
   session,
@@ -26,9 +26,9 @@ export default function ClientProviders({
     </MiniKitProvider>
   );
 }
-*/
 
 
+/*
 export default function ClientProviders({
   children,
   session,
@@ -42,3 +42,4 @@ export default function ClientProviders({
   );
 }
 
+*/
