@@ -118,10 +118,8 @@ export default function SectionResult({ address, profile }: Props) {
                     width={dimensions.width}
                     height={dimensions.height}
                     recycle={true}
-                    gravity={0.4}
-                    initialVelocityX={{ min: -15, max: 15 }}
-                    initialVelocityY={{ min: -25, max: 25 }}
-                    numberOfPieces={300}
+                    gravity={0.3}
+                    numberOfPieces={400}
                     onConfettiComplete={() => setShowConfetti(false)}
                     style={{ position: 'fixed', top: 0, left: 0, zIndex: 10001, pointerEvents: 'none' }}
                 />

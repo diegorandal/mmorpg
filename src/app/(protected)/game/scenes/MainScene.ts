@@ -104,8 +104,11 @@ export class MainScene extends Phaser.Scene {
         });
 
         const BASE_URL = 'https://randalrpg.onepixperday.xyz';
-        const version = Date.now(); // Genera un número único basado en el tiempo
+        //const version = Date.now(); // Genera un número único basado en el tiempo
+        const version = "0.1.2"; // Genera un número único basado en el tiempo
+
         // ?v=${version} << agregar para evitar cache --- IGNORE ---
+
         this.load.crossOrigin = 'anonymous';
 
         for (let i = 1; i <= 18; i++) {
