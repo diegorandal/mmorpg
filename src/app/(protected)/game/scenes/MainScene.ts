@@ -429,7 +429,7 @@ export class MainScene extends Phaser.Scene {
         const margin = 120;
         const y = window.innerHeight - 120;
         const xAttack = window.innerWidth - margin;
-        const buttonAlpha = 0.65;
+        const buttonAlpha = 0.85;
         
         this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.10)
             .setScrollFactor(0)
@@ -503,10 +503,10 @@ export class MainScene extends Phaser.Scene {
         this.weapon0 = this.add.image(ax + r, ay - r, 'button-run-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         this.weapon1 = this.add.image(ax + (r * 1.40), ay, 'button-sword-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         this.weapon2 = this.add.image(ax + r, ay + r, 'button-bow-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
-        this.weapon3 = this.add.image(ax, ay + (r * 1.40), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);        this.weapon4 = this.add.image(ax - r, ay + r, 'button-spell-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+        this.weapon3 = this.add.image(ax, ay + (r * 1.40), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);        
+        this.weapon4 = this.add.image(ax - r, ay + r, 'button-spell-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         
         this.potion = this.add.image(35, this.weapon4.y, 'button-potion-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
-
         this.weaponSelectorRing = this.add.circle(-100, -100, wsize + 8).setStrokeStyle(4, 0xffff00, 0.5).setScrollFactor(0).setDepth(10001);
 
         this.weapon0.on('pointerdown', () => this.selectWeapon(0));
