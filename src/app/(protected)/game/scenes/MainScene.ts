@@ -673,7 +673,7 @@ export class MainScene extends Phaser.Scene {
 
                 const enemy = this.playerEntities[sessionId];
                 if (enemy.isDead) continue;
-                if (enemy.characterId == 8) continue;
+                // if (enemy.characterId == 8) continue; // Carandir, NPC, MAGO
 
                 const dist = Phaser.Math.Distance.Between(
                     myEntity.sprite.x, myEntity.sprite.y,

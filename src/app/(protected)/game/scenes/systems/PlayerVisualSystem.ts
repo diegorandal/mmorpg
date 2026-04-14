@@ -303,7 +303,7 @@ export class PlayerVisualSystem {
         // 3. Orientar la flecha hacia el objetivo
         arrow.rotation = Phaser.Math.Angle.Between(startX, startY, endX, endY);
         // 4. Tween hacia la posición actual del enemigo
-        this.scene.tweens.add({targets: arrow, x: endX, y: endY, duration: 250, ease: "Linear", onComplete: () => {arrow.destroy();}});
+        this.scene.tweens.add({targets: arrow, x: endX, y: endY, duration: 200, ease: "Linear", onComplete: () => {arrow.destroy();}});
 
         // Sonido
         this.scene.playSfx("flecha");
@@ -329,7 +329,7 @@ export class PlayerVisualSystem {
             // Orientar hacia el target
             arrow.rotation = Phaser.Math.Angle.Between(startX, startY, endX, endY);
             // Tween independiente
-            this.scene.tweens.add({targets: arrow, x: endX, y: endY, duration: 250, ease: "Linear", onComplete: () => {arrow.destroy();}});
+            this.scene.tweens.add({targets: arrow, x: endX, y: endY, duration: 200, ease: "Linear", onComplete: () => {arrow.destroy();}});
 
         });
 
@@ -374,14 +374,14 @@ export class PlayerVisualSystem {
         const startY = entity.sprite.y;
         const endX = targetEntity.sprite.x;
         const endY = targetEntity.sprite.y;
-        const fireball = this.scene.add.circle(startX, startY, 8, 0xff7700, 0.8).setDepth(entity.sprite.depth + 10);
+        const fireball = this.scene.add.circle(startX, startY, 8, 0xff7700, 0.7).setDepth(entity.sprite.depth);
         fireball.setBlendMode(Phaser.BlendModes.ADD);
 
         this.scene.tweens.add({
             targets: fireball,
             x: endX,
             y: endY,
-            duration: 250,
+            duration: 125,
             ease: "Linear",
             onComplete: () => fireball.destroy()
         });
