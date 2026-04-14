@@ -318,7 +318,7 @@ export default function SectionVault({ address, inGameBalance, fetchProfile }: P
                         ) : transactions.map((tx) => (
                                 <div key={tx.id} style={tableRowStyle}>
                                     <div style={{ textTransform: "uppercase", fontWeight: 'bold' }}>{tx.type}</div>
-                                    <div>{formatToken(tx.amount, 18, 2)}</div>
+                                    <div>{formatToken(tx.amount, 18, 6)}</div>
                                     <div style={{
                                         textAlign: 'right',
                                         display: 'flex',
