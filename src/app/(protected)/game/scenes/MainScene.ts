@@ -68,14 +68,14 @@ export class MainScene extends Phaser.Scene {
         // 1. Crear los elementos gráficos de la barra
         const progressBar = this.add.graphics();
         const progressBox = this.add.graphics();
-        progressBox.fillStyle(0x222222, 0.8);
+        progressBox.fillStyle(0xd1851f, 1);
         progressBox.fillRect(width / 2 - 160, height / 2 - 25, 320, 50);
 
         // 2. Crear texto de carga
         const loadingText = this.make.text({
             x: width / 2,
             y: height / 2 - 50,
-            text: 'Cargando...',
+            text: 'Loading...',
             style: { font: '20px monospace', color: '#ffffff' }
         }).setOrigin(0.5);
 
