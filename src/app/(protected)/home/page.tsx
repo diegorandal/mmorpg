@@ -54,7 +54,7 @@ export default function Home() {
 
   const dataRoomsFake = [
     {name: "Desert Royale", cost: "250000000000000000", desc: "💀", type: "Royale", map: "desert", ref: "sape", status: "close", onlineUsers: 0},
-    {name: "Capture the flag", cost: "100000000000000000", desc: "🏳", type: "Flag", map: "forest", ref: "sape", status: "close", onlineUsers: 0},
+    //{name: "Capture the flag", cost: "100000000000000000", desc: "🏳", type: "Flag", map: "forest", ref: "sape", status: "close", onlineUsers: 0},
     {name: "Color Teams", cost: "100000000000000000", desc: "👨🏽‍🤝‍👨🏻", type: "Teams", map: "dungeon", ref: "sapent", status: "close", onlineUsers: 0}
   ];
 
