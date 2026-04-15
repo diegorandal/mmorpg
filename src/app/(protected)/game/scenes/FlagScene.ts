@@ -1,14 +1,14 @@
 import Phaser from 'phaser';
 import { Room } from '@colyseus/sdk';
-import type { MyRoomState } from '@/app/(protected)/home/MyRoomState';
+import type { FlagRoomState } from '@/app/(protected)/home/FlagState';
 import { handleAttack } from "./systems/AttackSystem";
 import { MovementSystem } from "./systems/MovementSystem";
 import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
 
-export class MainScene extends Phaser.Scene {
+export class FlagScene extends Phaser.Scene {
     
     // #region declaraciones
-    public room!: Room<MyRoomState>;
+    public room!: Room<FlagRoomState>;
     private movementSystem!: MovementSystem;
     private visualSystem!: PlayerVisualSystem;
     public sfx!: Phaser.Sound.BaseSound;
@@ -114,7 +114,7 @@ export class MainScene extends Phaser.Scene {
                 frameHeight: 32 // Alto de un frame
             });
         }
-        
+        this.load.spritesheet(`flag`, `${BASE_URL}/flag.png?v=${version}`, {frameWidth: 16, frameHeight: 16});
         this.load.image('button-attack1', `${BASE_URL}/attacks1.png?v=${version}`);
         this.load.image('button-attack2', `${BASE_URL}/attacks2.png?v=${version}`);
         this.load.image('button-attack3', `${BASE_URL}/attacks3.png?v=${version}`);
@@ -136,7 +136,7 @@ export class MainScene extends Phaser.Scene {
     // #region Create
     create(): void {
 
-        const roomInstance = this.registry.get('room') as Room<MyRoomState>;
+        const roomInstance = this.registry.get('room') as Room<FlagRoomState>;
 
         this.sfx = this.sound.addAudioSprite('sfx');
 

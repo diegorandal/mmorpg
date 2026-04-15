@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Room } from "@colyseus/sdk";
-import type { MyRoomState } from "@/app/(protected)/home/PlayerState";
+import type { MyRoomState } from "@/app/(protected)/home/MyRoomState";
 
 interface AttackContext {
     room: Room<MyRoomState>;

@@ -8,7 +8,7 @@ import SecInfo from './secInfo';
 import SecResult from './secResult';
 import SecConfig from './secConfig';
 import { useEffect, useRef, useState } from 'react';
-import { MyRoomState } from './PlayerState';
+import { MyRoomState } from './MyRoomState';
 import { FlagRoomState } from './FlagState';
 import { useSession } from "next-auth/react"
 import { MiniKit } from '@worldcoin/minikit-js';

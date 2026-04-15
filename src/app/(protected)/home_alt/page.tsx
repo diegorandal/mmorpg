@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { MyRoomState } from '@/app/(protected)/home/PlayerState';
+import { MyRoomState } from '@/app/(protected)/home/MyRoomState';
 import { useSession } from "next-auth/react"
 import { MiniKit } from '@worldcoin/minikit-js';
 import { ethers } from "ethers";

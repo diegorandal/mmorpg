@@ -1,12 +1,13 @@
 // systems/MovementSystem.ts
 import Phaser from "phaser";
 import { MainScene } from "../MainScene";
+import { FlagScene } from "../FlagScene";
 import { PlayerVisualSystem } from "./PlayerVisualSystem";
 
 export class MovementSystem {
 
     constructor(
-        private scene: MainScene,
+        private scene: MainScene | FlagScene,
         private visualSystem: PlayerVisualSystem
     ) { }
 
