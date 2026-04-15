@@ -9,6 +9,7 @@ import SecResult from './secResult';
 import SecConfig from './secConfig';
 import { useEffect, useRef, useState } from 'react';
 import { MyRoomState } from './PlayerState';
+import { FlagRoomState } from './FlagState';
 import { useSession } from "next-auth/react"
 import { MiniKit } from '@worldcoin/minikit-js';
 import { ethers } from "ethers";
@@ -251,6 +252,31 @@ export default function Home() {
       } finally {
         setConnecting(false);
       }
+
+    }
+
+    // ======================================== SERVER PAY ===================================
+
+    if (roomName == 'flag_room') {
+
+      try {
+
+        const options = { wallet: playerWallet, signature: "sape" };
+        const joinedRoom = await colyseusClient.join<FlagRoomState>(roomName, options);
+        setRoom(joinedRoom);
+
+        return;
+
+      } catch (e: unknown) {
+
+        const msg = e instanceof Error ? e.message : "Error al conectar al servidor free";
+        setError(msg);
+        setTimeout(() => { setError(''); }, 2000);
+        console.error("Error en handleConnection:", e);
+      } finally {
+        setConnecting(false);
+      }
+
 
     }
 
