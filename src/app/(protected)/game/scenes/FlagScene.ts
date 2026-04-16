@@ -892,8 +892,8 @@ export class FlagScene extends Phaser.Scene {
                 // Buscamos al jugador que la lleva en tus entidades
                 const keeperEntity = this.playerEntities[flagState.keeper];
                 if (keeperEntity && keeperEntity.sprite) {
-                    this.flagEntity.setPosition(keeperEntity.sprite.x, keeperEntity.sprite.y - 8);
-                    this.flagEntity.setDepth(keeperEntity.sprite.y + 1);
+                    this.flagEntity.setPosition(keeperEntity.sprite.x + 4, keeperEntity.sprite.y - 6);
+                    this.flagEntity.setDepth(keeperEntity.sprite.y - 1);
                 }
             } else {
                 // Si la bandera está en el suelo, usamos la posición estática del server
