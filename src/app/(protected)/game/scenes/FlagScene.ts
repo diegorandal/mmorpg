@@ -56,6 +56,7 @@ export class FlagScene extends Phaser.Scene {
     private showDirectionIndicator: boolean = true;
     private attackButtonsUI: { [key: number]: Phaser.GameObjects.Image } = {};
     private potToShow = 0;
+    public flagEntity?: Phaser.Physics.Arcade.Sprite;
 
     // #region preload
     preload(): void {
@@ -226,16 +227,11 @@ export class FlagScene extends Phaser.Scene {
             });
         }
 
-        this.room.onLeave((code) => {
+        // Animaciones para la bandera
+        this.anims.create({key: 'flag-idle', frames: this.anims.generateFrameNumbers('flag', { start: 0, end: 0 }), frameRate: 1, repeat: -1});
+        this.anims.create({key: 'flag-move', frames: this.anims.generateFrameNumbers('flag', { start: 1, end: 4 }), frameRate: 8, repeat: -1});
 
-            /*
-            console.log(`Has salido de la sala. Código de cierre: ${code}`);
-            if (code === 1000) {
-                console.log("Cierre limpio (voluntario o expulsión controlada)");
-            } else {
-                console.log("Cierre por error de red o crash del servidor");
-            }
-            */
+        this.room.onLeave((code) => {
 
             this.showDeathScreen();
             
@@ -303,7 +299,8 @@ export class FlagScene extends Phaser.Scene {
 
         // 2. Sincronización en Tiempo Real:
         this.room.onStateChange((state) => {
-            // Detectar nuevos
+
+            // Detectar nuevos players
             state.players.forEach((player, sessionId) => {
                 if (!this.playerEntities[sessionId]) {
                     this.addPlayer(player, sessionId);
@@ -317,7 +314,6 @@ export class FlagScene extends Phaser.Scene {
                     this.removePlayer(sessionId);
                 }
             }
-            
             // PORTALES Agregar nuevos y actualizar existentes
             state.portals.forEach((portal, id) => {
                 if (!this.portalEntities[id]) {
@@ -326,12 +322,35 @@ export class FlagScene extends Phaser.Scene {
                     this.updatePortalVisual(portal, id);
                 }
             });
-
             // Eliminar los que ya no existen
             for (const id in this.portalEntities) {
                 if (!state.portals.has(id)) {
                     this.portalEntities[id].destroy();
                     delete this.portalEntities[id];
+                }
+            }
+
+            // Sincronización de la Bandera
+            if (state.flag) {
+                if (!this.flagEntity) {
+                    // Crear el sprite si es la primera vez que recibimos el estado
+                    this.flagEntity = this.physics.add.sprite(state.flag.x, state.flag.y, 'flag');
+                    this.flagEntity.setScale(3); // Escala consistente con tus personajes
+                    this.flagEntity.play('flag-idle');
+                } else {
+                    // Actualizar posición y profundidad para el orden visual
+                    // SI ALGUIEN LA TIENE O SI ESTA SUELTA:
+                    if(state.flag.keeper == "") {
+                        const playerKeeper = this.playerEntities[state.flag.keeper];
+                        if(playerKeeper) {
+                            this.flagEntity.setPosition(playerKeeper.sprite.x, playerKeeper.sprite.y);
+                            this.flagEntity.setDepth(state.flag.y);
+                        }
+                    } else {
+                        this.flagEntity.setPosition(state.flag.x, state.flag.y);
+                        this.flagEntity.setDepth(state.flag.y);
+                    }                
+
                 }
             }
 
