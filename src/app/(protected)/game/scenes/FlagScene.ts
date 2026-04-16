@@ -299,6 +299,7 @@ export class FlagScene extends Phaser.Scene {
 
         // 2. Sincronización en Tiempo Real:
         this.room.onStateChange((state) => {
+            console.log('state', state.toJSON());
 
             // Detectar nuevos players
             state.players.forEach((player, sessionId) => {
@@ -332,10 +333,13 @@ export class FlagScene extends Phaser.Scene {
 
             // Sincronización de la Bandera
             if (state.flag) {
+                console.log('state.flag', state.flag);
                 if (!this.flagEntity) {
                     // Crear el sprite si es la primera vez que recibimos el estado
                     this.flagEntity = this.physics.add.sprite(state.flag.x, state.flag.y, 'flag');
                     this.flagEntity.setScale(3); // Escala consistente con tus personajes
+                    this.flagEntity.setOrigin(0.5, 1);
+                    this.flagEntity.setDepth(10000);
                     this.flagEntity.play('flag-idle');
                     console.log('create flag', state.flag);
                 } else {
@@ -345,7 +349,7 @@ export class FlagScene extends Phaser.Scene {
                         const playerKeeper = this.playerEntities[state.flag.keeper];
                         if(playerKeeper) {
                             this.flagEntity.setPosition(playerKeeper.sprite.x, playerKeeper.sprite.y);
-                            this.flagEntity.setDepth(state.flag.y);
+                            this.flagEntity.setDepth(10000);
                         }
                     } else {
                         this.flagEntity.setPosition(state.flag.x, state.flag.y);
