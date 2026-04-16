@@ -60,6 +60,7 @@ export class FlagScene extends Phaser.Scene {
     private attackButtonsUI: { [key: number]: Phaser.GameObjects.Image } = {};
     private potToShow = 0;
     public flagEntity?: Phaser.Physics.Arcade.Sprite;
+    private flagPickupCooldown = 0;
 
     // #region preload
     preload(): void {
@@ -365,10 +366,16 @@ export class FlagScene extends Phaser.Scene {
                 } 
 
                 const isKeeper = state.flag.keeper === this.room.sessionId;
-                if (this.dropFlagButton && this.dropFlagButton.visible !== isKeeper) {
-                    this.dropFlagButton.setVisible(isKeeper);
-                }
-                
+                const shouldShowDropButton = isKeeper && this.myCurrentWeaponType === 0;
+
+                if (this.dropFlagButton) {
+                    this.dropFlagButton.setVisible(shouldShowDropButton);
+                    if (shouldShowDropButton) {
+                        this.dropFlagButton.setInteractive();
+                    } else {
+                        this.dropFlagButton.disableInteractive();
+                    }
+                }                
             }
 
         });
@@ -539,7 +546,7 @@ export class FlagScene extends Phaser.Scene {
         this.weapon3 = this.add.image(ax, ay + (r * 1.40), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);        
         this.weapon4 = this.add.image(ax - r, ay + r, 'button-spell-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
 
-        this.dropFlagButton = this.add.image(xAttack, y, 'button-drop-flag-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+        this.dropFlagButton = this.add.image(xAttack, y, 'button-drop-flag-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(112, 112).setAlpha(buttonAlpha).setVisible(false);
         this.weaponSelectorRing = this.add.circle(-100, -100, wsize + 8).setStrokeStyle(4, 0xffff00, 0.5).setScrollFactor(0).setDepth(10001);
 
         this.weapon0.on('pointerdown', () => this.selectWeapon(0));
@@ -551,7 +558,10 @@ export class FlagScene extends Phaser.Scene {
         // --- DROP FLAG ---
         this.dropFlagButton.on('pointerdown', () => {
 
-            if (this.room.state.flag.keeper === this.room.sessionId) this.room.send("dropFlag");
+            if (this.room.state.flag.keeper === this.room.sessionId) {
+                this.room.send("dropFlag");
+                this.flagPickupCooldown = this.time.now + 3000;
+            }
 
         });
 
@@ -620,6 +630,7 @@ export class FlagScene extends Phaser.Scene {
         this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
 
     }
+
     private showDiana(){
 
         if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2) {
@@ -1054,6 +1065,8 @@ export class FlagScene extends Phaser.Scene {
     private checkFlagCollision(time: number) {
 
         if (this.room.state.flag.keeper !== "") return;
+        if (time < this.flagPickupCooldown) return;
+
         const myId = this.room.sessionId;
         const myEntity = this.playerEntities[myId];
         if (!myEntity) return;
