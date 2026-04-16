@@ -321,7 +321,9 @@ export default function Home() {
     
     const initPhaser = async () => {
       const Phaser = (await import('phaser')).default;
-      const { getGameConfig } = await import('../game/PhaserGame');
+      // const { getGameConfig } = await import('../game/PhaserGame');
+      // Cambia la línea del import dinámico por esto:
+      const { getGameConfig } = (await import('../game/PhaserGame')) as typeof import('../game/PhaserGame');
       if (gameContainerRef.current) {
         const sceneToLoad = room.name === 'flag_room' ? FlagScene : MainScene;
         const config = getGameConfig(gameContainerRef.current.id, sceneToLoad);
