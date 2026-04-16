@@ -240,7 +240,7 @@ export class FlagScene extends Phaser.Scene {
             frames: this.anims.generateFrameNumbers('flag', {
                 frames: [4, 5, 6, 5, 7, 5, 6, 5]
             }),
-            frameRate: 6,
+            frameRate: 10,
             repeat: -1
         });
 
@@ -249,7 +249,7 @@ export class FlagScene extends Phaser.Scene {
             frames: this.anims.generateFrameNumbers('flag', {
                 frames: [0, 1, 2, 3]
             }),
-            frameRate: 10,
+            frameRate: 5,
             repeat: -1
         });
 
@@ -359,21 +359,16 @@ export class FlagScene extends Phaser.Scene {
                     this.flagEntity = this.physics.add.sprite(state.flag.x, state.flag.y, 'flag');
                     this.flagEntity.setScale(3); // Escala consistente con tus personajes
                     this.flagEntity.setOrigin(0.5, 1);
-                    this.flagEntity.setDepth(10000);
+                    this.flagEntity.setDepth(state.flag.y);
                     this.flagEntity.play('flag-idle');
                     console.log('create flag', state.flag);
                 } else {
                     // Actualizar posición y profundidad para el orden visual
                     // SI ALGUIEN LA TIENE O SI ESTA SUELTA:
-                    if(state.flag.keeper !== "") {
-                        const playerKeeper = this.playerEntities[state.flag.keeper];
-                        if(playerKeeper) {
-                            this.flagEntity.setPosition(playerKeeper.sprite.x, playerKeeper.sprite.y);
-                            this.flagEntity.setDepth(10000);
-                        }
+                    if(state.flag.keeper == "") {
+                        this.flagEntity.play('flag-idle');
                     } else {
-                        this.flagEntity.setPosition(state.flag.x, state.flag.y);
-                        this.flagEntity.setDepth(10000);
+                        this.flagEntity.play('flag-move');
                     }                
 
                 }
@@ -816,8 +811,7 @@ export class FlagScene extends Phaser.Scene {
             myEntity.hp = myState.hp;
         }
 
-        // 🖥 UI
-        
+        // 🖥 UI        
         if (this.hpText) this.hpText.setText(`❤ ${myEntity.hp}`);
         if (myState?.pot !== undefined) {
             const targetPot = myState.pot;
@@ -887,8 +881,26 @@ export class FlagScene extends Phaser.Scene {
         // --- FLAG PROXIMITY CHECK ---
         this.checkFlagCollision(time);
 
-        // 🚶 MOVEMENT SYSTEM
+        // --- MOVEMENT SYSTEM ---
         this.movementSystem.update(delta);
+
+        // --- UPDATE FLAG POSITION ---
+        if (this.flagEntity && this.room.state.flag) {
+            const flagState = this.room.state.flag;
+            // Si alguien tiene la bandera (keeper no está vacío)
+            if (flagState.keeper && flagState.keeper !== "") {
+                // Buscamos al jugador que la lleva en tus entidades
+                const keeperEntity = this.playerEntities[flagState.keeper];
+                if (keeperEntity && keeperEntity.sprite) {
+                    this.flagEntity.setPosition(keeperEntity.sprite.x, keeperEntity.sprite.y - 8);
+                    this.flagEntity.setDepth(keeperEntity.sprite.y + 1);
+                }
+            } else {
+                // Si la bandera está en el suelo, usamos la posición estática del server
+                this.flagEntity.setPosition(flagState.x, flagState.y);
+                this.flagEntity.setDepth(flagState.y);
+            }
+        }
 
     }
 
