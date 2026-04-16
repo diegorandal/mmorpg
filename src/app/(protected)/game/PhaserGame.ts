@@ -1,6 +1,7 @@
 // src/game/PhaserGame.ts
 import Phaser from 'phaser';
 import { MainScene } from './scenes/MainScene';
+import { FlagScene } from './scenes/FlagScene';
 
 export const getGameConfig = (containerId: string): Phaser.Types.Core.GameConfig => ({
     scale: {
@@ -28,6 +29,7 @@ export const getGameConfig = (containerId: string): Phaser.Types.Core.GameConfig
     audio: {
         disableWebAudio: false
     },
-    scene: [MainScene], // Aquí añades todas tus escenas
+    
+    scene: [MainScene, FlagScene],    
 
 });

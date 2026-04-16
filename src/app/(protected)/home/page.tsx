@@ -326,6 +326,16 @@ export default function Home() {
           preBoot: (g) => { g.registry.set('room', room); }
         };
         game = new Phaser.Game(config);
+
+        // 👇 ACA elegís la escena
+        game.events.once('ready', () => {
+          if (room.name === 'flag_room') {
+            game!.scene.start('FlagScene');
+          } else {
+            game!.scene.start('MainScene');
+          }
+        });
+
       }
     };
     initPhaser();

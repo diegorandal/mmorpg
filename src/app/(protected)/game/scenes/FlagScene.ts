@@ -115,6 +115,7 @@ export class FlagScene extends Phaser.Scene {
                 frameHeight: 32 // Alto de un frame
             });
         }
+        
         this.load.spritesheet('flag', `${BASE_URL}/flag.png?v=${version}`, {frameWidth: 16, frameHeight: 16});
         this.load.image('button-attack1', `${BASE_URL}/attacks1.png?v=${version}`);
         this.load.image('button-attack2', `${BASE_URL}/attacks2.png?v=${version}`);
