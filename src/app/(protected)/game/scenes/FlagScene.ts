@@ -31,7 +31,7 @@ export class FlagScene extends Phaser.Scene {
     private weapon2?: Phaser.GameObjects.Image;
     private weapon3?: Phaser.GameObjects.Image;
     private weapon4?: Phaser.GameObjects.Image;
-    private potion?: Phaser.GameObjects.Image;
+    private dropFlagButton?: Phaser.GameObjects.Image;
     private attackDragStartX = 0;
     private attackDragStartY = 0;
     private attackDragSelect = 1;
@@ -131,6 +131,7 @@ export class FlagScene extends Phaser.Scene {
         this.load.image('button-wand-image', `${BASE_URL}/button_wand.png?v=${version}`);
         this.load.image('button-spell-image', `${BASE_URL}/button_spell.png?v=${version}`);
         this.load.image('button-potion-image', `${BASE_URL}/button_potion.png?v=${version}`);
+        this.load.image('button-drop-flag-image', `${BASE_URL}/drop_flag.png?v=${version}`);
         this.load.image('tileset-image', `${BASE_URL}/tileset.png?v=${version}`);
         this.load.json('mapData', `${BASE_URL}/map.json?v=${version}`);
         this.load.image('arrow', `${BASE_URL}/arrow.png?v=${version}`);
@@ -357,21 +358,17 @@ export class FlagScene extends Phaser.Scene {
                 if (!this.flagEntity) {
                     // Crear el sprite si es la primera vez que recibimos el estado
                     this.flagEntity = this.physics.add.sprite(state.flag.x, state.flag.y, 'flag');
-                    this.flagEntity.setScale(3); // Escala consistente con tus personajes
+                    this.flagEntity.setScale(3); 
                     this.flagEntity.setOrigin(0.5, 1);
                     this.flagEntity.setDepth(state.flag.y);
                     this.flagEntity.play('flag-idle');
-                    console.log('create flag', state.flag);
-                } else {
-                    // Actualizar posición y profundidad para el orden visual
-                    // SI ALGUIEN LA TIENE O SI ESTA SUELTA:
-                    if(state.flag.keeper == "") {
-                        this.flagEntity.play('flag-idle');
-                    } else {
-                        this.flagEntity.play('flag-move');
-                    }                
+                } 
 
+                const isKeeper = state.flag.keeper === this.room.sessionId;
+                if (this.dropFlagButton && this.dropFlagButton.visible !== isKeeper) {
+                    this.dropFlagButton.setVisible(isKeeper);
                 }
+                
             }
 
         });
@@ -451,8 +448,8 @@ export class FlagScene extends Phaser.Scene {
         this.weapon2?.setVisible(false);
         this.weapon3?.setVisible(false);
         this.weapon4?.setVisible(false);
-        this.potion?.setVisible(false);
-        this.potion?.setActive(false);
+        this.dropFlagButton?.setVisible(false);
+        this.dropFlagButton?.setActive(false);
         this.weaponSelectorRing?.setVisible(false);
         Object.values(this.attackButtonsUI).forEach(img => img.setVisible(false));
 
@@ -541,8 +538,8 @@ export class FlagScene extends Phaser.Scene {
         this.weapon2 = this.add.image(ax + r, ay + r, 'button-bow-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         this.weapon3 = this.add.image(ax, ay + (r * 1.40), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);        
         this.weapon4 = this.add.image(ax - r, ay + r, 'button-spell-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
-        
-        this.potion = this.add.image(35, this.weapon4.y, 'button-potion-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+
+        this.dropFlagButton = this.add.image(xAttack, y, 'button-drop-flag-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         this.weaponSelectorRing = this.add.circle(-100, -100, wsize + 8).setStrokeStyle(4, 0xffff00, 0.5).setScrollFactor(0).setDepth(10001);
 
         this.weapon0.on('pointerdown', () => this.selectWeapon(0));
@@ -551,8 +548,12 @@ export class FlagScene extends Phaser.Scene {
         this.weapon3.on('pointerdown', () => this.selectWeapon(3));
         this.weapon4.on('pointerdown', () => this.selectWeapon(4));
 
-        // usar pocion
-        this.potion.on('pointerdown', () => {this.room.send("useItem", { item: 1 });});
+        // --- DROP FLAG ---
+        this.dropFlagButton.on('pointerdown', () => {
+
+            if (this.room.state.flag.keeper === this.room.sessionId) this.room.send("dropFlag");
+
+        });
 
         // --- LÓGICA PARA JOYSTICK ---
         this.joystickThumb.setInteractive();     
@@ -573,7 +574,6 @@ export class FlagScene extends Phaser.Scene {
             const angle = Math.atan2(dy, dx);
             this.joystickThumb.x = x + Math.cos(angle) * distance;
             this.joystickThumb.y = y + Math.sin(angle) * distance;
-            this.potion?.setVisible(false);
 
         });
 
@@ -583,7 +583,6 @@ export class FlagScene extends Phaser.Scene {
             this.joystickPointerId = null;
             this.joystickThumb.x = x;
             this.joystickThumb.y = y;
-            this.potion?.setVisible(true);
 
         });
 
@@ -599,9 +598,21 @@ export class FlagScene extends Phaser.Scene {
         if(type === 0){
             for (let i = 1; i <= 4; i++) if (this.attackButtonsUI[i]) this.attackButtonsUI[i].setVisible(false);
             this.attackButton.disableInteractive();
+
+            if (this.dropFlagButton && this.room.state.flag.keeper === this.room.sessionId) {
+                this.dropFlagButton.setVisible(true);
+                this.dropFlagButton.setInteractive();
+            }
+
         } else {
             for (let i = 1; i <= 4; i++) if (this.attackButtonsUI[i]) this.attackButtonsUI[i].setVisible(i === this.attackDragSelect);
             this.attackButton.setInteractive();
+
+            if (this.dropFlagButton) {
+                this.dropFlagButton.setVisible(false);
+                this.dropFlagButton.disableInteractive();
+            }
+
         }
 
         this.showDiana();
@@ -892,13 +903,19 @@ export class FlagScene extends Phaser.Scene {
                 // Buscamos al jugador que la lleva en tus entidades
                 const keeperEntity = this.playerEntities[flagState.keeper];
                 if (keeperEntity && keeperEntity.sprite) {
-                    this.flagEntity.setPosition(keeperEntity.sprite.x + 4, keeperEntity.sprite.y - 6);
+                    this.flagEntity.setPosition(keeperEntity.sprite.x + 5, keeperEntity.sprite.y - 8);
                     this.flagEntity.setDepth(keeperEntity.sprite.y - 1);
+                    if (this.flagEntity.anims.currentAnim?.key !== 'flag-move') {
+                        this.flagEntity.play('flag-move');
+                    }
                 }
             } else {
                 // Si la bandera está en el suelo, usamos la posición estática del server
                 this.flagEntity.setPosition(flagState.x, flagState.y);
                 this.flagEntity.setDepth(flagState.y);
+                if (this.flagEntity.anims.currentAnim?.key !== 'flag-idle') {
+                    this.flagEntity.play('flag-idle');
+                }
             }
         }
 
