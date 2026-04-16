@@ -15,6 +15,8 @@ import { MiniKit } from '@worldcoin/minikit-js';
 import { ethers } from "ethers";
 import { formatEther } from "ethers";
 import * as Colyseus from "@colyseus/sdk";
+import { MainScene } from '../game/scenes/MainScene';
+import { FlagScene } from '../game/scenes/FlagScene';
 
 type PlayerProfile = {wallet: string; username: string; balance: string; xp: number; kills: number; characterid: number; characters: number[];};
 interface Room { name: string; cost: string; desc: string; type: string; map: string; ref: string; status: string; onlineUsers: number;}
@@ -321,21 +323,10 @@ export default function Home() {
       const Phaser = (await import('phaser')).default;
       const { getGameConfig } = await import('../game/PhaserGame');
       if (gameContainerRef.current) {
-        const config = getGameConfig(gameContainerRef.current.id);
-        config.callbacks = {
-          preBoot: (g) => { g.registry.set('room', room); }
-        };
+        const sceneToLoad = room.name === 'flag_room' ? FlagScene : MainScene;
+        const config = getGameConfig(gameContainerRef.current.id, sceneToLoad);
+        config.callbacks = {preBoot: (g) => { g.registry.set('room', room); }};
         game = new Phaser.Game(config);
-
-        // 👇 ACA elegís la escena
-        game.events.once('ready', () => {
-          if (room.name === 'flag_room') {
-            game!.scene.start('FlagScene');
-          } else {
-            game!.scene.start('MainScene');
-          }
-        });
-
       }
     };
     initPhaser();

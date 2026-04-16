@@ -16,11 +16,7 @@ interface ClientProvidersProps {
   session: Session | null; // Use the appropriate type for session from next-auth
 }
 
-
-export default function ClientProviders({
-  children,
-  session,
-}: ClientProvidersProps) {
+export default function ClientProviders({children, session}: ClientProvidersProps) {
 
   return (
     <MiniKitProvider>
@@ -28,14 +24,10 @@ export default function ClientProviders({
     </MiniKitProvider>
   );
 
-
 }
 
 /*
-export default function ClientProviders({
-  children,
-  session,
-}: ClientProvidersProps) {
+export default function ClientProviders({children, session}: ClientProvidersProps) {
   return (
     <ErudaProvider>
       <MiniKitProvider>
