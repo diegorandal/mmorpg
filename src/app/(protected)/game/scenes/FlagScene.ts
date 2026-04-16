@@ -219,14 +219,17 @@ export class FlagScene extends Phaser.Scene {
             const charKey = `char_${i}`;
             directions.forEach((dir, row) => {
                 Object.entries(actionsConfig).forEach(([actionName, config]) => {
-                    this.anims.create({
-                        key: `${actionName}-${dir}-${i}`,
-                        frames: this.anims.generateFrameNumbers(charKey, {
-                            frames: config.frames.map(f => (row * 24) + f)
-                        }),
-                        frameRate: config.rate,
-                        repeat: config.repeat
-                    });
+                    const key = `${actionName}-${dir}-${i}`;
+                        if (!this.anims.exists(key)) {
+                        this.anims.create({
+                            key: `${actionName}-${dir}-${i}`,
+                            frames: this.anims.generateFrameNumbers(charKey, {
+                                frames: config.frames.map(f => (row * 24) + f)
+                            }),
+                            frameRate: config.rate,
+                            repeat: config.repeat
+                        });
+                    }
                 });
             });
         }
