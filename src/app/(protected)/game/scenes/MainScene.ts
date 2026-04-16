@@ -6,7 +6,9 @@ import { MovementSystem } from "./systems/MovementSystem";
 import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
 
 export class MainScene extends Phaser.Scene {
-    
+    constructor() {
+        super('MainScene');
+    }
     // #region declaraciones
     public room!: Room<MyRoomState>;
     private movementSystem!: MovementSystem;
