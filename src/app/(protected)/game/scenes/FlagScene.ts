@@ -115,7 +115,7 @@ export class FlagScene extends Phaser.Scene {
                 frameHeight: 32 // Alto de un frame
             });
         }
-        this.load.spritesheet(`flag`, `${BASE_URL}/flag.png?v=${version}`, {frameWidth: 16, frameHeight: 16});
+        this.load.spritesheet('flag', `${BASE_URL}/flag.png?v=${version}`, {frameWidth: 16, frameHeight: 16});
         this.load.image('button-attack1', `${BASE_URL}/attacks1.png?v=${version}`);
         this.load.image('button-attack2', `${BASE_URL}/attacks2.png?v=${version}`);
         this.load.image('button-attack3', `${BASE_URL}/attacks3.png?v=${version}`);
@@ -337,10 +337,11 @@ export class FlagScene extends Phaser.Scene {
                     this.flagEntity = this.physics.add.sprite(state.flag.x, state.flag.y, 'flag');
                     this.flagEntity.setScale(3); // Escala consistente con tus personajes
                     this.flagEntity.play('flag-idle');
+                    console.log('create flag', state.flag);
                 } else {
                     // Actualizar posición y profundidad para el orden visual
                     // SI ALGUIEN LA TIENE O SI ESTA SUELTA:
-                    if(state.flag.keeper == "") {
+                    if(state.flag.keeper != "") {
                         const playerKeeper = this.playerEntities[state.flag.keeper];
                         if(playerKeeper) {
                             this.flagEntity.setPosition(playerKeeper.sprite.x, playerKeeper.sprite.y);

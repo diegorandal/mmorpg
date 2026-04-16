@@ -16,19 +16,22 @@ interface ClientProvidersProps {
   session: Session | null; // Use the appropriate type for session from next-auth
 }
 
+/*
 export default function ClientProviders({
   children,
   session,
 }: ClientProvidersProps) {
+
   return (
     <MiniKitProvider>
       <SessionProvider session={session}>{children}</SessionProvider>
     </MiniKitProvider>
   );
+
+
 }
+*/
 
-
-/*
 export default function ClientProviders({
   children,
   session,
@@ -42,4 +45,3 @@ export default function ClientProviders({
   );
 }
 
-*/
