@@ -108,7 +108,7 @@ export class FlagScene extends Phaser.Scene {
         });
 
         const BASE_URL = 'https://randalrpg.onepixperday.xyz';
-        const version = "0.1.2";
+        const version = "0.1.3";
 
         this.load.crossOrigin = 'anonymous';
 
@@ -234,9 +234,24 @@ export class FlagScene extends Phaser.Scene {
             });
         }
 
-        // Animaciones para la bandera
-        this.anims.create({key: 'flag-idle', frames: this.anims.generateFrameNumbers('flag', { start: 0, end: 0 }), frameRate: 1, repeat: -1});
-        this.anims.create({key: 'flag-move', frames: this.anims.generateFrameNumbers('flag', { start: 1, end: 4 }), frameRate: 8, repeat: -1});
+        // Animaciones para la bandera personalizadas
+        this.anims.create({
+            key: 'flag-move',
+            frames: this.anims.generateFrameNumbers('flag', {
+                frames: [4, 5, 6, 5, 7, 5, 6, 5]
+            }),
+            frameRate: 6,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'flag-idle',
+            frames: this.anims.generateFrameNumbers('flag', {
+                frames: [0, 1, 2, 3]
+            }),
+            frameRate: 10,
+            repeat: -1
+        });
 
         this.room.onLeave((code) => {
 
@@ -869,6 +884,9 @@ export class FlagScene extends Phaser.Scene {
         // --- PORTAL PROXIMITY CHECK ---
         this.checkPortalCollision(time);
 
+        // --- FLAG PROXIMITY CHECK ---
+        this.checkFlagCollision(time);
+
         // 🚶 MOVEMENT SYSTEM
         this.movementSystem.update(delta);
 
@@ -962,6 +980,7 @@ export class FlagScene extends Phaser.Scene {
         graphics.strokePath();
     }
 
+    // #region checkPortalCollision
     private checkPortalCollision(time: number) {
 
         const myId = this.room.sessionId;
@@ -973,8 +992,7 @@ export class FlagScene extends Phaser.Scene {
 
         const px = myEntity.sprite.x;
         const py = myEntity.sprite.y;
-        const radius = 24;
-        const radiusSq = radius * radius;
+        const radiusSq = 576; // 24 * 24
 
         let foundPortal: string | null = null;
 
@@ -1002,6 +1020,26 @@ export class FlagScene extends Phaser.Scene {
         } 
 
     }
+
+    // #region checkFlagCollision
+    private checkFlagCollision(time: number) {
+
+        if (this.room.state.flag.keeper !== "") return;
+        const myId = this.room.sessionId;
+        const myEntity = this.playerEntities[myId];
+        if (!myEntity) return;
+
+        const px = myEntity.sprite.x;
+        const py = myEntity.sprite.y;
+        const radiusSq = 576; // 24*24
+        const dx = px - this.flagEntity?.x;
+        const dy = py - this.flagEntity?.y;
+        const distSq = dx * dx + dy * dy;
+        
+        if (distSq <= radiusSq) this.room.send("takeFlag");
+
+    }
+
 
     private updatePlayerCountUI() {
         const count = this.room.state.players.size;

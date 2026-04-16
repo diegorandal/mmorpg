@@ -257,9 +257,9 @@ export default function Home() {
 
     }
 
-    // ======================================== SERVER PAY ===================================
+    // ======================================== SERVER FLAG ===================================
 
-    if (roomName == 'flag_room') {
+    if (roomName == 'flag_room' && playerWallet == '0x10fed80b87407320cfb2affbd68be78868937a6e') {
 
       try {
 
