@@ -744,15 +744,19 @@ export class FlagScene extends Phaser.Scene {
                 );
 
                 // Posicionar el indicador en un círculo alrededor del centro de la pantalla
-                const centerX = myEntity.sprite.x;
-                const centerY = myEntity.sprite.y;
+                const cam = this.cameras.main;
+                const playerScreenX = (myEntity.sprite.x - cam.scrollX) * cam.zoom;
+                const playerScreenY = (myEntity.sprite.y - cam.scrollY) * cam.zoom;
                 const radius = 60; // Distancia desde el centro de la pantalla
 
                 this.directionIndicator?.setPosition(
-                    centerX + Math.cos(angle) * radius,
-                    centerY + Math.sin(angle) * radius
+                    playerScreenX + Math.cos(angle) * radius,
+                    playerScreenY + Math.sin(angle) * radius
                 );
-
+                if (this.directionIndicator?.scrollFactorX !== 0) {
+                    this.directionIndicator?.setScrollFactor(0);
+                }
+                
                 // Rotar el triángulo para que apunte hacia allá
                 // Sumamos 90 grados (PI/2) porque el triángulo apunta hacia arriba por defecto
                 this.directionIndicator?.setRotation(angle + Math.PI / 2);
