@@ -700,14 +700,10 @@ export class MainScene extends Phaser.Scene {
                     closestEnemy.sprite.x, closestEnemy.sprite.y
                 );
 
-                // Posicionar el indicador en un círculo alrededor del centro de la pantalla
-                const centerX = myEntity.sprite.x;
-                const centerY = myEntity.sprite.y;
-                const radius = 60; // Distancia desde el centro de la pantalla
-
-                this.directionIndicator?.setPosition(
-                    centerX + Math.cos(angle) * radius,
-                    centerY + Math.sin(angle) * radius
+                const radius = 60;
+                this.directionIndicator.setPosition(
+                    myEntity.sprite.x + Math.cos(angle) * radius,
+                    myEntity.sprite.y + Math.sin(angle) * radius
                 );
 
                 // Rotar el triángulo para que apunte hacia allá
