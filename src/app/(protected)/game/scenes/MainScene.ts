@@ -690,7 +690,7 @@ export class MainScene extends Phaser.Scene {
 
             // 2. Lógica del indicador
             // Si no hay nadie cerca (distancia > 1000) y encontramos a alguien
-            if (minDistance > 800 && closestEnemy) {
+            if (minDistance > 600 && closestEnemy) {
                 
                 this.directionIndicator?.setVisible(true);
 
@@ -700,10 +700,15 @@ export class MainScene extends Phaser.Scene {
                     closestEnemy.sprite.x, closestEnemy.sprite.y
                 );
 
-                const radius = 60;
-                this.directionIndicator.setPosition(
-                    myEntity.sprite.x + Math.cos(angle) * radius,
-                    myEntity.sprite.y + Math.sin(angle) * radius
+                // Posicionar el indicador en un círculo alrededor del centro de la pantalla
+                const cam = this.cameras.main;
+                const playerScreenX = (myEntity.sprite.x - cam.scrollX) * cam.zoom;
+                const playerScreenY = (myEntity.sprite.y - cam.scrollY) * cam.zoom;
+                const radius = 60; // Distancia desde el centro de la pantalla
+
+                this.directionIndicator?.setPosition(
+                    playerScreenX + Math.cos(angle) * radius,
+                    playerScreenY + Math.sin(angle) * radius
                 );
 
                 // Rotar el triángulo para que apunte hacia allá

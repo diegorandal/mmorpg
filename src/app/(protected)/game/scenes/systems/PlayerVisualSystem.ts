@@ -4,7 +4,7 @@ import { FlagScene } from "../FlagScene";
 
 export class PlayerVisualSystem {
 
-    private readonly AURA_MIN = 2_000_000_000_000_000n;
+    private readonly AURA_MIN   = 2_000_000_000_000_000n;
     private readonly AURA_RANGE = 1_000_000_000_000_000_000n - this.AURA_MIN;
 
     constructor(private scene: MainScene | FlagScene) { }
