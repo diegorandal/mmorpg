@@ -387,7 +387,7 @@ export class FlagScene extends Phaser.Scene {
         this.dianaText = this.add.text(this.scale.width - 20, 60, '🎯', { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 } }).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
 
         // Un triángulo pequeño que apunta al enemigo mas cercano
-        this.directionIndicator = this.add.triangle(0, 0, 0, 10, 5, 0, 10, 10, 0xff0000).setVisible(false).setDepth(10010).setScrollFactor(0);
+        this.directionIndicator = this.add.triangle(0, 0, 0, 10, 5, 0, 10, 10, 0xff520e).setVisible(false).setDepth(10010).setScrollFactor(0);
 
         this.setupJoystick();
 
@@ -720,43 +720,27 @@ export class FlagScene extends Phaser.Scene {
             entity.serverY = data.y;
         }
 
-        // #region DirectionIndicator
+        // #region DirectionIndicator FLAG
         const myId = this.room.sessionId;
         const myEntity = this.playerEntities[myId];
 
         if (myEntity && !myEntity.isDead && this.showDirectionIndicator) {
-            let closestEnemy: any = null;
-            let minDistance = Infinity;
 
-            // 1. Buscar el jugador (enemigo) más cercano
-            for (const sessionId in this.playerEntities) {
-                if (sessionId === myId) continue;
-
-                const enemy = this.playerEntities[sessionId];
-                if (enemy.isDead) continue;
-                // if (enemy.characterId == 8) continue; // Carandir, NPC, MAGO
-
-                const dist = Phaser.Math.Distance.Between(
-                    myEntity.sprite.x, myEntity.sprite.y,
-                    enemy.sprite.x, enemy.sprite.y
-                );
-
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    closestEnemy = enemy;
-                }
-            }
+            const dist = Phaser.Math.Distance.Between(
+                myEntity.sprite.x, myEntity.sprite.y,
+                this.room.state.flag.x, this.room.state.flag.y
+            );
 
             // 2. Lógica del indicador
             // Si no hay nadie cerca (distancia > 1000) y encontramos a alguien
-            if (minDistance > 800 && closestEnemy) {
+            if (dist > 100) {
                 
                 this.directionIndicator?.setVisible(true);
 
                 // Calcular ángulo hacia el enemigo
                 const angle = Phaser.Math.Angle.Between(
                     myEntity.sprite.x, myEntity.sprite.y,
-                    closestEnemy.sprite.x, closestEnemy.sprite.y
+                    this.room.state.flag.x, this.room.state.flag.y
                 );
 
                 // Posicionar el indicador en un círculo alrededor del centro de la pantalla
@@ -773,7 +757,6 @@ export class FlagScene extends Phaser.Scene {
                 // Sumamos 90 grados (PI/2) porque el triángulo apunta hacia arriba por defecto
                 this.directionIndicator?.setRotation(angle + Math.PI / 2);
             } else {
-                // Si hay alguien cerca (< 1000) o no hay nadie en el mapa, ocultamos
                 this.directionIndicator?.setVisible(false);
             }
         }

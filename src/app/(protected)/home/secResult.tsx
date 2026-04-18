@@ -9,7 +9,7 @@ type PlayerProfile = { wallet: string; username: string; balance: string; xp: nu
 type Props = { address: string; profile: PlayerProfile };
 
 type ResultResponse = {
-    result: "exit" | "death" | "disconnect" | "exit_free" | "death_free" | "disconnect_free";
+    result: "exit" | "death" | "disconnect" | "exit_free" | "death_free" | "disconnect_free" | "exit_flag";
     pot: number;
     hp: number;
     kills: number;
@@ -55,15 +55,23 @@ export default function SectionResult({ address, profile }: Props) {
     };
 
     const calculateReward = () => {
+        
         if (!data) return 0;
+
         let rewardAmount = 0;
-        if (data.result === "exit_free" || data.result === "death") {
+        
+        if (data.result === "exit_free") {
+            rewardAmount = data.pot;
+        } else if (data.result === "death") {
             rewardAmount = data.pot;
         } else if (data.result === "disconnect") {
             rewardAmount = data.pot * 0.9;
         } else if (data.result === "exit") {
             rewardAmount = (data.pot + (data.hp * 2000));
-        }
+        } else if (data.result === "exit_flag") {
+            rewardAmount = data.pot;
+        } 
+
         return rewardAmount / 1000000;
     };
 
