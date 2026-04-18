@@ -701,9 +701,9 @@ export class MainScene extends Phaser.Scene {
                 );
 
                 // Posicionar el indicador en un círculo alrededor del centro de la pantalla
-                const centerX = this.scale.width / 2;
-                const centerY = this.scale.height / 2;
-                const radius = 100; // Distancia desde el centro de la pantalla
+                const centerX = myEntity.sprite.x;
+                const centerY = myEntity.sprite.y;
+                const radius = 60; // Distancia desde el centro de la pantalla
 
                 this.directionIndicator?.setPosition(
                     centerX + Math.cos(angle) * radius,

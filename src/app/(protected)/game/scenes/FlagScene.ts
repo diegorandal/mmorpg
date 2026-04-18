@@ -728,7 +728,7 @@ export class FlagScene extends Phaser.Scene {
 
             const dist = Phaser.Math.Distance.Between(
                 myEntity.sprite.x, myEntity.sprite.y,
-                this.room.state.flag.x, this.room.state.flag.y
+                this.flagEntity?.x, this.flagEntity?.y
             );
 
             // 2. Lógica del indicador
@@ -740,13 +740,13 @@ export class FlagScene extends Phaser.Scene {
                 // Calcular ángulo hacia el enemigo
                 const angle = Phaser.Math.Angle.Between(
                     myEntity.sprite.x, myEntity.sprite.y,
-                    this.room.state.flag.x, this.room.state.flag.y
+                    this.flagEntity?.x, this.flagEntity?.y
                 );
 
                 // Posicionar el indicador en un círculo alrededor del centro de la pantalla
-                const centerX = this.scale.width / 2;
-                const centerY = this.scale.height / 2;
-                const radius = 100; // Distancia desde el centro de la pantalla
+                const centerX = myEntity.sprite.x;
+                const centerY = myEntity.sprite.y;
+                const radius = 60; // Distancia desde el centro de la pantalla
 
                 this.directionIndicator?.setPosition(
                     centerX + Math.cos(angle) * radius,
