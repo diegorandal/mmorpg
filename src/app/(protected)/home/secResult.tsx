@@ -110,7 +110,7 @@ export default function SectionResult({ address, profile }: Props) {
     useEffect(() => {
         if (data) {
             const currentReward = calculateReward();
-            const isFree = data.result.includes("_free");
+            const isFree = data.result.includes("_free") || data.result.includes("_flag");
             if ((isFree && currentReward > 0) || currentReward > 0.25) {
                 setShowConfetti(true);
             }
