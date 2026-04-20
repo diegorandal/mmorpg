@@ -11,6 +11,7 @@ export class FlagScene extends Phaser.Scene {
     }
 
     // #region declaraciones
+    private roomName: string;
     public room!: Room<FlagRoomState>;
     private movementSystem!: MovementSystem;
     private visualSystem!: PlayerVisualSystem;
@@ -61,6 +62,10 @@ export class FlagScene extends Phaser.Scene {
     private potToShow = 0;
     public flagEntity?: Phaser.Physics.Arcade.Sprite;
     private flagPickupCooldown = 0;
+
+    init(data: { roomName: string }) {
+        this.roomName = data.roomName;
+    }
 
     // #region preload
     preload(): void {
@@ -192,12 +197,8 @@ export class FlagScene extends Phaser.Scene {
         const worldHeight = data.mapHeight * data.tileSize * 3;
         this.cameras.main.setBounds(0, 0, worldWidth, worldHeight);
         this.physics.world.setBounds(0, 0, worldWidth, worldHeight);
-        // 1. Guardamos la referencia de la sala y configuramos controles
         this.room = roomInstance;
-        this.cursors = this.input.keyboard!.createCursorKeys();
         this.input.addPointer(3);
-
-        this.visualSystem = new PlayerVisualSystem(this);
         this.movementSystem = new MovementSystem(this, this.visualSystem);
 
         // 2. Creamos animaciones específicas para cada personaje

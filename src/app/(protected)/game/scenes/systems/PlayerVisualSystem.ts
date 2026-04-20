@@ -4,10 +4,11 @@ import { FlagScene } from "../FlagScene";
 
 export class PlayerVisualSystem {
 
-    private readonly AURA_MIN   = 2_000_000_000_000_000n;
-    private readonly AURA_RANGE = 1_000_000_000_000_000_000n - this.AURA_MIN;
-
-    constructor(private scene: MainScene | FlagScene) { }
+    constructor(
+        private scene: MainScene | FlagScene,
+        private AURA_MIN: bigint,
+        private AURA_MAX: bigint,
+    ) {}
 
     update() {
         // aquí podemos actualizar cosas visuales globales si hace falta
@@ -85,15 +86,16 @@ export class PlayerVisualSystem {
         if (!entity.glow) return;
         const pot = BigInt(entity.pot ?? "0");
         let strength = 0;
-
-        if (pot > this.AURA_MIN) {
-            const normalized = Number(pot - this.AURA_MIN) / Number(this.AURA_RANGE);
-            strength = Phaser.Math.Clamp(normalized * 8, 0, 8);
+        if (pot <= this.AURA_MIN) strength = 0; // 1. Si POT es menor o igual al mínimo, el aura es 0
+        else if (pot >= this.AURA_MAX) strength = 8; // 2. Si POT es mayor o igual al máximo, se queda en el tope (8)
+        else { // 3. Si está en el rango intermedio, calculamos la progresión
+            const range = Number(this.AURA_MAX - this.AURA_MIN);
+            const progress = Number(pot - this.AURA_MIN) / range;
+            strength = progress * 8;
         }
-
         entity.glow.outerStrength = strength;
         entity.glow.innerStrength = strength * 0.5;
-        
+
     }
 
     updateHealthBar(entity: any) {

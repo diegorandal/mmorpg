@@ -4,12 +4,14 @@ import type { MyRoomState } from '@/app/(protected)/home/MyRoomState';
 import { handleAttack } from "./systems/AttackSystem";
 import { MovementSystem } from "./systems/MovementSystem";
 import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
+import { runInThisContext } from 'vm';
 
 export class MainScene extends Phaser.Scene {
-    constructor() {
-        super('MainScene');
-    }
+    
+    constructor() {super('MainScene');}
+
     // #region declaraciones
+    private roomName: string;
     public room!: Room<MyRoomState>;
     private movementSystem!: MovementSystem;
     private visualSystem!: PlayerVisualSystem;
@@ -59,14 +61,16 @@ export class MainScene extends Phaser.Scene {
     private attackButtonsUI: { [key: number]: Phaser.GameObjects.Image } = {};
     private potToShow = 0;
 
+    init(data: { roomName: string }) {
+        this.roomName = data.roomName;
+    }
+
     // #region preload
     preload(): void {
 
         //PROGRESO
-
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
-
         // 1. Crear los elementos gráficos de la barra
         const progressBar = this.add.graphics();
         const progressBox = this.add.graphics();
@@ -189,10 +193,11 @@ export class MainScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 0, worldWidth, worldHeight);
         // 1. Guardamos la referencia de la sala y configuramos controles
         this.room = roomInstance;
-        this.cursors = this.input.keyboard!.createCursorKeys();
         this.input.addPointer(3);
-
-        this.visualSystem = new PlayerVisualSystem(this);
+        let min_aura = 0n; let max_aura = 0n;
+        if (this.roomName === "my_room") { min_aura = 2000000000000000000n; max_aura = 1000000000000000000n }
+        if (this.roomName === "free_room") { min_aura = 1000000000000000n; max_aura = 10000000000000000n }
+        this.visualSystem = new PlayerVisualSystem(this, min_aura, max_aura);
         this.movementSystem = new MovementSystem(this, this.visualSystem);
 
         // 2. Creamos animaciones específicas para cada personaje
@@ -566,9 +571,7 @@ export class MainScene extends Phaser.Scene {
             for (let i = 1; i <= 4; i++) if (this.attackButtonsUI[i]) this.attackButtonsUI[i].setVisible(i === this.attackDragSelect);
             this.attackButton.setInteractive();
         }
-
         this.showDiana();
-
         this.room.send("changeWeapon", { weapon: this.myCurrentWeaponType });
 
     }
@@ -854,66 +857,39 @@ export class MainScene extends Phaser.Scene {
 
         const container = this.add.container(portal.x, portal.y);
         container.setDepth(2);
-
         const graphics = this.add.graphics();
         graphics.setBlendMode(Phaser.BlendModes.ADD);
-
         container.add(graphics);
-
         // Dibujar por primera vez
-        const color = portal.type === 'exit'
-            ? 0xff4444
-            : 0x6a5acd;
-
+        const color = portal.type === 'exit' ? 0xff4444 : 0x6a5acd;
         this.drawPortal(graphics, color);
-
         // Guardamos el tipo actual para detectar cambios futuros
         container.setData("type", portal.type);
-
         // Animaciones
-        this.tweens.add({
-            targets: container,
-            angle: 360,
-            duration: 2000,
-            repeat: -1,
-            ease: "Linear"
-        });
-
-        this.tweens.add({
-            targets: container,
-            scale: 1.1,
-            duration: 800,
-            yoyo: true,
-            repeat: -1,
-            ease: "Sine.easeInOut"
-        });
-
+        this.tweens.add({targets: container, angle: 360, duration: 2000, repeat: -1, ease: "Linear"});
+        this.tweens.add({targets: container, scale: 1.1, duration: 800, yoyo: true, repeat: -1, ease: "Sine.easeInOut"});
         this.portalEntities[id] = container;
+
     }
 
     private updatePortalVisual(portal: any, id: string) {
 
         const container = this.portalEntities[id];
         if (!container) return;
-        
         container.setVisible(portal.active);
 
         // Si no cambió el tipo → no redibujamos
         if (container.getData("type") === portal.type) return;
-
         container.setData("type", portal.type);
-
         const graphics = container.list[0] as Phaser.GameObjects.Graphics;
         if (!graphics) return;
-
-        const color = portal.type === "exit"
-            ? 0xff4444
-            : 0x6a5acd;
-
+        const color = portal.type === "exit" ? 0xff4444 : 0x6a5acd;
         this.drawPortal(graphics, color);
+
     }
 
     private drawPortal(graphics: Phaser.GameObjects.Graphics, color: number) {
+
         const radius = 24;
         const sides = 7;
 
@@ -934,6 +910,7 @@ export class MainScene extends Phaser.Scene {
         graphics.closePath();
         graphics.fillPath();
         graphics.strokePath();
+
     }
 
     private checkPortalCollision(time: number) {
@@ -1015,11 +992,11 @@ export class MainScene extends Phaser.Scene {
             }
         }
 
-        // Si clicamos en el suelo (y no en un jugador), quitamos el target
-        if (!foundTarget) {
+        if (!foundTarget) {// Si clicamos en el suelo (y no en un jugador), quitamos el target
             this.currentTargetId = null;
             this.targetCircle?.setVisible(false);
         }
+
     }
 
     private showDeathScreen() {
