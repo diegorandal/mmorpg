@@ -675,7 +675,8 @@ export class FlagScene extends Phaser.Scene {
         // barra de HP )
         const hpBar = this.add.graphics();
         // aura
-        const glow = sprite.postFX.addGlow(0x00aaff, 0, 0, false);
+        const glow = sprite.postFX.addGlow(0xff4800, 0, 0, false); // '#ff4800';
+        
         // circulo indica defensa
         const defenceCircle = this.add.graphics();
         defenceCircle.setVisible(false);

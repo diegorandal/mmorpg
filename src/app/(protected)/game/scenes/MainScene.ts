@@ -617,7 +617,7 @@ export class MainScene extends Phaser.Scene {
         // barra de HP )
         const hpBar = this.add.graphics();
         // aura
-        const glow = sprite.postFX.addGlow(0x00aaff, 0, 0, false);
+        const glow = sprite.postFX.addGlow(0x99faae, 0, 0, false); //let color: '#99faae';
         // circulo indica defensa
         const defenceCircle = this.add.graphics();
         defenceCircle.setVisible(false);
