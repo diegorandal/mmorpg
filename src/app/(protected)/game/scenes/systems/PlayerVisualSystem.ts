@@ -90,7 +90,7 @@ export class PlayerVisualSystem {
         else if (pot >= this.AURA_MAX) strength = 8; // 2. Si POT es mayor o igual al máximo, se queda en el tope (8)
         else { // 3. Si está en el rango intermedio, calculamos la progresión
             const range = this.AURA_MAX - this.AURA_MIN;
-            const progress = pot - this.AURA_MIN / range;
+            const progress = (pot - this.AURA_MIN) / range;
             strength = progress * 8;
         }
         entity.glow.outerStrength = strength;
