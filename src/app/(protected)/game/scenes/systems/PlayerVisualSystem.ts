@@ -6,8 +6,8 @@ export class PlayerVisualSystem {
 
     constructor(
         private scene: MainScene | FlagScene,
-        private AURA_MIN: bigint,
-        private AURA_MAX: bigint,
+        private AURA_MIN: number,
+        private AURA_MAX: number,
     ) {}
 
     update() {
@@ -84,13 +84,13 @@ export class PlayerVisualSystem {
     updateAura(entity: any) {
 
         if (!entity.glow) return;
-        const pot = BigInt(entity.pot ?? "0");
+        const pot = entity.pot ?? 0;
         let strength = 0;
         if (pot <= this.AURA_MIN) strength = 0; // 1. Si POT es menor o igual al mínimo, el aura es 0
         else if (pot >= this.AURA_MAX) strength = 8; // 2. Si POT es mayor o igual al máximo, se queda en el tope (8)
         else { // 3. Si está en el rango intermedio, calculamos la progresión
-            const range = Number(this.AURA_MAX - this.AURA_MIN);
-            const progress = Number(pot - this.AURA_MIN) / range;
+            const range = this.AURA_MAX - this.AURA_MIN;
+            const progress = pot - this.AURA_MIN / range;
             strength = progress * 8;
         }
         entity.glow.outerStrength = strength;
