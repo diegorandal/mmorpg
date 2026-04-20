@@ -63,8 +63,8 @@ export class FlagScene extends Phaser.Scene {
     public flagEntity?: Phaser.Physics.Arcade.Sprite;
     private flagPickupCooldown = 0;
 
-    init(data: { roomName: string }) {
-        this.roomName = data.roomName;
+    init() {
+        this.roomName = this.registry.get('roomName');
     }
 
     // #region preload
