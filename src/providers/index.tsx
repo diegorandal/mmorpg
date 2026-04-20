@@ -7,16 +7,12 @@ import type { ReactNode } from 'react';
 const ErudaProvider = dynamic(() => import('@/providers/Eruda').then((c) => c.ErudaProvider), { ssr: false });
 interface ClientProvidersProps { children: ReactNode; session: Session | null;}
 
-// SIN ERUDA
+const showEruda = true;
 
 export default function ClientProviders({children, session}: ClientProvidersProps) {
-  return (<MiniKitProvider><SessionProvider session={session}>{children}</SessionProvider></MiniKitProvider>);
+  if(showEruda){
+    return (<ErudaProvider><MiniKitProvider><SessionProvider session={session}>{children}</SessionProvider></MiniKitProvider></ErudaProvider>);
+  } else {
+    return (<MiniKitProvider><SessionProvider session={session}>{children}</SessionProvider></MiniKitProvider>);
+  }
 }
-
-
-// CON ERUDA
-/*
-export default function ClientProviders({children, session}: ClientProvidersProps) {
-  return (<ErudaProvider><MiniKitProvider><SessionProvider session={session}>{children}</SessionProvider></MiniKitProvider></ErudaProvider>);
-}
-*/
