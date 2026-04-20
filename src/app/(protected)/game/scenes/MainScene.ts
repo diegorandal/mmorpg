@@ -193,6 +193,7 @@ export class MainScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 0, worldWidth, worldHeight);
         // 1. Guardamos la referencia de la sala y configuramos controles
         this.room = roomInstance;
+        this.cursors = this.input.keyboard!.createCursorKeys();
         this.input.addPointer(3);
         let min_aura = 0n; let max_aura = 0n;
         if (this.roomName === "my_room") { min_aura = 2000000000000000000n; max_aura = 1000000000000000000n }

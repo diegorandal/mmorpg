@@ -198,7 +198,10 @@ export class FlagScene extends Phaser.Scene {
         this.cameras.main.setBounds(0, 0, worldWidth, worldHeight);
         this.physics.world.setBounds(0, 0, worldWidth, worldHeight);
         this.room = roomInstance;
+        this.cursors = this.input.keyboard!.createCursorKeys();
         this.input.addPointer(3);
+        let min_aura = 10000000000000n; let max_aura = 1800000000000000n;
+        this.visualSystem = new PlayerVisualSystem(this, min_aura, max_aura);
         this.movementSystem = new MovementSystem(this, this.visualSystem);
 
         // 2. Creamos animaciones específicas para cada personaje
