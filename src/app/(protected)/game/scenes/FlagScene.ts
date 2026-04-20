@@ -78,7 +78,7 @@ export class FlagScene extends Phaser.Scene {
         // 1. Crear los elementos gráficos de la barra
         const progressBar = this.add.graphics();
         const progressBox = this.add.graphics();
-        progressBox.fillStyle(0xd1851f, 1);
+        progressBox.fillStyle(0xd1851f, 0.5); //'#d1851f'
         progressBox.fillRect(width / 2 - 160, height / 2 - 25, 320, 50);
 
         // 2. Crear texto de carga
@@ -200,7 +200,7 @@ export class FlagScene extends Phaser.Scene {
         this.room = roomInstance;
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.input.addPointer(3);
-        this.visualSystem = new PlayerVisualSystem(this, 10, 1800); // 0.000010 a 0.0018
+        this.visualSystem = new PlayerVisualSystem(this, 10, 3000); // 0.000010 a 0.003
         this.movementSystem = new MovementSystem(this, this.visualSystem);
 
         // 2. Creamos animaciones específicas para cada personaje
