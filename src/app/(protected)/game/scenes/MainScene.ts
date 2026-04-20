@@ -195,7 +195,7 @@ export class MainScene extends Phaser.Scene {
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.input.addPointer(3);
         let min_aura = 0; let max_aura = 0;
-        if (this.roomName === "free_room") { min_aura = 10; max_aura = 3000 } // 0.001 a 0.003 wld
+        if (this.roomName === "free_room") { min_aura = 10; max_aura = 6000 } // 0.000010 a 0.06
         if (this.roomName === "my_room") { min_aura = 2000; max_aura = 1000000 } // 0.002 a 1  wld
         this.visualSystem = new PlayerVisualSystem(this, min_aura, max_aura);
         this.movementSystem = new MovementSystem(this, this.visualSystem);
