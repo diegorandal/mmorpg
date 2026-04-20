@@ -4,7 +4,6 @@ import type { MyRoomState } from '@/app/(protected)/home/MyRoomState';
 import { handleAttack } from "./systems/AttackSystem";
 import { MovementSystem } from "./systems/MovementSystem";
 import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
-import { runInThisContext } from 'vm';
 
 export class MainScene extends Phaser.Scene {
     
@@ -196,15 +195,15 @@ export class MainScene extends Phaser.Scene {
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.input.addPointer(3);
         let min_aura = 0; let max_aura = 0;
-        if (this.roomName === "my_room") { min_aura = 1000; max_aura = 3000 } // 0.001 a 0.003 wld
-        if (this.roomName === "free_room") { min_aura = 2000; max_aura = 1000000 } // 0.002 a 1  wld
+        if (this.roomName === "free_room") { min_aura = 10; max_aura = 3000 } // 0.001 a 0.003 wld
+        if (this.roomName === "my_room") { min_aura = 2000; max_aura = 1000000 } // 0.002 a 1  wld
         this.visualSystem = new PlayerVisualSystem(this, min_aura, max_aura);
         this.movementSystem = new MovementSystem(this, this.visualSystem);
 
         // 2. Creamos animaciones específicas para cada personaje
         const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
         const actionsConfig = {
-            'idle':         { frames: [0, 1],       rate: 4,  repeat: -1 }, 
+            'idle':         { frames: [0, 1],       rate: 4, repeat: -1 }, 
             'sword-idle':   { frames: [5, 6],       rate: 4, repeat: -1 },
             'bow-idle':     { frames: [11, 12],     rate: 4, repeat: -1 },
             'wand-idle':    { frames: [13, 14],     rate: 4, repeat: -1 },
