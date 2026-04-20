@@ -4,36 +4,15 @@ import { Session } from 'next-auth';
 import { SessionProvider } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import type { ReactNode } from 'react';
-
-const ErudaProvider = dynamic(
-  () => import('@/providers/Eruda').then((c) => c.ErudaProvider),
-  { ssr: false },
-);
-
-// Define props for ClientProviders
-interface ClientProvidersProps {
-  children: ReactNode;
-  session: Session | null; // Use the appropriate type for session from next-auth
-}
-
-export default function ClientProviders({children, session}: ClientProvidersProps) {
-
-  return (
-    <MiniKitProvider>
-      <SessionProvider session={session}>{children}</SessionProvider>
-    </MiniKitProvider>
-  );
-
-}
+const ErudaProvider = dynamic(() => import('@/providers/Eruda').then((c) => c.ErudaProvider), { ssr: false });
+interface ClientProvidersProps { children: ReactNode; session: Session | null;}
 
 /*
 export default function ClientProviders({children, session}: ClientProvidersProps) {
-  return (
-    <ErudaProvider>
-      <MiniKitProvider>
-        <SessionProvider session={session}>{children}</SessionProvider>
-      </MiniKitProvider>
-    </ErudaProvider>
-  );
+  return (<MiniKitProvider><SessionProvider session={session}>{children}</SessionProvider></MiniKitProvider>);
 }
 */
+
+export default function ClientProviders({children, session}: ClientProvidersProps) {
+  return (<ErudaProvider><MiniKitProvider><SessionProvider session={session}>{children}</SessionProvider></MiniKitProvider></ErudaProvider>);
+}
