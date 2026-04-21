@@ -351,7 +351,7 @@ export class FlagScene extends Phaser.Scene {
 
             if (hadNoPortals && hasPortalsNow) {
                 
-               // this.portalsConstellation.draw()
+               this.portalsConstellation.draw()
                 
             }
 

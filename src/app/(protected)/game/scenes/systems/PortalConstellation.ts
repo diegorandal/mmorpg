@@ -4,7 +4,7 @@ import { Room } from "@colyseus/sdk";
 
 export class PortalsConstellation {
 
-    room: Room<FlagRoomState>;
+    private state: FlagRoomState;
     private scene: Phaser.Scene;
     private graphics: Phaser.GameObjects.Graphics;
     private size: number;
@@ -12,7 +12,7 @@ export class PortalsConstellation {
     private worldHeight: number;
 
     constructor(
-        room: FlagRoomState,
+        state: FlagRoomState,
         scene: Phaser.Scene,
         x: number,
         y: number,
@@ -20,6 +20,7 @@ export class PortalsConstellation {
         worldWidth: number,
         worldHeight: number
     ) {
+        this.state = state;
         this.scene = scene;
         this.size = size;
         this.worldWidth = worldWidth;
@@ -42,21 +43,25 @@ export class PortalsConstellation {
         this.graphics.clear();
 
         // líneas
-        this.room.state.portals.forEach(portal => {
-            if(portal.type === PortalType.TELEPORT){
-                const a = this.normalize(portal.x, portal.y);
-                const b = this.normalize(this.room.state.portals.get(portal.targetPortalId).x, this.room.state.portals.get(portal.targetPortalId).y);
-                this.graphics.lineStyle(1, 0x6a5acd, 0.5);
-                this.graphics.strokeLineShape(new Phaser.Geom.Line(a.x, a.y, b.x, b.y));
+        this.state.portals.forEach(portal => {
+            if (portal.type === PortalType.TELEPORT && portal.targetPortalId){
+                const target = this.state.portals.get(portal.targetPortalId);
+                if (target) {
+                    const a = this.normalize(portal.x, portal.y);
+                    const b = this.normalize(this.state.portals.get(portal.targetPortalId).x, this.state.portals.get(portal.targetPortalId).y);
+                    this.graphics.lineStyle(1, 0x6a5acd, 0.5);
+                    this.graphics.strokeLineShape(new Phaser.Geom.Line(a.x, a.y, b.x, b.y));
+                }
             }
         });
 
         // círculos
-        this.room.state.portals.forEach(portal => {
+        this.state.portals.forEach(portal => {
             const pos = this.normalize(portal.x, portal.y);
             const color = portal.type === PortalType.TELEPORT ? 0x6a5acd : 0xff4444;
-            this.graphics.fillStyle(color, 1);
+            this.graphics.fillStyle(color, 0.5);
             this.graphics.fillCircle(pos.x, pos.y, 2.5);
         });
+
     }
 }
