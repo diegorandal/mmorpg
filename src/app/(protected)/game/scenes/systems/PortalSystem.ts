@@ -121,12 +121,6 @@ export class PortalSystem {
         const graphics = container.list[0] as Phaser.GameObjects.Graphics;
         const color = portal.type === "exit" ? 0xff4444 : 0x6a5acd;
 
-        // 1. Si cambió el tipo, redibujamos (esto no afecta animaciones)
-        if (container.getData("type") !== portal.type) {
-            container.setData("type", portal.type);
-            this.drawPortal(graphics, color);
-        }
-
         // 2. Lógica para APAGAR
         if (container.visible && !portal.active) {
             // NO usamos killTweensOf para no matar el giro (angle)
@@ -144,6 +138,13 @@ export class PortalSystem {
 
         // 3. Lógica para ENCENDER
         if (!container.visible && portal.active) {
+
+            // 1. Si cambió el tipo, redibujamos (esto no afecta animaciones)
+            if (container.getData("type") !== portal.type) {
+                container.setData("type", portal.type);
+                this.drawPortal(graphics, color);
+            }
+
             container.setVisible(true);
             // Empezamos desde escala 0 para que el efecto "Back.out" se vea bien
             container.setScale(0);
