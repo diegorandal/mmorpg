@@ -44,12 +44,12 @@ export class PortalsConstellation {
 
         // líneas
         this.state.portals.forEach(portal => {
-            if (portal.type === PortalType.TELEPORT && portal.targetPortalId){
+            if (portal.type === PortalType.TELEPORT && portal.targetPortalId && portal.active){
                 const target = this.state.portals.get(portal.targetPortalId);
                 if (target) {
                     const a = this.normalize(portal.x, portal.y);
                     const b = this.normalize(this.state.portals.get(portal.targetPortalId).x, this.state.portals.get(portal.targetPortalId).y);
-                    this.graphics.lineStyle(1, 0x6a5acd, 0.5);
+                    this.graphics.lineStyle(1, 0x6a5acd, 0.3); '#6a5acd'
                     this.graphics.strokeLineShape(new Phaser.Geom.Line(a.x, a.y, b.x, b.y));
                 }
             }
@@ -57,10 +57,11 @@ export class PortalsConstellation {
 
         // círculos
         this.state.portals.forEach(portal => {
+            if(!portal.active) return;
             const pos = this.normalize(portal.x, portal.y);
             const color = portal.type === PortalType.TELEPORT ? 0x6a5acd : 0xff4444;
-            this.graphics.fillStyle(color, 0.5);
-            this.graphics.fillCircle(pos.x, pos.y, 5);
+            this.graphics.fillStyle(color, 0.3);
+            this.graphics.fillCircle(pos.x, pos.y, 4);
         });
 
     }

@@ -205,7 +205,7 @@ export class FlagScene extends Phaser.Scene {
         this.input.addPointer(3);
         this.visualSystem = new PlayerVisualSystem(this, 10, 3000); // 0.000010 a 0.003
         this.movementSystem = new MovementSystem(this, this.visualSystem);
-        this.portalsConstellation = new PortalsConstellation(this.room.state, this, 16, 32, 48, 4800, 4800);
+        this.portalsConstellation = new PortalsConstellation(this.room.state, this, 16, 48, 48, 4800, 4800);
 
         // 2. Creamos animaciones específicas para cada personaje
         const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
