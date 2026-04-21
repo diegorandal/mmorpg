@@ -28,7 +28,7 @@ export class PortalsConstellation {
 
         this.graphics = scene.add.graphics();
         this.graphics.setScrollFactor(0); // fijo en UI
-        this.graphics.setDepth(1000);
+        this.graphics.setDepth(10000);
         this.graphics.setPosition(x, y);
     }
 
@@ -60,7 +60,7 @@ export class PortalsConstellation {
             const pos = this.normalize(portal.x, portal.y);
             const color = portal.type === PortalType.TELEPORT ? 0x6a5acd : 0xff4444;
             this.graphics.fillStyle(color, 0.5);
-            this.graphics.fillCircle(pos.x, pos.y, 2.5);
+            this.graphics.fillCircle(pos.x, pos.y, 5);
         });
 
     }

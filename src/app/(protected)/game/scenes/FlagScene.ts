@@ -64,6 +64,7 @@ export class FlagScene extends Phaser.Scene {
     private potToShow = 0;
     public flagEntity?: Phaser.Physics.Arcade.Sprite;
     private flagPickupCooldown = 0;
+    private portalsNeedRedraw: boolean = false;
 
     init() {
         this.roomName = this.registry.get('roomName');
@@ -204,7 +205,7 @@ export class FlagScene extends Phaser.Scene {
         this.input.addPointer(3);
         this.visualSystem = new PlayerVisualSystem(this, 10, 3000); // 0.000010 a 0.003
         this.movementSystem = new MovementSystem(this, this.visualSystem);
-        this.portalsConstellation = new PortalsConstellation(this.room.state, this, 100, 100, 100, 4800, 4800);
+        this.portalsConstellation = new PortalsConstellation(this.room.state, this, 16, 32, 48, 4800, 4800);
 
         // 2. Creamos animaciones específicas para cada personaje
         const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
@@ -346,32 +347,25 @@ export class FlagScene extends Phaser.Scene {
             }
             
             // PORTALES
-            const hadNoPortals = Object.keys(this.portalEntities).length === 0;
-            const hasPortalsNow = state.portals.size > 0;
-
-            if (hadNoPortals && hasPortalsNow) {
-                
-               this.portalsConstellation.draw()
-                
-            }
-
-            if (!hadNoPortals && !hasPortalsNow) {
-                //Disparar animacion de cierre de portal
-                console.log("Ya no quedan portales en el mapa");
-            }
             // Agregar nuevos y actualizar existentes
-            state.portals.forEach((portal, id) => {
+            
+            state.portals.forEach((portal: any, id) => {
                 if (!this.portalEntities[id]) {
                     this.addPortal(portal, id);
-                } else {
-                    this.updatePortalVisual(portal, id);
-                }
+                    portal.onChange(() => {
+                        this.portalsNeedRedraw = true;
+                        this.updatePortalVisual(portal, id);
+                    }
+                    );
+                } 
             });
+
             // Eliminar los que ya no existen
             for (const id in this.portalEntities) {
                 if (!state.portals.has(id)) {
                     this.portalEntities[id].destroy();
                     delete this.portalEntities[id];
+                    this.portalsNeedRedraw = true;
                 }
             }
 
@@ -865,6 +859,11 @@ export class FlagScene extends Phaser.Scene {
                 // Actualizamos el texto con el valor intermedio
                 this.potText?.setText(`💰 ${this.formatPot(this.potToShow)}`);
             }
+        }
+        // Portals Constellation
+        if (this.portalsNeedRedraw && this.portalsConstellation) {
+            this.portalsConstellation.draw();
+            this.portalsNeedRedraw = false;
         }
 
         // 🎯 TARGET
