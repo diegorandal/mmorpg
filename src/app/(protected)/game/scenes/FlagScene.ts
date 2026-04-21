@@ -4,22 +4,21 @@ import type { FlagRoomState } from '@/app/(protected)/home/FlagState';
 import { handleAttack } from "./systems/AttackSystem";
 import { MovementSystem } from "./systems/MovementSystem";
 import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
-import { PortalsConstellation } from './systems/PortalConstellation';
+import { PortalSystem } from './systems/PortalSystem';
 
 export class FlagScene extends Phaser.Scene {
-    constructor() {
-        super('FlagScene');
-    }
+
+    constructor() {super('FlagScene');}
 
     // #region declaraciones
     private roomName: string;
     public room!: Room<FlagRoomState>;
     private movementSystem!: MovementSystem;
     private visualSystem!: PlayerVisualSystem;
-    private portalsConstellation: PortalsConstellation;
+    private portalSystem: PortalSystem;
     public sfx!: Phaser.Sound.BaseSound;
     public playerEntities: { [sessionId: string]: any } = {};
-    private portalEntities: { [id: string]: Phaser.GameObjects.Container } = {};
+    public portalEntities: { [id: string]: Phaser.GameObjects.Container } = {};
     public cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private collisionLayer?: Phaser.Tilemaps.TilemapLayer;
     public joystickBase?: Phaser.GameObjects.Arc;
@@ -51,11 +50,10 @@ export class FlagScene extends Phaser.Scene {
     private playersText?: Phaser.GameObjects.Text;
     private dianaText?: Phaser.GameObjects.Text;
     private attackCooldowns: { [key: string]: number } = {};
-    private portalCheckCooldown = 0;
     private attackSpeeds: { [key: string]: number } = {
         "1-1": 250, "1-2": 400, "1-3": 600, // sword
         "2-1": 350, "2-2": 500, "2-3": 900, // bow
-        "3-1": 450, "3-2": 550, "3-3": 800, // wand
+        "3-1": 500, "3-2": 550, "3-3": 800, // wand
         "4-1": 700, "4-2": 600, "4-3": 900, // spell
     };
     private directionIndicator?: Phaser.GameObjects.Triangle;
@@ -205,7 +203,7 @@ export class FlagScene extends Phaser.Scene {
         this.input.addPointer(3);
         this.visualSystem = new PlayerVisualSystem(this, 10, 3000); // 0.000010 a 0.003
         this.movementSystem = new MovementSystem(this, this.visualSystem);
-        this.portalsConstellation = new PortalsConstellation(this.room.state, this, 16, 48, 48, 4800, 4800);
+        this.portalSystem = new PortalSystem(this.room, this, 16, 48, 48, 4800, 4800);
 
         // 2. Creamos animaciones específicas para cada personaje
         const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
@@ -349,10 +347,10 @@ export class FlagScene extends Phaser.Scene {
             // PORTALES
             state.portals.forEach((portal, id) => { // Agregar nuevos y actualizar existentes
                 if (!this.portalEntities[id]) {
-                    this.addPortal(portal, id);
+                    this.portalSystem.addPortal(portal, id);
                     this.portalsNeedRedraw = true;
                 } else {
-                    this.updatePortalVisual(portal, id);
+                    this.portalSystem.updatePortalVisual(portal, id);
                     this.portalsNeedRedraw = true;
                 }
             });
@@ -732,7 +730,7 @@ export class FlagScene extends Phaser.Scene {
             entity.serverY = data.y;
         }
 
-        // #region DirectionIndicator FLAG
+        // #region FLAG indicator
         const myId = this.room.sessionId;
         const myEntity = this.playerEntities[myId];
 
@@ -857,8 +855,8 @@ export class FlagScene extends Phaser.Scene {
             }
         }
         // Portals Constellation
-        if (this.portalsNeedRedraw && this.portalsConstellation) {
-            this.portalsConstellation.draw();
+        if (this.portalsNeedRedraw && this.portalSystem) {
+            this.portalSystem.draw();
             this.portalsNeedRedraw = false;
         }
 
@@ -900,7 +898,7 @@ export class FlagScene extends Phaser.Scene {
         }
 
         // --- PORTAL PROXIMITY CHECK ---
-        this.checkPortalCollision(time);
+        this.portalSystem.checkPortalCollision(time);
 
         // --- FLAG PROXIMITY CHECK ---
         this.checkFlagCollision(time);
@@ -931,128 +929,6 @@ export class FlagScene extends Phaser.Scene {
                 }
             }
         }
-
-    }
-
-    // #region Portals
-
-    private addPortal(portal: any, id: string) {
-
-        const container = this.add.container(portal.x, portal.y);
-        container.setDepth(2);
-
-        const graphics = this.add.graphics();
-        graphics.setBlendMode(Phaser.BlendModes.ADD);
-
-        container.add(graphics);
-
-        // Dibujar por primera vez
-        const color = portal.type === 'exit'
-            ? 0xff4444
-            : 0x6a5acd;
-
-        this.drawPortal(graphics, color);
-
-        // Guardamos el tipo actual para detectar cambios futuros
-        container.setData("type", portal.type);
-
-        // Animaciones
-        this.tweens.add({
-            targets: container,
-            angle: 360,
-            duration: 2000,
-            repeat: -1,
-            ease: "Linear"
-        });
-
-        this.tweens.add({
-            targets: container,
-            scale: 1.1,
-            duration: 800,
-            yoyo: true,
-            repeat: -1,
-            ease: "Sine.easeInOut"
-        });
-
-        this.portalEntities[id] = container;
-    }
-
-    private updatePortalVisual(portal: any, id: string) {
-
-        const container = this.portalEntities[id];
-        if (!container) return;
-        container.setVisible(portal.active);
-        // Si no cambió el tipo → no redibujamos
-        if (container.getData("type") === portal.type) return;
-        container.setData("type", portal.type);
-        const graphics = container.list[0] as Phaser.GameObjects.Graphics;
-        if (!graphics) return;
-        const color = portal.type === "exit" ? 0xff4444 : 0x6a5acd;
-        this.drawPortal(graphics, color);
-
-    }
-
-    private drawPortal(graphics: Phaser.GameObjects.Graphics, color: number) {
-        const radius = 24;
-        const sides = 7;
-
-        graphics.clear();
-        graphics.fillStyle(color, 0.3);
-        graphics.lineStyle(2, color, 0.5);
-
-        graphics.beginPath();
-
-        for (let i = 0; i < sides; i++) {
-            const angle = Phaser.Math.DegToRad((360 / sides) * i - 90);
-            const x = Math.cos(angle) * radius;
-            const y = Math.sin(angle) * radius;
-            if (i === 0) graphics.moveTo(x, y);
-            else graphics.lineTo(x, y);
-        }
-
-        graphics.closePath();
-        graphics.fillPath();
-        graphics.strokePath();
-    }
-
-    // #region checkPortalCollision
-    private checkPortalCollision(time: number) {
-
-        const myId = this.room.sessionId;
-        const myEntity = this.playerEntities[myId];
-        if (!myEntity) return;
-
-        // Cooldown anti spam (3000ms)
-        if (time < this.portalCheckCooldown) return;
-
-        const px = myEntity.sprite.x;
-        const py = myEntity.sprite.y;
-        const radiusSq = 576; // 24 * 24
-
-        let foundPortal: string | null = null;
-
-        for (const id in this.portalEntities) {
-            const portal = this.portalEntities[id];
-            portal.setAlpha(1);
-            const dx = px - portal.x;
-            const dy = py - (portal.y - 16);
-            const distSq = dx * dx + dy * dy;
-            if (distSq <= radiusSq) {
-                foundPortal = id;
-                break;
-            }
-        }
-
-        if (foundPortal) {
-            this.portalCheckCooldown = time + 3000;
-            this.room.send("enterPortal", { portalId: foundPortal });
-
-            for (const id in this.portalEntities) {
-                const portal = this.portalEntities[id];
-                portal.setAlpha(0.5);
-            }
-
-        } 
 
     }
 
@@ -1123,6 +999,7 @@ export class FlagScene extends Phaser.Scene {
         }
     }
 
+    // #region showDeathScreen
     private showDeathScreen() {
 
         const { width, height } = this.scale;
