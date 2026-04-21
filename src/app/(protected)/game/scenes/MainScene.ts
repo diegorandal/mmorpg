@@ -897,6 +897,7 @@ export class MainScene extends Phaser.Scene {
 
     }
 
+    // #region showDeathScreen
     private showDeathScreen() {
 
         const { width, height } = this.scale;

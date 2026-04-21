@@ -93,6 +93,8 @@ export class PortalSystem {
     addPortal(portal: any, id: string) {
 
         const container = this.scene.add.container(portal.x, portal.y);
+        container.setScale(portal.active ? 1 : 0);
+        container.setVisible(portal.active);
         container.setDepth(2);
         const graphics = this.scene.add.graphics();
         graphics.setBlendMode(Phaser.BlendModes.ADD);
@@ -103,25 +105,53 @@ export class PortalSystem {
 
         // Animaciones
         this.scene.tweens.add({targets: container, angle: 360, duration: 2000, repeat: -1, ease: "Linear"});
-        this.scene.tweens.add({targets: container, scale: 1.1, duration: 800, yoyo: true, repeat: -1, ease: "Sine.easeInOut"});
-        
+        this.scene.tweens.add({targets: container, alpha: 0.8, duration: 800, yoyo: true, repeat: -1});        
         this.scene.portalEntities[id] = container;
 
     }
 
     updatePortalVisual(portal: any, id: string) {
-
         const container = this.scene.portalEntities[id];
         if (!container) return;
-        container.setVisible(portal.active);
-        // Si no cambió el tipo → no redibujamos
+
+        // --- LÓGICA DE APARICIÓN / DESAPARICIÓN CON ANIMACIÓN ---
+
+        // Si el portal debe estar activo pero está oculto (Apareciendo)
+        if (portal.active && !container.visible) {
+            container.setVisible(true);
+            container.setScale(0); // Empezamos desde cero
+            this.scene.tweens.add({
+                targets: container,
+                scale: 1,
+                duration: 400,
+                ease: 'Back.easeOut' // Efecto rebote suave
+            });
+        }
+        // Si el portal debe estar inactivo pero aún es visible (Desapareciendo)
+        else if (!portal.active && container.visible) {
+            // Evitamos que se disparen múltiples tweens si ya se está achicando
+            if (!this.scene.tweens.isTweening(container)) {
+                this.scene.tweens.add({
+                    targets: container,
+                    scale: 0,
+                    duration: 400,
+                    ease: 'Cubic.easeIn',
+                    onComplete: () => {
+                        container.setVisible(false);
+                    }
+                });
+            }
+        }
+
+        // --- CAMBIO DE COLOR/TIPO (Tu lógica existente) ---
         if (container.getData("type") === portal.type) return;
+
         container.setData("type", portal.type);
         const graphics = container.list[0] as Phaser.GameObjects.Graphics;
         if (!graphics) return;
+
         const color = portal.type === "exit" ? 0xff4444 : 0x6a5acd;
         this.drawPortal(graphics, color);
-
     }
 
     drawPortal(graphics: Phaser.GameObjects.Graphics, color: number) {
