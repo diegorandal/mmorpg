@@ -4,6 +4,7 @@ import type { MyRoomState } from '@/app/(protected)/home/MyRoomState';
 import { handleAttack } from "./systems/AttackSystem";
 import { MovementSystem } from "./systems/MovementSystem";
 import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
+import { PortalSystem } from './systems/PortalSystem';
 
 export class MainScene extends Phaser.Scene {
     
@@ -14,9 +15,10 @@ export class MainScene extends Phaser.Scene {
     public room!: Room<MyRoomState>;
     private movementSystem!: MovementSystem;
     private visualSystem!: PlayerVisualSystem;
+    private portalSystem: PortalSystem;
     public sfx!: Phaser.Sound.BaseSound;
     public playerEntities: { [sessionId: string]: any } = {};
-    private portalEntities: { [id: string]: Phaser.GameObjects.Container } = {};
+    public portalEntities: { [id: string]: Phaser.GameObjects.Container } = {};
     public cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private collisionLayer?: Phaser.Tilemaps.TilemapLayer;
     public joystickBase?: Phaser.GameObjects.Arc;
@@ -48,7 +50,6 @@ export class MainScene extends Phaser.Scene {
     private playersText?: Phaser.GameObjects.Text;
     private dianaText?: Phaser.GameObjects.Text;
     private attackCooldowns: { [key: string]: number } = {};
-    private portalCheckCooldown = 0;
     private attackSpeeds: { [key: string]: number } = {
         "1-1": 250, "1-2": 400, "1-3": 600, // sword
         "2-1": 350, "2-2": 500, "2-3": 900, // bow
@@ -59,6 +60,7 @@ export class MainScene extends Phaser.Scene {
     private showDirectionIndicator: boolean = true;
     private attackButtonsUI: { [key: number]: Phaser.GameObjects.Image } = {};
     private potToShow = 0;
+    private portalsNeedRedraw: boolean = false;
 
     init() {
         this.roomName = this.registry.get('roomName');
@@ -200,6 +202,7 @@ export class MainScene extends Phaser.Scene {
 
         this.visualSystem = new PlayerVisualSystem(this, min_aura, max_aura);
         this.movementSystem = new MovementSystem(this, this.visualSystem);
+        this.portalSystem = new PortalSystem(this.room, this, 16, 48, 48, 4800, 4800);
 
         // 2. Creamos animaciones específicas para cada personaje
         const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
@@ -235,18 +238,7 @@ export class MainScene extends Phaser.Scene {
         }
 
         this.room.onLeave((code) => {
-
-            /*
-            console.log(`Has salido de la sala. Código de cierre: ${code}`);
-            if (code === 1000) {
-                console.log("Cierre limpio (voluntario o expulsión controlada)");
-            } else {
-                console.log("Cierre por error de red o crash del servidor");
-            }
-            */
-
             this.showDeathScreen();
-            
         });
 
         this.room.state.players.forEach((player, sessionId) => {
@@ -325,21 +317,23 @@ export class MainScene extends Phaser.Scene {
                     this.removePlayer(sessionId);
                 }
             }
-            
-            // PORTALES Agregar nuevos y actualizar existentes
-            state.portals.forEach((portal, id) => {
+
+            // PORTALES
+            state.portals.forEach((portal, id) => { // Agregar nuevos y actualizar existentes
                 if (!this.portalEntities[id]) {
-                    this.addPortal(portal, id);
+                    this.portalSystem.addPortal(portal, id);
+                    this.portalsNeedRedraw = true;
                 } else {
-                    this.updatePortalVisual(portal, id);
+                    this.portalSystem.updatePortalVisual(portal, id);
+                    this.portalsNeedRedraw = true;
                 }
             });
 
-            // Eliminar los que ya no existen
-            for (const id in this.portalEntities) {
+            for (const id in this.portalEntities) { // Eliminar los que ya no existen
                 if (!state.portals.has(id)) {
                     this.portalEntities[id].destroy();
                     delete this.portalEntities[id];
+                    this.portalsNeedRedraw = true;
                 }
             }
 
@@ -807,6 +801,12 @@ export class MainScene extends Phaser.Scene {
             }
         }
 
+        // Portals Constellation
+        if (this.portalsNeedRedraw && this.portalSystem) {
+            this.portalSystem.draw();
+            this.portalsNeedRedraw = false;
+        }
+
         // 🎯 TARGET
         if (this.currentTargetId) {
             const target = this.playerEntities[this.currentTargetId];
@@ -845,113 +845,10 @@ export class MainScene extends Phaser.Scene {
         }
 
         // --- PORTAL PROXIMITY CHECK ---
-        this.checkPortalCollision(time);
+        this.portalSystem.checkPortalCollision(time);
 
         // 🚶 MOVEMENT SYSTEM
         this.movementSystem.update(delta);
-
-    }
-
-    // #region Portals
-
-    private addPortal(portal: any, id: string) {
-
-        const container = this.add.container(portal.x, portal.y);
-        container.setDepth(2);
-        const graphics = this.add.graphics();
-        graphics.setBlendMode(Phaser.BlendModes.ADD);
-        container.add(graphics);
-        // Dibujar por primera vez
-        const color = portal.type === 'exit' ? 0xff4444 : 0x6a5acd;
-        this.drawPortal(graphics, color);
-        // Guardamos el tipo actual para detectar cambios futuros
-        container.setData("type", portal.type);
-        // Animaciones
-        this.tweens.add({targets: container, angle: 360, duration: 2000, repeat: -1, ease: "Linear"});
-        this.tweens.add({targets: container, scale: 1.1, duration: 800, yoyo: true, repeat: -1, ease: "Sine.easeInOut"});
-        this.portalEntities[id] = container;
-
-    }
-
-    private updatePortalVisual(portal: any, id: string) {
-
-        const container = this.portalEntities[id];
-        if (!container) return;
-        container.setVisible(portal.active);
-
-        // Si no cambió el tipo → no redibujamos
-        if (container.getData("type") === portal.type) return;
-        container.setData("type", portal.type);
-        const graphics = container.list[0] as Phaser.GameObjects.Graphics;
-        if (!graphics) return;
-        const color = portal.type === "exit" ? 0xff4444 : 0x6a5acd;
-        this.drawPortal(graphics, color);
-
-    }
-
-    private drawPortal(graphics: Phaser.GameObjects.Graphics, color: number) {
-
-        const radius = 24;
-        const sides = 7;
-
-        graphics.clear();
-        graphics.fillStyle(color, 0.3);
-        graphics.lineStyle(2, color, 0.5);
-
-        graphics.beginPath();
-
-        for (let i = 0; i < sides; i++) {
-            const angle = Phaser.Math.DegToRad((360 / sides) * i - 90);
-            const x = Math.cos(angle) * radius;
-            const y = Math.sin(angle) * radius;
-            if (i === 0) graphics.moveTo(x, y);
-            else graphics.lineTo(x, y);
-        }
-
-        graphics.closePath();
-        graphics.fillPath();
-        graphics.strokePath();
-
-    }
-
-    private checkPortalCollision(time: number) {
-
-        const myId = this.room.sessionId;
-        const myEntity = this.playerEntities[myId];
-        if (!myEntity) return;
-
-        // Cooldown anti spam (3000ms)
-        if (time < this.portalCheckCooldown) return;
-
-        const px = myEntity.sprite.x;
-        const py = myEntity.sprite.y;
-        const radius = 24;
-        const radiusSq = radius * radius;
-
-        let foundPortal: string | null = null;
-
-        for (const id in this.portalEntities) {
-            const portal = this.portalEntities[id];
-            portal.setAlpha(1);
-            const dx = px - portal.x;
-            const dy = py - (portal.y - 16);
-            const distSq = dx * dx + dy * dy;
-            if (distSq <= radiusSq) {
-                foundPortal = id;
-                break;
-            }
-        }
-
-        if (foundPortal) {
-            this.portalCheckCooldown = time + 3000;
-            this.room.send("enterPortal", { portalId: foundPortal });
-
-            for (const id in this.portalEntities) {
-                const portal = this.portalEntities[id];
-                portal.setAlpha(0.5);
-            }
-
-        } 
 
     }
 

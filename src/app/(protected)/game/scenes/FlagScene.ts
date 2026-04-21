@@ -854,6 +854,7 @@ export class FlagScene extends Phaser.Scene {
                 this.potText?.setText(`💰 ${this.formatPot(this.potToShow)}`);
             }
         }
+        
         // Portals Constellation
         if (this.portalsNeedRedraw && this.portalSystem) {
             this.portalSystem.draw();

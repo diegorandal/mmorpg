@@ -1,11 +1,12 @@
 import { PortalType } from '@/app/(protected)/home/Portal';
 import { Room } from "@colyseus/sdk";
 import { FlagScene } from '../FlagScene';
+import { MainScene } from '../MainScene';
 
 export class PortalSystem {
 
     private room: Room;
-    private scene: FlagScene;
+    private scene: FlagScene | MainScene;
     private graphics: Phaser.GameObjects.Graphics;
     private size: number;
     private worldWidth: number;
@@ -14,7 +15,7 @@ export class PortalSystem {
 
     constructor(
         room: Room,
-        scene: FlagScene,
+        scene: FlagScene | MainScene,
         x: number,
         y: number,
         size: number,
@@ -53,7 +54,7 @@ export class PortalSystem {
 
         // 2. Dibujar líneas consecutivas entre los EXIT
         if (exitPortals.length > 1) {
-            this.graphics.lineStyle(1, 0xff4444, 0.3); // Color rojo para los EXIT
+            this.graphics.lineStyle(1, 0xff4444, 0.5); // Color rojo para los EXIT
 
             for (let i = 0; i < exitPortals.length; i++) {
                 const current = exitPortals[i];
@@ -73,7 +74,7 @@ export class PortalSystem {
                 if (target) {
                     const a = this.normalize(portal.x, portal.y);
                     const b = this.normalize(target.x, target.y);
-                    this.graphics.lineStyle(1, 0x6a5acd, 0.3);
+                    this.graphics.lineStyle(1, 0x6a5acd, 0.5);
                     this.graphics.strokeLineShape(new Phaser.Geom.Line(a.x, a.y, b.x, b.y));
                 }
             }
