@@ -107,9 +107,61 @@ export class PortalSystem {
         
         this.scene.portalEntities[id] = container;
 
+        // Si el portal empieza inactivo, lo ocultamos de golpe
+        if (!portal.active) {
+            container.setVisible(false);
+            container.setScale(0);
+        }
+
     }
 
     updatePortalVisual(portal: any, id: string) {
+
+        const container = this.scene.portalEntities[id];
+        if (!container) return;
+        const graphics = container.list[0] as Phaser.GameObjects.Graphics;
+        const color = portal.type === "exit" ? 0xff4444 : 0x6a5acd;
+        
+        if (container.getData("type") !== portal.type) {
+            container.setData("type", portal.type);
+            this.drawPortal(graphics, color);
+        }
+
+        if(container.visible == true && portal.active == false){ // apagar
+            this.scene.tweens.killTweensOf(container);
+
+            this.scene.tweens.add(
+                { 
+                    targets: container, 
+                    scale: 0, 
+                    duration: 500, 
+                    ease: "Back.in",
+                    onComplete: () => {container.setVisible(false);},
+                 });
+
+        }
+        if (container.visible == false && portal.active == true) { // encender
+            
+            this.scene.tweens.killTweensOf(container);
+            
+            container.setVisible(true);
+            container.setScale(0);
+
+            this.scene.tweens.add(
+                {
+                    targets: container,
+                    scale: 1,
+                    duration: 500,
+                    ease: "Back.out",
+                    
+                });
+
+        }
+
+
+        // Si no cambió el tipo → no redibujamos
+
+        /*
 
         const container = this.scene.portalEntities[id];
         if (!container) return;
@@ -121,6 +173,8 @@ export class PortalSystem {
         if (!graphics) return;
         const color = portal.type === "exit" ? 0xff4444 : 0x6a5acd;
         this.drawPortal(graphics, color);
+
+        */
 
     }
 

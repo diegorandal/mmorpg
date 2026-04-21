@@ -348,6 +348,7 @@ export class FlagScene extends Phaser.Scene {
             state.portals.forEach((portal, id) => { // Agregar nuevos y actualizar existentes
                 if (!this.portalEntities[id]) {
                     this.portalSystem.addPortal(portal, id);
+                    this.portalSystem.updatePortalVisual(portal, id);
                     this.portalsNeedRedraw = true;
                 } else {
                     this.portalSystem.updatePortalVisual(portal, id);
