@@ -103,7 +103,7 @@ export class PortalSystem {
 
         // Animaciones
         this.scene.tweens.add({targets: container, angle: 360, duration: 2000, repeat: -1, ease: "Linear"});
-        this.scene.tweens.add({targets: container, scale: 1.1, duration: 800, yoyo: true, repeat: -1, ease: "Sine.easeInOut"});
+        this.scene.tweens.add({targets: graphics, scale: 1.1, duration: 800, yoyo: true, repeat: -1, ease: "Sine.easeInOut"});
         
         this.scene.portalEntities[id] = container;
 
@@ -116,48 +116,47 @@ export class PortalSystem {
     }
 
     updatePortalVisual(portal: any, id: string) {
-
         const container = this.scene.portalEntities[id];
         if (!container) return;
         const graphics = container.list[0] as Phaser.GameObjects.Graphics;
         const color = portal.type === "exit" ? 0xff4444 : 0x6a5acd;
-        
+
+        // 1. Si cambió el tipo, redibujamos (esto no afecta animaciones)
         if (container.getData("type") !== portal.type) {
             container.setData("type", portal.type);
             this.drawPortal(graphics, color);
         }
 
-        if(container.visible == true && portal.active == false){ // apagar
-            this.scene.tweens.killTweensOf(container);
-
-            this.scene.tweens.add(
-                { 
-                    targets: container, 
-                    scale: 0, 
-                    duration: 500, 
-                    ease: "Back.in",
-                    onComplete: () => {container.setVisible(false);},
-                 });
-
+        // 2. Lógica para APAGAR
+        if (container.visible && !portal.active) {
+            // NO usamos killTweensOf para no matar el giro (angle)
+            this.scene.tweens.add({
+                targets: container,
+                scale: 0,
+                duration: 500,
+                ease: "Back.in",
+                overwrite: true, // Esto detiene otros tweens de SCALE, pero deja el de ANGLE vivo
+                onComplete: () => {
+                    container.setVisible(false);
+                },
+            });
         }
-        if (container.visible == false && portal.active == true) { // encender
-            
-            this.scene.tweens.killTweensOf(container);
-            
+
+        // 3. Lógica para ENCENDER
+        if (!container.visible && portal.active) {
             container.setVisible(true);
+            // Empezamos desde escala 0 para que el efecto "Back.out" se vea bien
             container.setScale(0);
 
-            this.scene.tweens.add(
-                {
-                    targets: container,
-                    scale: 1,
-                    duration: 500,
-                    ease: "Back.out",
-                    
-                });
-
+            this.scene.tweens.add({
+                targets: container,
+                scale: 1,
+                duration: 500,
+                ease: "Back.out",
+                overwrite: true, // Esto asegura que si se estaba apagando, ahora se encienda limpiamente
+            });
         }
-
+    
 
         // Si no cambió el tipo → no redibujamos
 
