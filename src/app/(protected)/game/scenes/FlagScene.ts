@@ -347,21 +347,17 @@ export class FlagScene extends Phaser.Scene {
             }
             
             // PORTALES
-            // Agregar nuevos y actualizar existentes
-            
-            state.portals.forEach((portal: any, id) => {
+            state.portals.forEach((portal, id) => { // Agregar nuevos y actualizar existentes
                 if (!this.portalEntities[id]) {
                     this.addPortal(portal, id);
-                    portal.onChange(() => {
-                        this.portalsNeedRedraw = true;
-                        this.updatePortalVisual(portal, id);
-                    }
-                    );
-                } 
+                    this.portalsNeedRedraw = true;
+                } else {
+                    this.updatePortalVisual(portal, id);
+                    this.portalsNeedRedraw = true;
+                }
             });
-
-            // Eliminar los que ya no existen
-            for (const id in this.portalEntities) {
+            
+            for (const id in this.portalEntities) { // Eliminar los que ya no existen
                 if (!state.portals.has(id)) {
                     this.portalEntities[id].destroy();
                     delete this.portalEntities[id];
