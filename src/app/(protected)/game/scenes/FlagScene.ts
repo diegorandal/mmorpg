@@ -4,6 +4,7 @@ import type { FlagRoomState } from '@/app/(protected)/home/FlagState';
 import { handleAttack } from "./systems/AttackSystem";
 import { MovementSystem } from "./systems/MovementSystem";
 import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
+import { PortalsConstellation } from './systems/PortalConstellation';
 
 export class FlagScene extends Phaser.Scene {
     constructor() {
@@ -15,6 +16,7 @@ export class FlagScene extends Phaser.Scene {
     public room!: Room<FlagRoomState>;
     private movementSystem!: MovementSystem;
     private visualSystem!: PlayerVisualSystem;
+    private portalsConstellation: PortalsConstellation;
     public sfx!: Phaser.Sound.BaseSound;
     public playerEntities: { [sessionId: string]: any } = {};
     private portalEntities: { [id: string]: Phaser.GameObjects.Container } = {};
@@ -202,6 +204,7 @@ export class FlagScene extends Phaser.Scene {
         this.input.addPointer(3);
         this.visualSystem = new PlayerVisualSystem(this, 10, 3000); // 0.000010 a 0.003
         this.movementSystem = new MovementSystem(this, this.visualSystem);
+        this.portalsConstellation = new PortalsConstellation(this.room.state, this, 100, 100, 100, 4800, 4800);
 
         // 2. Creamos animaciones específicas para cada personaje
         const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
@@ -341,7 +344,22 @@ export class FlagScene extends Phaser.Scene {
                     this.removePlayer(sessionId);
                 }
             }
-            // PORTALES Agregar nuevos y actualizar existentes
+            
+            // PORTALES
+            const hadNoPortals = Object.keys(this.portalEntities).length === 0;
+            const hasPortalsNow = state.portals.size > 0;
+
+            if (hadNoPortals && hasPortalsNow) {
+                
+                this.portalsConstellation.draw()
+                
+            }
+
+            if (!hadNoPortals && !hasPortalsNow) {
+                //Disparar animacion de cierre de portal
+                console.log("Ya no quedan portales en el mapa");
+            }
+            // Agregar nuevos y actualizar existentes
             state.portals.forEach((portal, id) => {
                 if (!this.portalEntities[id]) {
                     this.addPortal(portal, id);
@@ -968,22 +986,15 @@ export class FlagScene extends Phaser.Scene {
 
         const container = this.portalEntities[id];
         if (!container) return;
-        
         container.setVisible(portal.active);
-
         // Si no cambió el tipo → no redibujamos
         if (container.getData("type") === portal.type) return;
-
         container.setData("type", portal.type);
-
         const graphics = container.list[0] as Phaser.GameObjects.Graphics;
         if (!graphics) return;
-
-        const color = portal.type === "exit"
-            ? 0xff4444
-            : 0x6a5acd;
-
+        const color = portal.type === "exit" ? 0xff4444 : 0x6a5acd;
         this.drawPortal(graphics, color);
+        
     }
 
     private drawPortal(graphics: Phaser.GameObjects.Graphics, color: number) {
