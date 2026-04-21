@@ -351,7 +351,7 @@ export class FlagScene extends Phaser.Scene {
 
             if (hadNoPortals && hasPortalsNow) {
                 
-                this.portalsConstellation.draw()
+               // this.portalsConstellation.draw()
                 
             }
 
@@ -994,7 +994,7 @@ export class FlagScene extends Phaser.Scene {
         if (!graphics) return;
         const color = portal.type === "exit" ? 0xff4444 : 0x6a5acd;
         this.drawPortal(graphics, color);
-        
+
     }
 
     private drawPortal(graphics: Phaser.GameObjects.Graphics, color: number) {
