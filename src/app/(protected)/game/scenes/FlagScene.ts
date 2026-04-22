@@ -19,6 +19,7 @@ export class FlagScene extends Phaser.Scene {
     public sfx!: Phaser.Sound.BaseSound;
     public playerEntities: { [sessionId: string]: any } = {};
     public portalEntities: { [id: string]: Phaser.GameObjects.Container } = {};
+    public readonly SEND_RATE = 100;
     public cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private collisionLayer?: Phaser.Tilemaps.TilemapLayer;
     public joystickBase?: Phaser.GameObjects.Arc;
@@ -44,7 +45,6 @@ export class FlagScene extends Phaser.Scene {
     private currentTargetId: string | null = null;
     private targetCircle?: Phaser.GameObjects.Arc;
     public myCurrentWeaponType: number = 0;
-    public readonly SEND_RATE = 100;
     private potText?: Phaser.GameObjects.Text;
     private hpText?: Phaser.GameObjects.Text;
     private playersText?: Phaser.GameObjects.Text;
@@ -201,7 +201,7 @@ export class FlagScene extends Phaser.Scene {
         this.room = roomInstance;
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.input.addPointer(3);
-        this.visualSystem = new PlayerVisualSystem(this, 10, 3000); // 0.000010 a 0.003
+        this.visualSystem = new PlayerVisualSystem(this, 10, 6000); // 0.000010 a 0.006
         this.movementSystem = new MovementSystem(this, this.visualSystem);
         this.portalSystem = new PortalSystem(this.room, this, 16, 48, 48, 4800, 4800);
 

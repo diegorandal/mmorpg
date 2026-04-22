@@ -32,6 +32,7 @@ export class PortalSystem {
         this.graphics.setScrollFactor(0); // fijo en UI
         this.graphics.setDepth(10000);
         this.graphics.setPosition(x, y);
+        this.graphics.setBlendMode(Phaser.BlendModes.ADD);
     }
 
     private normalize(x: number, y: number) {
@@ -67,20 +68,20 @@ export class PortalSystem {
             }
         }
 
-        // --- Tu lógica anterior de TELEPORTS (Líneas) ---
+        // --- Líneas ---
         this.room.state.portals.forEach(portal => {
             if (portal.type === PortalType.TELEPORT && portal.targetPortalId && portal.active) {
                 const target = this.room.state.portals.get(portal.targetPortalId);
                 if (target) {
                     const a = this.normalize(portal.x, portal.y);
                     const b = this.normalize(target.x, target.y);
-                    this.graphics.lineStyle(1, 0x6a5acd, 0.5);
+                    this.graphics.lineStyle(1.5, 0x6a5acd, 0.5);
                     this.graphics.strokeLineShape(new Phaser.Geom.Line(a.x, a.y, b.x, b.y));
                 }
             }
         });
 
-        // --- Tu lógica anterior de Círculos ---
+        // --- Círculos ---
         this.room.state.portals.forEach(portal => {
             if (!portal.active) return;
             const pos = this.normalize(portal.x, portal.y);
@@ -167,7 +168,6 @@ export class PortalSystem {
         graphics.clear();
         graphics.fillStyle(color, 0.3);
         graphics.lineStyle(2, color, 0.5);
-        graphics.setBlendMode(Phaser.BlendModes.ADD);
         graphics.beginPath();
 
         for (let i = 0; i < sides; i++) {
