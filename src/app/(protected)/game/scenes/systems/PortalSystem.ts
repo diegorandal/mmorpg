@@ -157,24 +157,6 @@ export class PortalSystem {
                 overwrite: true, // Esto asegura que si se estaba apagando, ahora se encienda limpiamente
             });
         }
-    
-
-        // Si no cambió el tipo → no redibujamos
-
-        /*
-
-        const container = this.scene.portalEntities[id];
-        if (!container) return;
-        container.setVisible(portal.active);
-        // Si no cambió el tipo → no redibujamos
-        if (container.getData("type") === portal.type) return;
-        container.setData("type", portal.type);
-        const graphics = container.list[0] as Phaser.GameObjects.Graphics;
-        if (!graphics) return;
-        const color = portal.type === "exit" ? 0xff4444 : 0x6a5acd;
-        this.drawPortal(graphics, color);
-
-        */
 
     }
 
@@ -185,7 +167,7 @@ export class PortalSystem {
         graphics.clear();
         graphics.fillStyle(color, 0.3);
         graphics.lineStyle(2, color, 0.5);
-
+        graphics.setBlendMode(Phaser.BlendModes.ADD);
         graphics.beginPath();
 
         for (let i = 0; i < sides; i++) {
