@@ -452,8 +452,8 @@ export default function Home() {
 
   // GAME ROOM PHASER
   return (
-    <main style={{ width: '100vw', height: '100vh', backgroundColor: '#000' }}>
-      <div id="game-container" ref={gameContainerRef} style={{ width: '100%', height: '100%' }} />
+    <main style={{position: 'fixed', inset: 0, backgroundColor: '#000', zIndex: 9999}}>
+      <div id="game-container" ref={gameContainerRef} style={{ width: '100%', height: '100%' }}/>
     </main>
   );
 
