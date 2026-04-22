@@ -505,7 +505,6 @@ export class MainScene extends Phaser.Scene {
         this.weapon3 = this.add.image(ax, ay + (r * 1.40), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);        
         this.weapon4 = this.add.image(ax - r, ay + r, 'button-spell-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         
-        if(this.roomName === "my_room") this.potion = this.add.image(35, this.weapon3.y, 'button-potion-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
         this.weaponSelectorRing = this.add.circle(-100, -100, wsize + 8).setStrokeStyle(4, 0xffff00, 0.5).setScrollFactor(0).setDepth(10001);
 
         this.weapon0.on('pointerdown', () => this.selectWeapon(0));
@@ -514,8 +513,11 @@ export class MainScene extends Phaser.Scene {
         this.weapon3.on('pointerdown', () => this.selectWeapon(3));
         this.weapon4.on('pointerdown', () => this.selectWeapon(4));
 
-        // usar pocion
-        this.potion.on('pointerdown', () => {this.room.send("useItem", { item: 1 });});
+        // Pocion
+        if (this.roomName === "my_room") {
+            this.potion = this.add.image(35, this.weapon3.y, 'button-potion-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+            this.potion.on('pointerdown', () => { this.room.send("useItem", { item: 1 }); });
+        }
 
         // --- LÓGICA PARA JOYSTICK ---
         this.joystickThumb.setInteractive();     
