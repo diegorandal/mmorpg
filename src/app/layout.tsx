@@ -1,19 +1,11 @@
 import { auth } from '@/auth';
 import ClientProviders from '@/providers';
 //import '@worldcoin/mini-apps-ui-kit-react/styles.css';
-import type { Metadata, Viewport } from 'next'; // Importa Viewport
+import type { Metadata } from 'next'; // Importa Viewport
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 
 // Esto es CRUCIAL para que el contenido se dibuje detrás de las barras del sistema
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  viewportFit: 'cover', // <--- Esto expande el juego al borde físico
-};
-
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
