@@ -30,6 +30,29 @@ const controlData = [
     { imgUrl: "https://randalrpg.onepixperday.xyz/attacks1.png", function: "Choose one of the attacks or defend. Defending stops 1 attack." },
 ];
 
+const attackData = [
+    {
+        name: "Sword 1",
+        description: "Basic frontal attack based on the character's direction.",
+        stats: { Damage: "5", Hitbox: "Circular", Range: "32", Radius: "32" }
+    },
+    {
+        name: "Sword 2",
+        description: "Thrust to the front.",
+        stats: { Damage: "10", Hitbox: "Rectangular", Range: "60", Width: "24" }
+    },
+    {
+        name: "Sword 3",
+        description: "Circular area attack centered on the player. The closer you are, the more damage it does.",
+        stats: { Damage: "0 to 10", Hitbox: "Circular", Range: "0 to 25", Radius: "50" }
+    },
+    {
+        name: "Bow 1",
+        description: "Straight shot. Hits the nearest enemy within the trajectory.",
+        stats: { Damage: "6", Hitbox: "Linear", Range: "300", Radius: "20" }
+    }
+];
+
 export default function SectionInformation() {
     return (
         <section style={{ width: "100%", color: "white", padding: "20px 0", textAlign: "center" }}>
@@ -133,36 +156,32 @@ export default function SectionInformation() {
 
                 {/* SUBSECCIÓN: ATTACKS */}
                 <div style={{ textAlign: "left" }}>
-                    <SectionLabel label="ATTACKS" />
-                    <div style={infoBoxStyle}>
-                        <div style={textContentStyle}>
-                            {/* Salto de línea antes y después usando márgenes o br */}
-                            <p style={{ margin: "10px 0", fontWeight: "bold", color: "#D1851F" }}>Sword 1</p>
-                            <ul style={{ ...textContentStyle, paddingLeft: "15px", listStyleType: "circle" }}>
-                                <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>Damage:</strong> 5</li>
-                                <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>Hitbox:</strong> Circular</li>
-                                <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>Range:</strong> 32</li>
-                                <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>Radius:</strong> 32</li>
-                                <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>Description:</strong> Basic frontal attack based on the character's direction.</li>
-                            </ul>
-                            <p style={{ margin: "10px 0", fontWeight: "bold", color: "#D1851F" }}>Sword 2</p>
-                            <ul style={{ ...textContentStyle, paddingLeft: "15px", listStyleType: "circle" }}>
-                                <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>Damage:</strong> 10</li>
-                                <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>Hitbox:</strong> Rectangular</li>
-                                <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>Range:</strong> 60</li>
-                                <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>Width:</strong> 24</li>
-                                <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>Description:</strong> Thrust to the front.</li>
-                            </ul>
-                            <p style={{ margin: "10px 0", fontWeight: "bold", color: "#D1851F" }}>Sword 3</p>
-                            <ul style={{ ...textContentStyle, paddingLeft: "15px", listStyleType: "circle" }}>
-                                <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>Damage:</strong> 10 to 0</li>
-                                <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>Hitbox:</strong> Circular</li>
-                                <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>Range:</strong> 0 to 50</li>
-                                <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>Radius:</strong> 50</li>
-                                <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>Description:</strong> Circular area attack centered on the player.</li>
-                            </ul>
-
-                        </div>
+                    <SectionLabel label="Attacks & Skills" />
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                        {attackData.map((attack, index) => (
+                            <div key={index} style={infoBoxStyle}>
+                                <div style={{ fontWeight: "bold", color: "#D1851F", marginBottom: "4px", fontSize: "14px" }}>
+                                    {attack.name}
+                                </div>
+                                <p style={{ ...textContentStyle, marginBottom: "8px", fontStyle: "italic", opacity: 0.7 }}>
+                                    {attack.description}
+                                </p>
+                                <div style={{
+                                    display: "grid",
+                                    gridTemplateColumns: "1fr 1fr",
+                                    gap: "4px",
+                                    borderTop: "1px solid #333",
+                                    paddingTop: "8px"
+                                }}>
+                                    {Object.entries(attack.stats).map(([key, value]) => (
+                                        <div key={key} style={{ fontSize: "11px" }}>
+                                            <span style={{ color: "#888", marginRight: "4px" }}>{key}:</span>
+                                            <span style={{ color: "#fff" }}>{value}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
