@@ -267,7 +267,7 @@ export function handleAttack(ctx: AttackContext) {
     }
 
     // SPELL ATTACK 1
-    if (myCurrentWeaponType === 4 && attackNumber === 1) {
+    if (attackNumber === 1) {
         
         attackRadius = 100; // Radio amplio alrededor del jugador
         attackX = myEntity.sprite.x;
@@ -284,7 +284,7 @@ export function handleAttack(ctx: AttackContext) {
     }
 
     // SPELL 2 with TARGET (W4 A2)
-    if (myCurrentWeaponType === 4 && attackNumber === 2) {
+    if (attackNumber === 2) {
         const target = playerEntities[currentTargetId];
         // 1. Validar que el objetivo realmente existe y está vivo
         if (!currentTargetId || !target || target.isDead) return;
@@ -295,7 +295,7 @@ export function handleAttack(ctx: AttackContext) {
     }
 
     // SPELL ATTACK 3
-    if (myCurrentWeaponType === 4 && attackNumber === 3) {
+    if (attackNumber === 3) {
 
         attackRadius = 500; // Radio amplio alrededor del jugador
         attackX = myEntity.sprite.x;

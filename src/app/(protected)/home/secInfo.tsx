@@ -25,32 +25,73 @@ const controlData = [
     { imgUrl: "https://randalrpg.onepixperday.xyz/button_bow.png", function: "Bow attacks." },
     { imgUrl: "https://randalrpg.onepixperday.xyz/button_wand.png", function: "Wand attacks." },
     { imgUrl: "https://randalrpg.onepixperday.xyz/button_spell.png", function: "Spell attacks." },
+    { imgUrl: "https://randalrpg.onepixperday.xyz/attacks1.png", function: "Choose one of the attacks or defend. Defending stops 1 attack." },
     { imgUrl: "https://randalrpg.onepixperday.xyz/button_potion.png", function: "Use the potion to increase your life points by paying with your earnings. (10 HP = 💰 0.002)" },
     { imgUrl: "https://randalrpg.onepixperday.xyz/drop_flag.png", function: "Drop the flag." },
-    { imgUrl: "https://randalrpg.onepixperday.xyz/attacks1.png", function: "Choose one of the attacks or defend. Defending stops 1 attack." },
 ];
 
 const attackData = [
     {
         name: "Sword 1",
         description: "Basic frontal attack based on the character's direction.",
-        stats: { Damage: "5", Hitbox: "Circular", Range: "32", Radius: "32" }
+        stats: { Damage: "5", Hitbox: "Circular", Targets: "Multiple", Range: "32", Radius: "32" }
     },
     {
         name: "Sword 2",
         description: "Thrust to the front.",
-        stats: { Damage: "10", Hitbox: "Rectangular", Range: "60", Width: "24" }
+        stats: { Damage: "10", Hitbox: "Rectangular", Targets: "Multiple", Range: "60", Width: "24" }
     },
     {
         name: "Sword 3",
         description: "Circular area attack centered on the player. The closer you are, the more damage it does.",
-        stats: { Damage: "0 to 10", Hitbox: "Circular", Range: "0 to 25", Radius: "50" }
+        stats: { Damage: "0 to 10", Hitbox: "Circular", Targets: "Multiple", Range: "0 to 25", Radius: "50" }
     },
     {
         name: "Bow 1",
         description: "Straight shot. Hits the nearest enemy within the trajectory.",
-        stats: { Damage: "6", Hitbox: "Linear", Range: "300", Radius: "20" }
-    }
+        stats: { Damage: "6", Hitbox: "Linear", Targets: "1", Range: "300", Radius: "20" }
+    },
+    {
+        name: "Bow 2",
+        description: "Aimed shot. Requires clicking on the target.",
+        stats: { Damage: "6", Hitbox: "Target", Targets: "1", Range: "300" }
+    },
+    {
+        name: "Bow 3",
+        description: "Area arrow that hits the target and nearby enemies.",
+        stats: { Damage: "4", Hitbox: "Circular", Targets: "Multiple", Range: "300", Radius: "75" }
+    },
+    {
+        name: "Wand 1",
+        description: "Medium-range frontal magic blast.",
+        stats: { Damage: "3", Hitbox: "Circular", Targets: "Multiple", Range: "64", Radius: "80" }
+    },
+    {
+        name: "Wand 2",
+        description: "Direct fireball. Requires clicking on the target.",
+        stats: { Damage: "5", Hitbox: "Target", Targets: "1", Range: "300" }
+    },
+    {
+        name: "Wand 3",
+        description: "Automatically seeks out and attacks the nearest enemy.",
+        stats: { Damage: "4", Hitbox: "Target", Targets: "1", Range: "300" }
+    },
+    {
+        name: "Spell 1",
+        description: "Mid-range blast centered on the player.",
+        stats: { Damage: "4", Hitbox: "Circular", Targets: "Multiple", Range: "0", Radius: "100" }
+    },
+    {
+        name: "Spell 2",
+        description: "Spell directed at a selected target. No re-targeting required.",
+        stats: { Damage: "3", Hitbox: "Target", Targets: "1", Range: "300" }
+    },
+    {
+        name: "Spell 3",
+        description: "Electric shocks surround the player.",
+        stats: { Damage: "2", Hitbox: "Circular", Targets: "Multiple", Range: "500" }
+    },
+
 ];
 
 export default function SectionInformation() {
@@ -130,8 +171,8 @@ export default function SectionInformation() {
                         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                             <thead>
                                 <tr style={{ borderBottom: "1px solid #333", opacity: 0.6 }}>
-                                    <th style={{ padding: "8px", textAlign: "center", fontWeight: "normal", fontSize: "11px" }}>BOTÓN</th>
-                                    <th style={{ padding: "8px", textAlign: "left", fontWeight: "normal", fontSize: "11px" }}>FUNCIÓN</th>
+                                    <th style={{ padding: "8px", textAlign: "center", fontWeight: "normal", fontSize: "11px" }}>BUTTON</th>
+                                    <th style={{ padding: "8px", textAlign: "left", fontWeight: "normal", fontSize: "11px" }}>FUNCTION</th>
                                 </tr>
                             </thead>
                             <tbody>

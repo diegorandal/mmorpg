@@ -40,10 +40,6 @@ export default function Home() {
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
 
-//  const MIN_BALANCE = 0.25; // wld
-//  const balanceWld = profile?.balance ? Number(ethers.formatUnits(profile.balance, 18)) : 0;
-//  const canPlay = profile && balanceWld >= MIN_BALANCE && !connecting;
-
   // Función para renderizar el componente según el estado
   const [activeTab, setActiveTab] = useState('rooms');
 
@@ -57,7 +53,6 @@ export default function Home() {
 
   const dataRoomsFake = [
     {name: "Desert Royale", cost: "250000000000000000", desc: "💀", type: "Royale", map: "desert", ref: "sape", status: "close", onlineUsers: 0},
-    //{name: "Capture the flag", cost: "100000000000000000", desc: "🏳", type: "Flag", map: "forest", ref: "sape", status: "close", onlineUsers: 0},
     {name: "Color Teams", cost: "100000000000000000", desc: "👨🏽‍🤝‍👨🏻", type: "Teams", map: "dungeon", ref: "sapent", status: "close", onlineUsers: 0}
   ];
 

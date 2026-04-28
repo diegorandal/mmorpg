@@ -51,9 +51,9 @@ export class MainScene extends Phaser.Scene {
     private dianaText?: Phaser.GameObjects.Text;
     private attackCooldowns: { [key: string]: number } = {};
     private attackSpeeds: { [key: string]: number } = {
-        "1-1": 250, "1-2": 400, "1-3": 600, // sword
-        "2-1": 350, "2-2": 500, "2-3": 900, // bow
-        "3-1": 450, "3-2": 550, "3-3": 800, // wand
+        "1-1": 250, "1-2": 500, "1-3": 600, // sword
+        "2-1": 350, "2-2": 750, "2-3": 900, // bow
+        "3-1": 450, "3-2": 500, "3-3": 900, // wand
         "4-1": 700, "4-2": 600, "4-3": 900, // spell
     };
     private directionIndicator?: Phaser.GameObjects.Triangle;
