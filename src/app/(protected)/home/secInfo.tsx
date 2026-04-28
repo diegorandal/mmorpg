@@ -372,43 +372,47 @@ export default function SectionInformation() {
                 {/* SUBSECCIÓN: PORTALS */}
                 <div style={{ textAlign: "left" }}>
                     <SectionLabel label="Portals" />
-                    <div style={infoBoxStyle}>
-                        <p style={{ margin: "10px 0", fontWeight: "bold", color: "#D1851F" }}>
-                            Portals type
-                        </p>
-                        <ul style={{ ...textContentStyle, paddingLeft: "0", listStyleType: "none" }}>
-                            <li style={{ marginBottom: "12px", display: "flex", alignItems: "center" }}>
-                                <PolygonPortal color="#fde288" />
-                                <span><strong style={{ color: "#fff" }}>YELLOW PORTAL:</strong> leave the room with all your earnings. </span>
-                            </li>
-                            <li style={{ display: "flex", alignItems: "center" }}>
-                                <PolygonPortal color="#b6efe7" /> {/* Un azul cian brillante */}
-                                <span><strong style={{ color: "#fff" }}>BLUE PORTAL:</strong> teleportation.</span>
-                            </li>
-                        </ul>
-                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                        <div style={infoBoxStyle}>
+                            
+                            <p style={{ margin: "10px 0", fontWeight: "bold", color: "#D1851F" }}>
+                                Portals type
+                            </p>
+                            
+                            <ul style={{ ...textContentStyle, paddingLeft: "0", listStyleType: "none" }}>
+                                <li style={{ marginBottom: "12px", display: "flex", alignItems: "center" }}>
+                                    <PolygonPortal color="#fde288" />
+                                    <span><strong style={{ color: "#fff" }}>YELLOW PORTAL:</strong> leave the room with all your earnings. </span>
+                                </li>
+                                <li style={{ display: "flex", alignItems: "center" }}>
+                                    <PolygonPortal color="#b6efe7" /> {/* Un azul cian brillante */}
+                                    <span><strong style={{ color: "#fff" }}>BLUE PORTAL:</strong> teleportation.</span>
+                                </li>
+                            </ul>
+                        </div>
 
-                    <div style={infoBoxStyle}>
-                        <p style={{ margin: "0 0 10px 0", fontWeight: "bold", color: "#D1851F" }}>
-                            Constellation of Portals
-                        </p>
-                        <div style={{
-                            display: "flex",
-                            alignItems: "center", // Centra el texto verticalmente respecto al canvas
-                            gap: "16px"           // Espacio entre el canvas y el texto
-                        }}>
-                            {/* Contenedor del Canvas */}
-                            <div style={{ flexShrink: 0 }}>
-                                <MapNodesComponent color1="#fde288" color2="#b6efe7" />
-                            </div>
+                        <div style={infoBoxStyle}>
+                            <p style={{ margin: "0 0 10px 0", fontWeight: "bold", color: "#D1851F" }}>
+                                Constellation of Portals
+                            </p>
+                            <div style={{
+                                display: "flex",
+                                alignItems: "center", // Centra el texto verticalmente respecto al canvas
+                                gap: "16px"           // Espacio entre el canvas y el texto
+                            }}>
+                                {/* Contenedor del Canvas */}
+                                <div style={{ flexShrink: 0 }}>
+                                    <MapNodesComponent color1="#fde288" color2="#b6efe7" />
+                                </div>
 
-                            {/* Contenedor del Texto */}
-                            <div style={textContentStyle}>
-                                 Every 20 seconds the portals reorganize; if you know the map you can deduce where to find the exit portals.
+                                {/* Contenedor del Texto */}
+                                <div style={textContentStyle}>
+                                    Every 20 seconds the portals reorganize; if you know the map you can deduce where to find the exit portals.
+                                </div>
                             </div>
                         </div>
-                    </div>
 
+                    </div>
                 </div>
 
             </div>
