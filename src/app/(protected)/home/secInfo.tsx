@@ -106,7 +106,7 @@ function PolygonPortal({ color }: { color: string }) {
         let animationFrameId: number;
         let anguloRotacion = 0;
         const lados = 7;
-        const radio = 12; 
+        const radio = 16; 
         const centroX = 16;
         const centroY = 16;
 
@@ -144,8 +144,8 @@ function PolygonPortal({ color }: { color: string }) {
     return (
         <canvas
             ref={canvasRef}
-            width={32}
-            height={32}
+            width={48}
+            height={48}
             style={{ verticalAlign: 'middle', marginRight: '8px' }}
         />
     );
@@ -340,7 +340,7 @@ export default function SectionInformation() {
 
                 {/* SUBSECCIÓN: ATTACKS */}
                 <div style={{ textAlign: "left" }}>
-                    <SectionLabel label="Attacks & Skills" />
+                    <SectionLabel label="Attacks" />
                     <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                         {attackData.map((attack, index) => (
                             <div key={index} style={infoBoxStyle}>
@@ -386,11 +386,12 @@ export default function SectionInformation() {
                                 <span><strong style={{ color: "#fff" }}>BLUE PORTAL:</strong> teleportation.</span>
                             </li>
                         </ul>
+                    </div>
 
+                    <div style={infoBoxStyle}>
                         <p style={{ margin: "0 0 10px 0", fontWeight: "bold", color: "#D1851F" }}>
                             Constellation of Portals
                         </p>
-
                         <div style={{
                             display: "flex",
                             alignItems: "center", // Centra el texto verticalmente respecto al canvas
@@ -407,6 +408,7 @@ export default function SectionInformation() {
                             </div>
                         </div>
                     </div>
+
                 </div>
 
             </div>
