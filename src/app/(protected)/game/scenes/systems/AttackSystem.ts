@@ -13,11 +13,13 @@ interface AttackContext {
     currentTargetId: string;
 }
 
+const attackCooldowns: { [key: string]: number } = {};
+
 export function handleAttack(ctx: AttackContext) {
     
     const {room, playerEntities, myCurrentWeaponType, attackNumber, time, playAttackOnce, clearTarget, currentTargetId} = ctx;
 
-    const attackCooldowns: { [key: string]: number } = { };
+
     const attackSpeeds: { [key: string]: number } = {
         "1-1": 250, "1-2": 500, "1-3": 600, // sword
         "2-1": 350, "2-2": 750, "2-3": 900, // bow
@@ -274,7 +276,7 @@ export function handleAttack(ctx: AttackContext) {
     }
 
     // SPELL ATTACK 1
-    if (attackNumber === 1) {
+    if (myCurrentWeaponType === 4 && attackNumber === 1) {
         
         attackRadius = 100; // Radio amplio alrededor del jugador
         attackX = myEntity.sprite.x;
@@ -291,7 +293,7 @@ export function handleAttack(ctx: AttackContext) {
     }
 
     // SPELL 2 with TARGET (W4 A2)
-    if (attackNumber === 2) {
+    if (myCurrentWeaponType === 4 && attackNumber === 2) {
         const target = playerEntities[currentTargetId];
         // 1. Validar que el objetivo realmente existe y está vivo
         if (!currentTargetId || !target || target.isDead) return;
@@ -302,7 +304,7 @@ export function handleAttack(ctx: AttackContext) {
     }
 
     // SPELL ATTACK 3
-    if (attackNumber === 3) {
+    if (myCurrentWeaponType === 4 && attackNumber === 3) {
 
         attackRadius = 500; // Radio amplio alrededor del jugador
         attackX = myEntity.sprite.x;
