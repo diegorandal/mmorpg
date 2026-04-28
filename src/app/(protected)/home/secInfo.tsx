@@ -151,38 +151,52 @@ function PolygonPortal({ color }: { color: string }) {
     );
 }
 
-function RandomConnectionNode({ color1, color2 }: { color1: string, color2: string }) {
+function MapNodesComponent({ color1, color2 }: { color1: string, color2: string }) {
     const canvasRef = React.useRef<HTMLCanvasElement>(null);
-    const [positions, setPositions] = React.useState<any>(null);
 
-    // Función para generar posiciones aleatorias
-    const generatePositions = () => {
-        const p = (margin: number) => Math.random() * (64 - margin * 2) + margin;
-        return {
-            group1: Array.from({ length: 3 }, () => ({ x: p(8), y: p(8) })),
-            group2: Array.from({ length: 4 }, () => ({ x: p(8), y: p(8) }))
-        };
+    // Coordenadas originales del mapa 4800x4800
+    const rawPositions = [
+        { x: 667, y: 3916 },
+        { x: 2845, y: 3587 },
+        { x: 4298, y: 4412 },
+        { x: 4460, y: 2863 },
+        { x: 4254, y: 1174 },
+        { x: 763, y: 775 },
+        { x: 1854, y: 2032 }
+    ];
+
+    // Escalar las posiciones al tamaño del canvas (64px)
+    const scaledPositions = rawPositions.map(p => ({
+        x: (p.x * 64) / 4800,
+        y: (p.y * 64) / 4800
+    }));
+
+    const [assignedNodes, setAssignedNodes] = React.useState<any>(null);
+
+    const shuffleNodes = () => {
+        // Mezclamos el array de posiciones escaladas
+        const shuffled = [...scaledPositions].sort(() => Math.random() - 0.5);
+        setAssignedNodes({
+            group1: shuffled.slice(0, 3), // Los primeros 3 para color1
+            group2: shuffled.slice(3, 7)  // Los siguientes 4 para color2
+        });
     };
 
-    // Efecto para el temporizador de 5 segundos
     React.useEffect(() => {
-        setPositions(generatePositions());
-        const interval = setInterval(() => {
-            setPositions(generatePositions());
-        }, 3000);
+        shuffleNodes();
+        const interval = setInterval(shuffleNodes, 3000);
         return () => clearInterval(interval);
     }, []);
 
-    // Efecto para el renderizado del Canvas
     React.useEffect(() => {
         const canvas = canvasRef.current;
-        if (!canvas || !positions) return;
+        if (!canvas || !assignedNodes) return;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        const drawCircle = (x: number, y: number, color: string) => {
+        const drawCircle = (p: any, color: string) => {
             ctx.beginPath();
-            ctx.arc(x, y, 3, 0, Math.PI * 2); // Radio 3 para diámetro 6
+            ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
             ctx.fillStyle = color;
             ctx.fill();
         };
@@ -198,31 +212,27 @@ function RandomConnectionNode({ color1, color2 }: { color1: string, color2: stri
 
         ctx.clearRect(0, 0, 64, 64);
 
-        // --- Grupo 1: 3 nodos conectados entre sí (Triángulo/Cadena) ---
-        const g1 = positions.group1;
+        // Grupo 1: 3 nodos conectados en ciclo
+        const g1 = assignedNodes.group1;
         drawLine(g1[0], g1[1], color1);
         drawLine(g1[1], g1[2], color1);
-        drawLine(g1[2], g1[0], color1); // Cerramos el triángulo
-        g1.forEach((p: any) => drawCircle(p.x, p.y, color1));
+        drawLine(g1[2], g1[0], color1);
+        g1.forEach((p: any) => drawCircle(p, color1));
 
-        // --- Grupo 2: 4 nodos unidos en parejas (2 y 2) ---
-        const g2 = positions.group2;
+        // Grupo 2: 4 nodos en 2 parejas
+        const g2 = assignedNodes.group2;
         drawLine(g2[0], g2[1], color2);
         drawLine(g2[2], g2[3], color2);
-        g2.forEach((p: any) => drawCircle(p.x, p.y, color2));
+        g2.forEach((p: any) => drawCircle(p, color2));
 
-    }, [positions, color1, color2]);
+    }, [assignedNodes, color1, color2]);
 
     return (
         <canvas
             ref={canvasRef}
             width={64}
             height={64}
-            style={{
-                display: 'block',
-                margin: '0 auto',
-                background: 'transparent'
-            }}
+            style={{ display: 'block', background: 'transparent' }}
         />
     );
 }
@@ -378,12 +388,24 @@ export default function SectionInformation() {
                         </ul>
                     </div>
                     <div style={infoBoxStyle}>
-                        <p style={{ margin: "10px 0", fontWeight: "bold", color: "#D1851F" }}>
-                            Constellation of portals
+                        <p style={{ margin: "0 0 10px 0", fontWeight: "bold", color: "#D1851F" }}>
+                            Constellation of Portals
                         </p>
-                        <div>
-                            <span><RandomConnectionNode color1="#fde288" color2="#b6efe7" /></span>
-                            <span> el Peluca Sape</span>                            
+
+                        <div style={{
+                            display: "flex",
+                            alignItems: "center", // Centra el texto verticalmente respecto al canvas
+                            gap: "16px"           // Espacio entre el canvas y el texto
+                        }}>
+                            {/* Contenedor del Canvas */}
+                            <div style={{ flexShrink: 0 }}>
+                                <MapNodesComponent color1="#fde288" color2="#b6efe7" />
+                            </div>
+
+                            {/* Contenedor del Texto */}
+                            <div style={textContentStyle}>
+                                 Every 20 seconds the portals reorganize; if you know the map you can deduce where to find the exit portals.
+                            </div>
                         </div>
                     </div>
                 </div>
