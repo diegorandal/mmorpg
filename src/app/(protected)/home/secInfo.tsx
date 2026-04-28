@@ -94,6 +94,60 @@ const attackData = [
 
 ];
 
+function PolygonPortal({ color }: { color: string }) {
+    const canvasRef = React.useRef<HTMLCanvasElement>(null);
+
+    React.useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        let animationFrameId: number;
+        let anguloRotacion = 0;
+        const lados = 7;
+        const radio = 12; 
+        const centroX = 16;
+        const centroY = 16;
+
+        const dibujar = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(centroX, centroY);
+            ctx.rotate(anguloRotacion);
+
+            ctx.beginPath();
+            for (let i = 0; i < lados; i++) {
+                const x = radio * Math.cos((2 * Math.PI * i) / lados);
+                const y = radio * Math.sin((2 * Math.PI * i) / lados);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.restore();
+
+            anguloRotacion += 0.03;
+            animationFrameId = requestAnimationFrame(dibujar);
+        };
+
+        dibujar();
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [color]);
+
+    return (
+        <canvas
+            ref={canvasRef}
+            width={32}
+            height={32}
+            style={{ verticalAlign: 'middle', marginRight: '8px' }}
+        />
+    );
+}
+
 export default function SectionInformation() {
     return (
         <section style={{ width: "100%", color: "white", padding: "20px 0", textAlign: "center" }}>
@@ -230,12 +284,18 @@ export default function SectionInformation() {
                 <div style={{ textAlign: "left" }}>
                     <SectionLabel label="Portals" />
                     <div style={infoBoxStyle}>
-                        <ul style={{ ...textContentStyle, paddingLeft: "15px", listStyleType: "circle" }}>
+                        <ul style={{ ...textContentStyle, paddingLeft: "0", listStyleType: "none" }}>
+                            <li style={{ marginBottom: "12px", display: "flex", alignItems: "center" }}>
+                                <PolygonPortal color="#fde288" />
+                                <span><strong style={{ color: "#fff" }}>YELLOW PORTAL:</strong> exit the game</span>
+                            </li>
+                            <li style={{ display: "flex", alignItems: "center" }}>
+                                <PolygonPortal color="#b6efe7" /> {/* Un azul cian brillante */}
+                                <span><strong style={{ color: "#fff" }}>BLUE PORTAL:</strong> teleport</span>
+                            </li>
                         </ul>
                     </div>
                 </div>
-
-
 
             </div>
         </section>
