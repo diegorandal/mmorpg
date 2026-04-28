@@ -49,13 +49,6 @@ export class MainScene extends Phaser.Scene {
     private hpText?: Phaser.GameObjects.Text;
     private playersText?: Phaser.GameObjects.Text;
     private dianaText?: Phaser.GameObjects.Text;
-    private attackCooldowns: { [key: string]: number } = {};
-    private attackSpeeds: { [key: string]: number } = {
-        "1-1": 250, "1-2": 500, "1-3": 600, // sword
-        "2-1": 350, "2-2": 750, "2-3": 900, // bow
-        "3-1": 450, "3-2": 500, "3-3": 900, // wand
-        "4-1": 700, "4-2": 600, "4-3": 900, // spell
-    };
     private directionIndicator?: Phaser.GameObjects.Triangle;
     private showDirectionIndicator: boolean = true;
     private attackButtonsUI: { [key: number]: Phaser.GameObjects.Image } = {};
@@ -483,8 +476,6 @@ export class MainScene extends Phaser.Scene {
                  playerEntities: this.playerEntities, 
                  myCurrentWeaponType: this.myCurrentWeaponType, 
                  attackNumber: this.attackDragSelect, 
-                 attackCooldowns: this.attackCooldowns, 
-                 attackSpeeds: this.attackSpeeds, 
                  time: this.time, 
                  playAttackOnce: this.visualSystem.playAttackOnce.bind(this.visualSystem), 
                  clearTarget: this.clearTarget.bind(this), 

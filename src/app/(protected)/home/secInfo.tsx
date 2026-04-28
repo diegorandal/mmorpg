@@ -34,62 +34,62 @@ const attackData = [
     {
         name: "Sword 1",
         description: "Basic frontal attack based on the character's direction.",
-        stats: { Damage: "5", Hitbox: "Circular", Targets: "Multiple", Range: "32", Radius: "32" }
+        stats: { Damage: "5", Hitbox: "Circular", Cooldown: "250ms", Targets: "Multiple", Range: "32", Radius: "32" }
     },
     {
         name: "Sword 2",
         description: "Thrust to the front.",
-        stats: { Damage: "10", Hitbox: "Rectangular", Targets: "Multiple", Range: "60", Width: "24" }
+        stats: { Damage: "10", Hitbox: "Rectangular", Cooldown: "500ms", Targets: "Multiple", Range: "60", Width: "24" }
     },
     {
         name: "Sword 3",
         description: "Circular area attack centered on the player. The closer you are, the more damage it does.",
-        stats: { Damage: "0 to 10", Hitbox: "Circular", Targets: "Multiple", Range: "0 to 25", Radius: "50" }
+        stats: { Damage: "0 to 10", Hitbox: "Circular", Cooldown: "600ms", Targets: "Multiple", Range: "0 to 25", Radius: "50" }
     },
     {
         name: "Bow 1",
         description: "Straight shot. Hits the nearest enemy within the trajectory.",
-        stats: { Damage: "6", Hitbox: "Linear", Targets: "1", Range: "300", Radius: "20" }
+        stats: { Damage: "6", Hitbox: "Linear", Cooldown: "350ms", Targets: "1", Range: "300", Radius: "20" }
     },
     {
         name: "Bow 2",
         description: "Aimed shot. Requires clicking on the target.",
-        stats: { Damage: "6", Hitbox: "Target", Targets: "1", Range: "300" }
+        stats: { Damage: "6", Hitbox: "Target", Cooldown: "750ms", Targets: "1", Range: "300" }
     },
     {
         name: "Bow 3",
         description: "Area arrow that hits the target and nearby enemies.",
-        stats: { Damage: "4", Hitbox: "Circular", Targets: "Multiple", Range: "300", Radius: "75" }
+        stats: { Damage: "4", Hitbox: "Circular", Cooldown: "900ms", Targets: "Multiple", Range: "300", Radius: "75" }
     },
     {
         name: "Wand 1",
         description: "Medium-range frontal magic blast.",
-        stats: { Damage: "3", Hitbox: "Circular", Targets: "Multiple", Range: "64", Radius: "80" }
+        stats: { Damage: "3", Hitbox: "Circular", Cooldown: "450ms", Targets: "Multiple", Range: "64", Radius: "80" }
     },
     {
         name: "Wand 2",
         description: "Direct fireball. Requires clicking on the target.",
-        stats: { Damage: "5", Hitbox: "Target", Targets: "1", Range: "300" }
+        stats: { Damage: "5", Hitbox: "Target", Cooldown: "500ms", Targets: "1", Range: "300" }
     },
     {
         name: "Wand 3",
         description: "Automatically seeks out and attacks the nearest enemy.",
-        stats: { Damage: "4", Hitbox: "Target", Targets: "1", Range: "300" }
+        stats: { Damage: "4", Hitbox: "Target", Cooldown: "900ms", Targets: "1", Range: "300" }
     },
     {
         name: "Spell 1",
         description: "Mid-range blast centered on the player.",
-        stats: { Damage: "4", Hitbox: "Circular", Targets: "Multiple", Range: "0", Radius: "100" }
+        stats: { Damage: "4", Hitbox: "Circular", Cooldown: "700ms", Targets: "Multiple", Range: "0", Radius: "100" }
     },
     {
         name: "Spell 2",
         description: "Spell directed at a selected target. No re-targeting required.",
-        stats: { Damage: "3", Hitbox: "Target", Targets: "1", Range: "300" }
+        stats: { Damage: "3", Hitbox: "Target", Cooldown: "600ms", Targets: "1", Range: "300" }
     },
     {
         name: "Spell 3",
         description: "Electric shocks surround the player.",
-        stats: { Damage: "2", Hitbox: "Circular", Targets: "Multiple", Range: "500" }
+        stats: { Damage: "2", Hitbox: "Circular", Cooldown: "900ms", Targets: "Multiple", Range: "500" }
     },
 
 ];

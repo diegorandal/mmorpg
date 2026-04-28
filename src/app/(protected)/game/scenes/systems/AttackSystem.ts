@@ -7,8 +7,6 @@ interface AttackContext {
     playerEntities: any;
     myCurrentWeaponType: number;
     attackNumber: number;
-    attackCooldowns: { [key: string]: number };
-    attackSpeeds: { [key: string]: number };
     time: Phaser.Time.Clock;
     playAttackOnce: (entity: any, msg: any) => void;
     clearTarget?: () => void;
@@ -16,7 +14,16 @@ interface AttackContext {
 }
 
 export function handleAttack(ctx: AttackContext) {
-    const {room, playerEntities, myCurrentWeaponType, attackNumber, attackCooldowns, attackSpeeds, time, playAttackOnce, clearTarget, currentTargetId} = ctx;
+    
+    const {room, playerEntities, myCurrentWeaponType, attackNumber, time, playAttackOnce, clearTarget, currentTargetId} = ctx;
+
+    const attackCooldowns: { [key: string]: number } = { };
+    const attackSpeeds: { [key: string]: number } = {
+        "1-1": 250, "1-2": 500, "1-3": 600, // sword
+        "2-1": 350, "2-2": 750, "2-3": 900, // bow
+        "3-1": 450, "3-2": 500, "3-3": 900, // wand
+        "4-1": 700, "4-2": 600, "4-3": 900, // spell
+    };
 
      if (!room || !playerEntities[room.sessionId]) return;
     const myEntity = playerEntities[room.sessionId];
