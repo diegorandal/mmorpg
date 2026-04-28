@@ -386,8 +386,7 @@ export default function SectionInformation() {
                                 <span><strong style={{ color: "#fff" }}>BLUE PORTAL:</strong> teleportation.</span>
                             </li>
                         </ul>
-                    </div>
-                    <div style={infoBoxStyle}>
+
                         <p style={{ margin: "0 0 10px 0", fontWeight: "bold", color: "#D1851F" }}>
                             Constellation of Portals
                         </p>
