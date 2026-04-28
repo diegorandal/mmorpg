@@ -124,7 +124,10 @@ function PolygonPortal({ color }: { color: string }) {
                 else ctx.lineTo(x, y);
             }
             ctx.closePath();
-
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.5; // Esto aplica el 50% de transparencia
+            ctx.fill();
+            ctx.globalAlpha = 1.0;  // Restauramos la opacidad al 100% para la línea
             ctx.strokeStyle = color;
             ctx.lineWidth = 2;
             ctx.stroke();
@@ -144,6 +147,82 @@ function PolygonPortal({ color }: { color: string }) {
             width={32}
             height={32}
             style={{ verticalAlign: 'middle', marginRight: '8px' }}
+        />
+    );
+}
+
+function RandomConnectionNode({ color1, color2 }: { color1: string, color2: string }) {
+    const canvasRef = React.useRef<HTMLCanvasElement>(null);
+    const [positions, setPositions] = React.useState<any>(null);
+
+    // Función para generar posiciones aleatorias
+    const generatePositions = () => {
+        const p = (margin: number) => Math.random() * (64 - margin * 2) + margin;
+        return {
+            group1: Array.from({ length: 3 }, () => ({ x: p(8), y: p(8) })),
+            group2: Array.from({ length: 4 }, () => ({ x: p(8), y: p(8) }))
+        };
+    };
+
+    // Efecto para el temporizador de 5 segundos
+    React.useEffect(() => {
+        setPositions(generatePositions());
+        const interval = setInterval(() => {
+            setPositions(generatePositions());
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
+
+    // Efecto para el renderizado del Canvas
+    React.useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas || !positions) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const drawCircle = (x: number, y: number, color: string) => {
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2); // Radio 3 para diámetro 6
+            ctx.fillStyle = color;
+            ctx.fill();
+        };
+
+        const drawLine = (p1: any, p2: any, color: string) => {
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        };
+
+        ctx.clearRect(0, 0, 64, 64);
+
+        // --- Grupo 1: 3 nodos conectados entre sí (Triángulo/Cadena) ---
+        const g1 = positions.group1;
+        drawLine(g1[0], g1[1], color1);
+        drawLine(g1[1], g1[2], color1);
+        drawLine(g1[2], g1[0], color1); // Cerramos el triángulo
+        g1.forEach((p: any) => drawCircle(p.x, p.y, color1));
+
+        // --- Grupo 2: 4 nodos unidos en parejas (2 y 2) ---
+        const g2 = positions.group2;
+        drawLine(g2[0], g2[1], color2);
+        drawLine(g2[2], g2[3], color2);
+        g2.forEach((p: any) => drawCircle(p.x, p.y, color2));
+
+    }, [positions, color1, color2]);
+
+    return (
+        <canvas
+            ref={canvasRef}
+            width={64}
+            height={64}
+            style={{
+                display: 'block',
+                margin: '0 auto',
+                background: 'transparent'
+            }}
         />
     );
 }
@@ -284,16 +363,28 @@ export default function SectionInformation() {
                 <div style={{ textAlign: "left" }}>
                     <SectionLabel label="Portals" />
                     <div style={infoBoxStyle}>
+                        <p style={{ margin: "10px 0", fontWeight: "bold", color: "#D1851F" }}>
+                            Portals type
+                        </p>
                         <ul style={{ ...textContentStyle, paddingLeft: "0", listStyleType: "none" }}>
                             <li style={{ marginBottom: "12px", display: "flex", alignItems: "center" }}>
                                 <PolygonPortal color="#fde288" />
-                                <span><strong style={{ color: "#fff" }}>YELLOW PORTAL:</strong> exit the game</span>
+                                <span><strong style={{ color: "#fff" }}>YELLOW PORTAL:</strong> leave the room with all your earnings. </span>
                             </li>
                             <li style={{ display: "flex", alignItems: "center" }}>
                                 <PolygonPortal color="#b6efe7" /> {/* Un azul cian brillante */}
-                                <span><strong style={{ color: "#fff" }}>BLUE PORTAL:</strong> teleport</span>
+                                <span><strong style={{ color: "#fff" }}>BLUE PORTAL:</strong> teleportation.</span>
                             </li>
                         </ul>
+                    </div>
+                    <div style={infoBoxStyle}>
+                        <p style={{ margin: "10px 0", fontWeight: "bold", color: "#D1851F" }}>
+                            Constellation of portals
+                        </p>
+                        <div>
+                            <span><RandomConnectionNode color1="#fde288" color2="#b6efe7" /></span>
+                            <span> el Peluca Sape</span>                            
+                        </div>
                     </div>
                 </div>
 
