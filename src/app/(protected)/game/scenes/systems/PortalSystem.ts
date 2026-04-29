@@ -12,6 +12,8 @@ export class PortalSystem {
     private worldWidth: number;
     private worldHeight: number;
     private portalCheckCooldown = 0;
+    private exitColor = 0xffd700;
+    private teleportColor = 0x40e0d0;
 
     constructor(
         room: Room,
@@ -55,7 +57,7 @@ export class PortalSystem {
 
         // 2. Dibujar líneas consecutivas entre los EXIT
         if (exitPortals.length > 1) {
-            this.graphics.lineStyle(1, 0xff4444, 0.5); // Color rojo para los EXIT
+            this.graphics.lineStyle(1, this.exitColor, 0.5); 
 
             for (let i = 0; i < exitPortals.length; i++) {
                 const current = exitPortals[i];
@@ -75,7 +77,7 @@ export class PortalSystem {
                 if (target) {
                     const a = this.normalize(portal.x, portal.y);
                     const b = this.normalize(target.x, target.y);
-                    this.graphics.lineStyle(1.5, 0x6a5acd, 0.5);
+                    this.graphics.lineStyle(1.5, this.teleportColor, 0.5);
                     this.graphics.strokeLineShape(new Phaser.Geom.Line(a.x, a.y, b.x, b.y));
                 }
             }
@@ -85,7 +87,7 @@ export class PortalSystem {
         this.room.state.portals.forEach(portal => {
             if (!portal.active) return;
             const pos = this.normalize(portal.x, portal.y);
-            const color = portal.type === PortalType.TELEPORT ? 0x6a5acd : 0xff4444;
+            const color = portal.type === PortalType.TELEPORT ? this.teleportColor : this.exitColor;
             this.graphics.fillStyle(color, 0.5);
             this.graphics.fillCircle(pos.x, pos.y, 4);
         });
@@ -98,7 +100,8 @@ export class PortalSystem {
         const graphics = this.scene.add.graphics();
         graphics.setBlendMode(Phaser.BlendModes.ADD);
         container.add(graphics);
-        const color = portal.type === 'exit' ? 0xff4444 : 0x6a5acd; 
+        const color = portal.type === PortalType.TELEPORT ? this.teleportColor : this.exitColor;
+
         this.drawPortal(graphics, color); // Dibujar por primera vez
         container.setData("type", portal.type); // Guardamos el tipo actual para detectar cambios futuros
 
@@ -120,7 +123,7 @@ export class PortalSystem {
         const container = this.scene.portalEntities[id];
         if (!container) return;
         const graphics = container.list[0] as Phaser.GameObjects.Graphics;
-        const color = portal.type === "exit" ? 0xff4444 : 0x6a5acd;
+        const color = portal.type === PortalType.TELEPORT ? this.teleportColor : this.exitColor;
 
         // 2. Lógica para APAGAR
         if (container.visible && !portal.active) {

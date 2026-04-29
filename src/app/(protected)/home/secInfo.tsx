@@ -300,9 +300,9 @@ export default function SectionInformation() {
                     <SectionLabel label="Rooms" />
                     <div style={infoBoxStyle}>
                         <ul style={{ ...textContentStyle, paddingLeft: "15px", listStyleType: "circle" }}>
-                            <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>STAKE FOREST:</strong> Pay the entry fee. Win by attacking other characters. Exit through a yellow portal to keep your winnings.</li>
-                            <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>TRAINING FOREST:</strong> No entry fee. Find the red wizard and profit by attacking him. Use the yellow portal to exit and keep your winnings.</li>
-                            <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>FLAG:</strong> Carry the flag and earn profits every second. Use the yellow portal to exit and keep your winnings.</li>
+                            <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>STAKE FOREST:</strong> Pay the entry fee. Win by attacking other characters. Exit through a gold portal to keep your winnings.</li>
+                            <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>TRAINING FOREST:</strong> No entry fee. Find the red wizard and profit by attacking him. Use the gold portal to exit and keep your winnings.</li>
+                            <li style={{ marginBottom: "8px" }}><strong style={{ color: "#fff" }}>FLAG:</strong> Carry the flag and earn profits every second. Use the gold portal to exit and keep your winnings.</li>
                         </ul>
                     </div>
                 </div>
@@ -376,24 +376,24 @@ export default function SectionInformation() {
                         <div style={infoBoxStyle}>
                             
                             <p style={{ margin: "10px 0", fontWeight: "bold", color: "#D1851F" }}>
-                                Portals type
+                                Type
                             </p>
                             
                             <ul style={{ ...textContentStyle, paddingLeft: "0", listStyleType: "none" }}>
                                 <li style={{ marginBottom: "12px", display: "flex", alignItems: "center" }}>
-                                    <PolygonPortal color="#fde288" />
-                                    <span><strong style={{ color: "#fff" }}>YELLOW PORTAL:</strong> leave the room with all your earnings. </span>
+                                    <PolygonPortal color="#ffd700" />
+                                    <span><strong style={{ color: "#fff" }}>Gold:</strong> leave the room with all your earnings. </span>
                                 </li>
                                 <li style={{ display: "flex", alignItems: "center" }}>
-                                    <PolygonPortal color="#b6efe7" /> {/* Un azul cian brillante */}
-                                    <span><strong style={{ color: "#fff" }}>BLUE PORTAL:</strong> teleportation.</span>
+                                    <PolygonPortal color="#40e0d0" /> {/* Un azul cian brillante */}
+                                    <span><strong style={{ color: "#fff" }}>Turquoise:</strong> teleportation.</span>
                                 </li>
                             </ul>
                         </div>
 
                         <div style={infoBoxStyle}>
                             <p style={{ margin: "0 0 10px 0", fontWeight: "bold", color: "#D1851F" }}>
-                                Constellation of Portals
+                                Constellation
                             </p>
                             <div style={{
                                 display: "flex",
