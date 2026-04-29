@@ -503,7 +503,7 @@ export class PlayerVisualSystem {
             const lightning = this.scene.add.graphics()
                 .setDepth(entity.sprite.depth);
 
-            lightning.lineStyle(2, 0x66ccff, 1);
+            lightning.lineStyle(2, 0x66ccff, 0.8);
             lightning.beginPath();
             lightning.moveTo(startX, startY);
 
@@ -546,9 +546,9 @@ export class PlayerVisualSystem {
         this.scene.tweens.add({
             targets: playerContainer,
             alpha: 1,
-            delay: 400, 
-            duration: 1100,
-            ease: "Linear"
+            delay: 500, 
+            duration: 1000,
+            ease: "Cubic.out"
         });
 
     }

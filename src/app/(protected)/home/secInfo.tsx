@@ -17,6 +17,8 @@ function SectionLabel({ label }: { label: string }) {
         </span>
     );
 }
+const exitColor = '#ffd700';
+const teleportColor = '#40e0d0';
 
 const controlData = [
     { imgUrl: "https://randalrpg.onepixperday.xyz/joystick.png", function: "Move the joystick to move the character." },
@@ -381,11 +383,11 @@ export default function SectionInformation() {
                             
                             <ul style={{ ...textContentStyle, paddingLeft: "0", listStyleType: "none" }}>
                                 <li style={{ marginBottom: "12px", display: "flex", alignItems: "center" }}>
-                                    <PolygonPortal color="#ffd700" />
+                                    <PolygonPortal color={exitColor} />
                                     <span><strong style={{ color: "#fff" }}>Gold:</strong> leave the room with all your earnings. </span>
                                 </li>
                                 <li style={{ display: "flex", alignItems: "center" }}>
-                                    <PolygonPortal color="#40e0d0" /> {/* Un azul cian brillante */}
+                                    <PolygonPortal color={teleportColor} /> {/* Un azul cian brillante */}
                                     <span><strong style={{ color: "#fff" }}>Turquoise:</strong> teleportation.</span>
                                 </li>
                             </ul>
@@ -395,17 +397,11 @@ export default function SectionInformation() {
                             <p style={{ margin: "0 0 10px 0", fontWeight: "bold", color: "#D1851F" }}>
                                 Constellation
                             </p>
-                            <div style={{
-                                display: "flex",
-                                alignItems: "center", // Centra el texto verticalmente respecto al canvas
-                                gap: "16px"           // Espacio entre el canvas y el texto
-                            }}>
+                            <div style={{display: "flex", alignItems: "center", gap: "16px"}}>
                                 {/* Contenedor del Canvas */}
                                 <div style={{ flexShrink: 0 }}>
-                                    <MapNodesComponent color1="#fde288" color2="#b6efe7" />
+                                    <MapNodesComponent color1={exitColor} color2={teleportColor} />
                                 </div>
-
-                                {/* Contenedor del Texto */}
                                 <div style={textContentStyle}>
                                     Every 20 seconds the portals reorganize; if you know the map you can deduce where to find the exit portals.
                                 </div>
