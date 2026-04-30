@@ -290,7 +290,7 @@ export class MainScene extends Phaser.Scene {
                     if (distOrigin <= 1000 || distDest <= 1000) {
                         const minContextDist = Math.min(distOrigin, distDest); // Usamos la distancia más corta para calcular el volumen (para que suene más fuerte si alguna es muy cercana)
                         const volume = 1 - (minContextDist / 1000);
-                        this.playSfx("teleport", { volume: Math.max(volume, 0.1) });
+                        this.playSfx("teleport", Math.max(volume, 0.1));
                     }
                 }
             }
@@ -636,7 +636,12 @@ export class MainScene extends Phaser.Scene {
         // -- POCION ---
         if (data.hp !== undefined && data.hp > entity.hp) this.visualSystem.playPotion(entity);
         // --- MUERTE ---
-        if (data.hp !== undefined && data.hp <= 0 && entity.hp > 0) this.handleDeath(entity, sessionId);
+        if (data.hp !== undefined && data.hp <= 0 && entity.hp > 0) 
+        {
+            if (this.config.vibration) navigator.vibrate(50);
+            this.handleDeath(entity, sessionId);
+        }
+
         // --- CAMBIA POT ---
         if (data.pot !== undefined && entity.pot !== data.pot) {
             entity.pot = data.pot;
@@ -761,7 +766,7 @@ export class MainScene extends Phaser.Scene {
             }
 
             if (myState.hp <= 0 && myEntity.hp > 0) {
-                navigator.vibrate(100);
+                if (this.config.vibration) navigator.vibrate(100);
                 this.handleDeath(myEntity, myId);
             }
 
@@ -927,8 +932,11 @@ export class MainScene extends Phaser.Scene {
         });
     }
 
-    playSfx(sprite: string, config?: Phaser.Types.Sound.SoundConfig) {
-        this.sound.playAudioSprite("sfx", sprite, config);
+    playSfx(sprite: string, volume: number = 1) {
+        const config: any = {};
+        const globalVolume = this.config.sfx / 100;
+        config.volume = volume * globalVolume;
+        if (config.volume > 0) this.sound.playAudioSprite("sfx", sprite, config);
     }
     
     private formatPot(pot: number): string {
