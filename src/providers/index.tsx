@@ -7,7 +7,7 @@ import type { ReactNode } from 'react';
 const ErudaProvider = dynamic(() => import('@/providers/Eruda').then((c) => c.ErudaProvider), { ssr: false });
 interface ClientProvidersProps { children: ReactNode; session: Session | null;}
 
-const showEruda = true;
+const showEruda = false;
 
 export default function ClientProviders({children, session}: ClientProvidersProps) {
   if(showEruda){

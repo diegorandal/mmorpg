@@ -934,7 +934,7 @@ export class MainScene extends Phaser.Scene {
 
     playSfx(sprite: string, volume: number = 1) {
         
-        this.sound.play(sprite, { volume: (this.config.sfx / 100) });
+        this.sound.play(sprite, { volume: 0.1 });
 
     }
     
