@@ -20,7 +20,7 @@ import { FlagScene } from '../game/scenes/FlagScene';
 
 type PlayerProfile = {wallet: string; username: string; balance: string; xp: number; kills: number; characterid: number; characters: number[];};
 interface Room { name: string; cost: string; desc: string; type: string; map: string; ref: string; status: string; onlineUsers: number;}
-export type GameConfig = {hand: 'left' | 'right'; sfx: boolean; music: boolean; vibration: boolean;};
+export type GameConfig = {hand: 'left' | 'right'; sfx: number; music: number; vibration: boolean;};
 
 export default function Home() {
 
@@ -40,7 +40,7 @@ export default function Home() {
   const [connecting, setConnecting] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
-  const [gameConfig, setGameConfig] = useState<GameConfig>({hand: 'right', sfx: true, music: true, vibration: true});
+  const [gameConfig, setGameConfig] = useState<GameConfig>({hand: 'right', sfx: 100, music: 100, vibration: true});
 
   // Función para renderizar el componente según el estado
   const [activeTab, setActiveTab] = useState('rooms');
@@ -200,7 +200,7 @@ export default function Home() {
 
       try{
 
-        const options = { wallet: playerWallet, signature: "sape" };
+        const options = { wallet: playerWallet, signature: "sape"};
         const joinedRoom = await colyseusClient.join<MyRoomState>(roomName, options);
         setRoom(joinedRoom);
         
@@ -252,6 +252,7 @@ export default function Home() {
 
         //const client = new Colyseus.Client("wss://randal.onepixperday.xyz");
         const options = { wallet: playerWallet, signature: finalPayload.signature};
+
         const joinedRoom = await colyseusClient.join<MyRoomState>(roomName, options);
 
         setRoom(joinedRoom);
@@ -276,7 +277,7 @@ export default function Home() {
 
       try {
 
-        const options = { wallet: playerWallet, signature: "sape" };
+        const options = { wallet: playerWallet, signature: "sape"};
         const joinedRoom = await colyseusClient.join<FlagRoomState>(roomName, options);
         setRoom(joinedRoom);
 
@@ -342,6 +343,7 @@ export default function Home() {
         config.callbacks = {preBoot: (g) => {
           g.registry.set('room', room); 
           g.registry.set('roomName', room.name);
+          g.registry.set('config', gameConfig);
         }};
         game = new Phaser.Game(config);
       }

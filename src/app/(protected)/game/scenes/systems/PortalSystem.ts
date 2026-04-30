@@ -22,7 +22,7 @@ export class PortalSystem {
         y: number,
         size: number,
         worldWidth: number,
-        worldHeight: number
+        worldHeight: number,
     ) {
         this.room = room;
         this.scene = scene;

@@ -5,6 +5,7 @@ import { handleAttack } from "./systems/AttackSystem";
 import { MovementSystem } from "./systems/MovementSystem";
 import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
 import { PortalSystem } from './systems/PortalSystem';
+import { GameConfig } from '../../home/page';
 
 export class MainScene extends Phaser.Scene {
     
@@ -54,9 +55,11 @@ export class MainScene extends Phaser.Scene {
     private attackButtonsUI: { [key: number]: Phaser.GameObjects.Image } = {};
     private potToShow = 0;
     private portalsNeedRedraw: boolean = false;
+    private config: GameConfig;
 
     init() {
         this.roomName = this.registry.get('roomName');
+        this.config = this.registry.get('config');
     }
 
     // #region preload
@@ -273,7 +276,7 @@ export class MainScene extends Phaser.Scene {
             const myEntity = this.playerEntities[this.room.sessionId];
             if (msg.sessionId === this.room.sessionId) { // Si soy yo: Efectos locales y sonido siempre
                 this.cameras.main.shake(150, 0.025);
-                navigator.vibrate(50);
+                if(this.config.vibration) navigator.vibrate(50);
                 this.cameras.main.centerOn(entity.sprite.x, entity.sprite.y);
                 this.playSfx("teleport");
             } else {                 // Si es otro usuario:

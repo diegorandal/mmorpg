@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { GameConfig } from './page';
 
 export default function SectionConfig({ config, updateConfig }: {
-        config: GameConfig,
-        updateConfig: (newParams: Partial<GameConfig>) => void
-    }) {
-
+    config: GameConfig,
+    updateConfig: (newParams: Partial<GameConfig>) => void
+}) {
 
     return (
         <section style={{ width: "100%", color: "white", padding: "20px 0", textAlign: "center" }}>
@@ -26,44 +25,58 @@ export default function SectionConfig({ config, updateConfig }: {
                         <button
                             onClick={() => updateConfig({ hand: 'left' })}
                             style={getButtonStyle(config.hand === 'left')}
-                        >
-                            Left Hand
-                        </button>
+                        > Left Hand </button>
                         <button
                             onClick={() => updateConfig({ hand: 'right' })}
                             style={getButtonStyle(config.hand === 'right')}
-                        >
-                            Right Hand
-                        </button>
+                        > Right Hand </button>
                     </div>
                 </div>
 
-                {/* SOUND & VIBRATION */}
+                {/* AUDIO VOLUMEN */}
                 <div style={{ textAlign: "left" }}>
-                    <SectionLabel label="Sound, Music & Vibration" />
+                    <SectionLabel label="Audio Volume" />
                     <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                        <div style={rowStyle}>
-                            <span style={textStyle}>Sound Effects</span>
-                            <div style={{ display: "flex", gap: "8px", width: "160px" }}>
-                                <button onClick={() => updateConfig({ sfx: true })} style={getSmallButtonStyle(config.sfx)}>ON</button>
-                                <button onClick={() => updateConfig({ sfx: false })} style={getSmallButtonStyle(!config.sfx)}>OFF</button>
+
+                        {/* SFX SLIDER */}
+                        <div style={columnRowStyle}>
+                            <div style={{ display: "flex", justifyContent: "space-between", width: "100%", marginBottom: "8px" }}>
+                                <span style={textStyle}>Sound Effects</span>
+                                <span style={{ color: "#D1851F", fontWeight: "bold" }}>{config.sfx}%</span>
                             </div>
+                            <input
+                                type="range" min="0" max="100"
+                                value={config.sfx}
+                                onChange={(e) => updateConfig({ sfx: parseInt(e.target.value) })}
+                                style={sliderStyle}
+                            />
                         </div>
 
-                        <div style={rowStyle}>
-                            <span style={textStyle}>Music</span>
-                            <div style={{ display: "flex", gap: "8px", width: "160px" }}>
-                                <button onClick={() => updateConfig({ music: true })} style={getSmallButtonStyle(config.music)}>ON</button>
-                                <button onClick={() => updateConfig({ music: false })} style={getSmallButtonStyle(!config.music)}>OFF</button>
+                        {/* MUSIC SLIDER */}
+                        <div style={columnRowStyle}>
+                            <div style={{ display: "flex", justifyContent: "space-between", width: "100%", marginBottom: "8px" }}>
+                                <span style={textStyle}>Music</span>
+                                <span style={{ color: "#D1851F", fontWeight: "bold" }}>{config.music}%</span>
                             </div>
+                            <input
+                                type="range" min="0" max="100"
+                                value={config.music}
+                                onChange={(e) => updateConfig({ music: parseInt(e.target.value) })}
+                                style={sliderStyle}
+                            />
                         </div>
 
-                        <div style={rowStyle}>
-                            <span style={textStyle}>Vibration</span>
-                            <div style={{ display: "flex", gap: "8px", width: "160px" }}>
-                                <button onClick={() => updateConfig({ vibration: true })} style={getSmallButtonStyle(config.vibration)}>ON</button>
-                                <button onClick={() => updateConfig({ vibration: false })} style={getSmallButtonStyle(!config.vibration)}>OFF</button>
-                            </div>
+                    </div>
+                </div>
+
+                {/* VIBRATION */}
+                <div style={{ textAlign: "left" }}>
+                    <SectionLabel label="Haptics" />
+                    <div style={rowStyle}>
+                        <span style={textStyle}>Vibration</span>
+                        <div style={{ display: "flex", gap: "8px", width: "120px" }}>
+                            <button onClick={() => updateConfig({ vibration: true })} style={getSmallButtonStyle(config.vibration)}>ON</button>
+                            <button onClick={() => updateConfig({ vibration: false })} style={getSmallButtonStyle(!config.vibration)}>OFF</button>
                         </div>
                     </div>
                 </div>
@@ -83,56 +96,43 @@ function SectionLabel({ label }: { label: string }) {
     );
 }
 
-// --- ESTILOS DINÁMICOS (Consistentes con Vault/Profile) ---
+// --- ESTILOS ---
 
-const getButtonStyle = (isActive: boolean): React.CSSProperties => ({
-    flex: 1,
-    padding: "14px",
-    borderRadius: "12px",
-    fontSize: "12px",
-    fontWeight: "bold",
-    textTransform: "uppercase",
-    letterSpacing: "0.1em",
+const sliderStyle: React.CSSProperties = {
+    width: "100%",
+    accentColor: "#D1851F", // Color del manejador para navegadores modernos
     cursor: "pointer",
-    transition: "all 0.2s ease",
-    border: "4px solid #D1851F",
-    background: isActive
-        ? "radial-gradient(circle at center, #3a0402 0%, #4F0603 45%, #000000 100%)"
-        : "#222",
-    color: "white",
-    boxShadow: isActive ? "0 0 10px rgba(209, 133, 31, 0.4)" : "none",
-});
-
-const getSmallButtonStyle = (isActive: boolean): React.CSSProperties => ({
-    flex: 1,
-    padding: "8px",
-    borderRadius: "8px",
-    fontSize: "10px",
-    fontWeight: "bold",
-    cursor: "pointer",
-    border: isActive ? "2px solid #D1851F" : "2px solid #333",
-    background: isActive ? "#4F0603" : "#111",
-    color: isActive ? "white" : "#666",
-});
-
-const buttonGroupStyle: React.CSSProperties = {
-    display: "flex",
-    gap: "12px",
-    width: "100%"
+    height: "8px",
+    borderRadius: "5px",
+    background: "#111",
+    appearance: "none",
 };
 
-const rowStyle: React.CSSProperties = {
+const columnRowStyle: React.CSSProperties = {
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: "column",
     padding: "12px",
     background: "rgba(22, 22, 22, 0.8)",
     borderRadius: "12px",
     border: "1px solid #222"
 };
 
-const textStyle: React.CSSProperties = {
-    fontSize: "14px",
-    fontWeight: "500",
-    color: "#e0e0e0"
-};
+// ... (Mantenemos tus otros estilos: getButtonStyle, getSmallButtonStyle, rowStyle, textStyle)
+const getButtonStyle = (isActive: boolean): React.CSSProperties => ({
+    flex: 1, padding: "14px", borderRadius: "12px", fontSize: "12px", fontWeight: "bold",
+    textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer", transition: "all 0.2s ease",
+    border: "4px solid #D1851F", color: "white",
+    background: isActive ? "radial-gradient(circle at center, #3a0402 0%, #4F0603 45%, #000000 100%)" : "#222",
+    boxShadow: isActive ? "0 0 10px rgba(209, 133, 31, 0.4)" : "none",
+});
+
+const getSmallButtonStyle = (isActive: boolean): React.CSSProperties => ({
+    flex: 1, padding: "8px", borderRadius: "8px", fontSize: "10px", fontWeight: "bold", cursor: "pointer",
+    border: isActive ? "2px solid #D1851F" : "2px solid #333",
+    background: isActive ? "#4F0603" : "#111",
+    color: isActive ? "white" : "#666",
+});
+
+const buttonGroupStyle: React.CSSProperties = { display: "flex", gap: "12px", width: "100%" };
+const rowStyle: React.CSSProperties = { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px", background: "rgba(22, 22, 22, 0.8)", borderRadius: "12px", border: "1px solid #222" };
+const textStyle: React.CSSProperties = { fontSize: "14px", fontWeight: "500", color: "#e0e0e0" };
