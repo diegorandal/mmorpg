@@ -934,7 +934,12 @@ export class MainScene extends Phaser.Scene {
 
     playSfx(sprite: string, volume: number = 1) {
         const globalVolume = this.config.sfx / 100;
+
+        console.log('globalVolume', globalVolume);
+
         const finalVolume = volume * globalVolume;
+        
+        console.log("FINAL VOLUME:", finalVolume);
 
         if (finalVolume > 0) {
             this.sfx.play(sprite, { volume: finalVolume });
