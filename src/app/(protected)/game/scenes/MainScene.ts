@@ -942,7 +942,7 @@ export class MainScene extends Phaser.Scene {
         console.log("FINAL VOLUME:", finalVolume);
 
         if (finalVolume > 0) {
-            this.sfx.play(sprite, { volume: finalVolume });
+            this.sound.play(sprite, { volume: finalVolume });
         }
     }
     
