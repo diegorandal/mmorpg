@@ -1,42 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { GameConfig } from './page';
 
-// Tipado para la configuración
-type Config = {
-    hand: 'left' | 'right';
-    sfx: boolean;
-    music: boolean;
-    vibration: boolean;
-};
+export default function SectionConfig({ config, updateConfig }: {
+        config: GameConfig,
+        updateConfig: (newParams: Partial<GameConfig>) => void
+    }) {
 
-export default function SectionConfig() {
-    // Estado inicial por defecto
-    const [config, setConfig] = useState<Config>({
-        hand: 'right',
-        sfx: true,
-        music: true,
-        vibration: true
-    });
-
-    // Cargar desde localStorage al montar
-    useEffect(() => {
-        const saved = localStorage.getItem('game_config');
-        if (saved) {
-            try {
-                setConfig(JSON.parse(saved));
-            } catch (e) {
-                console.error("Error loading config", e);
-            }
-        }
-    }, []);
-
-    // Guardar en localStorage cada vez que cambie la config
-    const updateConfig = (newParams: Partial<Config>) => {
-        const updated = { ...config, ...newParams };
-        setConfig(updated);
-        localStorage.setItem('game_config', JSON.stringify(updated));
-    };
 
     return (
         <section style={{ width: "100%", color: "white", padding: "20px 0", textAlign: "center" }}>

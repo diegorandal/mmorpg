@@ -168,7 +168,7 @@ export default function SectionResult({ address, profile }: Props) {
                     <div>
                         <div style={{ opacity: 0.6, fontSize: 14, marginBottom: 8, textTransform: "uppercase" }}>Total Earned</div>
                         <div style={{ fontSize: 48, fontWeight: 900, color: rewardColor, letterSpacing: "-1px" }}>
-                            {reward.toFixed(6)} <span style={{ fontSize: 24 }}>WLD</span>
+                            💰 {reward.toFixed(6)}
                         </div>
                     </div>
 

@@ -20,6 +20,7 @@ import { FlagScene } from '../game/scenes/FlagScene';
 
 type PlayerProfile = {wallet: string; username: string; balance: string; xp: number; kills: number; characterid: number; characters: number[];};
 interface Room { name: string; cost: string; desc: string; type: string; map: string; ref: string; status: string; onlineUsers: number;}
+export type GameConfig = {hand: 'left' | 'right'; sfx: boolean; music: boolean; vibration: boolean;};
 
 export default function Home() {
 
@@ -39,6 +40,7 @@ export default function Home() {
   const [connecting, setConnecting] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+  const [gameConfig, setGameConfig] = useState<GameConfig>({hand: 'right', sfx: true, music: true, vibration: true});
 
   // Función para renderizar el componente según el estado
   const [activeTab, setActiveTab] = useState('rooms');
@@ -62,7 +64,7 @@ export default function Home() {
       case 'vault': return (<SecVault address={profile!.wallet} inGameBalance={profile!.balance} fetchProfile={fetchProfile}/>);
       case 'profile': return <SecProfile profile={profile} fetchProfile={fetchProfile} handleSetActiveTab={handleSetActiveTab}></SecProfile>;
       case 'info': return <SecInfo></SecInfo>;
-      case 'config': return <SecConfig></SecConfig>;
+      case 'config': return <SecConfig config={gameConfig} updateConfig={updateAndSaveConfig}></SecConfig>;
       case 'result': return <SecResult address={playerWallet} profile={profile}></SecResult>;
       case 'leaderboard': return <SecLeaderboard loading={loadingLeaderboard} data={leaderboardData}></SecLeaderboard>;
       default: return null;
@@ -100,6 +102,22 @@ export default function Home() {
       fetchLeaderboard();
     }
   }, [session?.user?.id]);
+
+  // #region Local config
+  useEffect(() => {
+    const saved = localStorage.getItem('game_config');
+    if (saved) {
+      try {
+        setGameConfig(JSON.parse(saved));
+      } catch (e) { console.error(e); }
+    }
+  }, []);
+  
+  const updateAndSaveConfig = (newParams: any) => {
+    const updated = { ...gameConfig, ...newParams };
+    setGameConfig(updated);
+    localStorage.setItem('game_config', JSON.stringify(updated));
+  };
 
   // #region fetchLeaderboard
   const fetchLeaderboard = async () => {
