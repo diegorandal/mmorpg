@@ -933,17 +933,9 @@ export class MainScene extends Phaser.Scene {
     }
 
     playSfx(sprite: string, volume: number = 1) {
-        const globalVolume = this.config.sfx / 100;
-
-        console.log('globalVolume', globalVolume);
-
-        const finalVolume = volume * globalVolume;
         
-        console.log("FINAL VOLUME:", finalVolume);
+        this.sound.play(sprite, { volume: (this.config.sfx / 100) });
 
-        if (finalVolume > 0) {
-            this.sound.play(sprite, { volume: finalVolume });
-        }
     }
     
     private formatPot(pot: number): string {
