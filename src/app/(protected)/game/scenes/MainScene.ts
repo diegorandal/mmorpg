@@ -73,22 +73,10 @@ export class MainScene extends Phaser.Scene {
         const progressBox = this.add.graphics();
         progressBox.fillStyle(0xd1851f, 0.5);
         progressBox.fillRect(width / 2 - 160, height / 2 - 25, 320, 50);
-
         // 2. Crear texto de carga
-        const loadingText = this.make.text({
-            x: width / 2,
-            y: height / 2 - 50,
-            text: 'Loading...',
-            style: { font: '20px monospace', color: '#ffffff' }
-        }).setOrigin(0.5);
-
-        const percentText = this.make.text({
-            x: width / 2,
-            y: height / 2,
-            text: '0%',
-            style: { font: '18px monospace', color: '#ffffff' }
-        }).setOrigin(0.5);
-
+        const loadingText = this.make.text({ x: width / 2, y: height / 2 - 50, text: 'Loading...', style: { font: '20px monospace', color: '#ffffff' }}).setOrigin(0.5);
+        const percentText = this.make.text({ x: width / 2, y: height / 2, text: '0%', style: { font: '18px monospace', color: '#ffffff' }}).setOrigin(0.5);
+        
         // 3. Escuchar los eventos de progreso de Phaser
         this.load.on('progress', (value: number) => {
             // value es un número entre 0 y 1
@@ -933,11 +921,13 @@ export class MainScene extends Phaser.Scene {
     }
 
     playSfx(sprite: string, volume: number = 1) {
-        
-        this.sfx.play(sprite, { volume: 0.1 });
-
+        const finalVolume = volume * (this.config.sfx / 100);
+        const sound = this.sfx as Phaser.Sound.WebAudioSound;
+        sound.play(sprite, { volume: finalVolume });
+        sound.setVolume(finalVolume);
     }
-    
+  
+
     private formatPot(pot: number): string {
         return (pot / 1000000).toFixed(6);
     }
