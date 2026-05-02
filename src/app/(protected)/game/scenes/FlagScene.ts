@@ -147,8 +147,8 @@ export class FlagScene extends Phaser.Scene {
 
         const roomInstance = this.registry.get('room') as Room<FlagRoomState>;
 
-        this.sfx = this.sound.addAudioSprite('sfx');
-
+        this.sfx = this.sound.addAudioSprite('sfx', { volume: this.config.sfx / 100 });
+        
         // configuramos el mapa
         const data = this.cache.json.get('mapData');
         const map = this.make.tilemap({tileWidth: data.tileSize, tileHeight: data.tileSize, width: data.mapWidth, height: data.mapHeight});
@@ -315,7 +315,7 @@ export class FlagScene extends Phaser.Scene {
                     if (distOrigin <= 1000 || distDest <= 1000) {
                         const minContextDist = Math.min(distOrigin, distDest); // Usamos la distancia más corta para calcular el volumen (para que suene más fuerte si alguna es muy cercana)
                         const volume = 1 - (minContextDist / 1000);
-                        this.playSfx("teleport", Math.max(volume, 0.1));
+                        this.playSfx("teleport");
                     }
                 }
             }
@@ -1033,10 +1033,8 @@ export class FlagScene extends Phaser.Scene {
         });
     }
 
-    playSfx(sprite: string, volume: number = 1) {
-        const finalVolume = 0.1;
-        const sound = this.sound.playAudioSprite('sfx', sprite) as unknown as Phaser.Sound.WebAudioSound;
-        sound.setVolume(finalVolume);
+    playSfx(sprite: string) {
+        this.sfx.play(sprite);
     }
 
     private formatPot(pot: number): string {
