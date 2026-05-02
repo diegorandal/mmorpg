@@ -1035,9 +1035,7 @@ export class FlagScene extends Phaser.Scene {
 
     playSfx(sprite: string, volume: number = 1) {
         const finalVolume = volume * (this.config.sfx / 100);
-        const sound = this.sfx as Phaser.Sound.WebAudioSound;
-        sound.play(sprite, { volume: finalVolume });
-        sound.setVolume(finalVolume);
+        this.sound.playAudioSprite('sfx', sprite, { volume: finalVolume });
     }
 
     private formatPot(pot: number): string {
