@@ -147,7 +147,7 @@ export class FlagScene extends Phaser.Scene {
 
         const roomInstance = this.registry.get('room') as Room<FlagRoomState>;
 
-        this.sfx = this.sound.addAudioSprite('sfx', { volume: this.config.sfx / 100 });
+        this.sfx = this.sound.addAudioSprite('sfx', { volume: (this.config.sfx / 100) * 0.75 });
         
         // configuramos el mapa
         const data = this.cache.json.get('mapData');

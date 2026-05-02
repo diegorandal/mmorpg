@@ -129,8 +129,8 @@ export class MainScene extends Phaser.Scene {
 
         const roomInstance = this.registry.get('room') as Room<MyRoomState>;
 
-        this.sfx = this.sound.addAudioSprite('sfx', { volume: this.config.sfx / 100 });
-        
+        this.sfx = this.sound.addAudioSprite('sfx', { volume: (this.config.sfx / 100) * 0.75 });
+
         // configuramos el mapa
         const data = this.cache.json.get('mapData');
         const map = this.make.tilemap({tileWidth: data.tileSize, tileHeight: data.tileSize, width: data.mapWidth, height: data.mapHeight});
