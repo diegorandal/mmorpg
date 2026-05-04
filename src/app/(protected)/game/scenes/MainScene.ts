@@ -18,6 +18,7 @@ export class MainScene extends Phaser.Scene {
     private visualSystem!: PlayerVisualSystem;
     private portalSystem: PortalSystem;
     public sfx!: Phaser.Sound.BaseSound;
+    public music!: Phaser.Sound.BaseSound;
     public playerEntities: { [sessionId: string]: any } = {};
     public portalEntities: { [id: string]: Phaser.GameObjects.Container } = {};
     public cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -121,6 +122,7 @@ export class MainScene extends Phaser.Scene {
         this.load.json('mapData', `${BASE_URL}/map.json?v=${version}`);
         this.load.image('arrow', `${BASE_URL}/arrow.png?v=${version}`);
         this.load.audioSprite('sfx', `${BASE_URL}/sounds.json?v=${version}`);
+        this.load.audio('music', `${BASE_URL}/forest.ogg?v=${version}`);
 
     }
 
@@ -130,6 +132,7 @@ export class MainScene extends Phaser.Scene {
         const roomInstance = this.registry.get('room') as Room<MyRoomState>;
 
         this.sfx = this.sound.addAudioSprite('sfx', { volume: (this.config.sfx / 100) * 0.75 });
+        this.music = this.sound.add('music', { volume: (this.config.music / 100) * 0.50, loop: true });
 
         // configuramos el mapa
         const data = this.cache.json.get('mapData');
@@ -357,6 +360,11 @@ export class MainScene extends Phaser.Scene {
 
         // UI inicial
         this.selectWeapon(0);
+
+        // Musica
+        if (this.config.music > 0) {
+            this.music.play();
+        }
 
     }
     

@@ -150,7 +150,7 @@ export class FlagScene extends Phaser.Scene {
         const roomInstance = this.registry.get('room') as Room<FlagRoomState>;
         // audio
         this.sfx = this.sound.addAudioSprite('sfx', { volume: (this.config.sfx / 100) * 0.75 });
-        this.music = this.sound.add('music', { volume: (this.config.music / 100) * 0.75, loop: true });
+        this.music = this.sound.add('music', { volume: (this.config.music / 100) * 0.50, loop: true });
         // configuramos el mapas
         const data = this.cache.json.get('mapData');
         const map = this.make.tilemap({tileWidth: data.tileSize, tileHeight: data.tileSize, width: data.mapWidth, height: data.mapHeight});
