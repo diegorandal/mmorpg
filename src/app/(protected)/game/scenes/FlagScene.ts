@@ -423,6 +423,11 @@ export class FlagScene extends Phaser.Scene {
         // UI inicial
         this.selectWeapon(0);
 
+        // Musica
+        if(this.config.music > 0){
+            this.music.play();
+        }
+
     }
     
     private handleDeath(entity: any, sessionId: string) {
