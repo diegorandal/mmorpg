@@ -19,6 +19,7 @@ export class FlagScene extends Phaser.Scene {
     private visualSystem!: PlayerVisualSystem;
     private portalSystem: PortalSystem;
     public sfx!: Phaser.Sound.BaseSound;
+    public music!: Phaser.Sound.BaseSound;
     public playerEntities: { [sessionId: string]: any } = {};
     public portalEntities: { [id: string]: Phaser.GameObjects.Container } = {};
     public readonly SEND_RATE = 100;
@@ -139,6 +140,7 @@ export class FlagScene extends Phaser.Scene {
         this.load.json('mapData', `${BASE_URL}/map.json?v=${version}`);
         this.load.image('arrow', `${BASE_URL}/arrow.png?v=${version}`);
         this.load.audioSprite('sfx', `${BASE_URL}/sounds.json?v=${version}`);
+        this.load.audio('music', `${BASE_URL}/forest.ogg?v=${version}`);
 
     }
 
@@ -146,10 +148,10 @@ export class FlagScene extends Phaser.Scene {
     create(): void {
 
         const roomInstance = this.registry.get('room') as Room<FlagRoomState>;
-
+        // audio
         this.sfx = this.sound.addAudioSprite('sfx', { volume: (this.config.sfx / 100) * 0.75 });
-        
-        // configuramos el mapa
+        this.music = this.sound.add('music', { volume: (this.config.music / 100) * 0.75, loop: true });
+        // configuramos el mapas
         const data = this.cache.json.get('mapData');
         const map = this.make.tilemap({tileWidth: data.tileSize, tileHeight: data.tileSize, width: data.mapWidth, height: data.mapHeight});
         const tileset = map.addTilesetImage('tileset-image', 'tileset-image');
