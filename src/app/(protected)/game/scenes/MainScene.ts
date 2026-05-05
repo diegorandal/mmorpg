@@ -297,7 +297,7 @@ export class MainScene extends Phaser.Scene {
             state.players.forEach((player, sessionId) => {
                 if (!this.playerEntities[sessionId]) {
                     this.addPlayer(player, sessionId);
-                    this.logSystem.addLog('⚔ ' + player.name);
+                    this.logSystem.addLog('🔵 ' + player.name);
                 } else {
                     this.updatePlayer(player, sessionId);
                 }

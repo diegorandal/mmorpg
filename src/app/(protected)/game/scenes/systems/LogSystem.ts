@@ -8,7 +8,7 @@ export class LogSystem extends Phaser.GameObjects.Container {
 
         // Posicionamiento para Mobile: Esquina inferior izquierda, 
         // ajustado para no tapar controles virtuales si los tienes.
-        super(scene, 20, window.innerHeight - 180);
+        super(scene, 16, window.innerHeight - 220);
 
         scene.add.existing(this);
         this.setScrollFactor(0); // Importante: Que no se mueva con la cámara
