@@ -379,10 +379,15 @@ export class FlagScene extends Phaser.Scene {
                 const isKeeper = state.flag.keeper === this.room.sessionId;
                 const shouldShowDropButton = isKeeper && this.myCurrentWeaponType === 0;
 
-                if(this.flagKeeper != state.flag.keeper) {
-                    const playerKeeper = this.playerEntities[state.flag.keeper];
-                    this.logSystem.addLog('🏴‍☠️ ' + playerKeeper.label.text)
-                    this.flagKeeper = state.flag.keeper;
+                if (this.flagKeeper !== state.flag.keeper) {
+                    const newKeeperId = state.flag.keeper;
+                    if (newKeeperId) {
+                        const playerKeeper = this.playerEntities[newKeeperId];
+                        if (playerKeeper) this.logSystem.addLog(playerKeeper.label.text + ' 🏳️');
+                    } else {
+                        this.logSystem.addLog('🏳️ dropped');
+                    }
+                    this.flagKeeper = newKeeperId;
                 }
 
                 if (this.dropFlagButton) {
