@@ -8,7 +8,7 @@ export class LogSystem extends Phaser.GameObjects.Container {
 
         // Posicionamiento para Mobile: Esquina inferior izquierda, 
         // ajustado para no tapar controles virtuales si los tienes.
-        super(scene, 20, scene.scale.height - 150);
+        super(scene, 20, window.innerHeight - 180);
 
         scene.add.existing(this);
         this.setScrollFactor(0); // Importante: Que no se mueva con la cámara
@@ -21,7 +21,7 @@ export class LogSystem extends Phaser.GameObjects.Container {
             fontSize: '14px',
             fontFamily: 'monospace',
             color: '#ffffff',
-            backgroundColor: 'rgba(0,0,0,0.4)',
+            backgroundColor: 'rgba(136, 136, 136, 0.2)', 
             padding: { x: 4, y: 2 }
         };
 

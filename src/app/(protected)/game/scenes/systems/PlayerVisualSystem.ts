@@ -112,7 +112,8 @@ export class PlayerVisualSystem {
 
         hpBar.clear();
 
-        hpBar.fillStyle(0x888888, 0.2);
+        hpBar.fillStyle(0x888888, 0.2);// 'rgb(19,10,10)' 
+        //'rgb(136, 136, 136)'
         hpBar.fillRect(barX, barY, fullWidth, label.displayHeight);
 
         let color = 0x00ff00;

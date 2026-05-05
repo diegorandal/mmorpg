@@ -306,7 +306,7 @@ export class MainScene extends Phaser.Scene {
             for (const sessionId in this.playerEntities) {
                 if (!state.players.has(sessionId)) {
                     const player = this.playerEntities[sessionId];
-                    this.logSystem.addLog('🚀 ' + player.name);
+                    this.logSystem.addLog('🚀 ' + player.label.text);
                     this.removePlayer(sessionId);
                 }
             }
@@ -395,7 +395,7 @@ export class MainScene extends Phaser.Scene {
         this.playSfx("muerte");
 
         const player = this.playerEntities[sessionId];
-        this.logSystem.addLog(player.name + '☠');
+        this.logSystem.addLog('☠' + player.label.text);
 
         // Si soy yo → deshabilitar controles
         if (sessionId === this.room.sessionId) {
@@ -609,6 +609,7 @@ export class MainScene extends Phaser.Scene {
         // label con el nombre del jugador
         const label = this.add.text(data.x, data.y - 40, data.name, { fontSize: '14px', color: '#ffffff' }).setOrigin(0.5);
         // barra de HP )
+
         const hpBar = this.add.graphics();
         // aura
         const glow = sprite.postFX.addGlow(0x99faae, 0, 0, false); //let color: '#99faae';
