@@ -333,7 +333,7 @@ export class FlagScene extends Phaser.Scene {
             state.players.forEach((player, sessionId) => {
                 if (!this.playerEntities[sessionId]) {
                     this.addPlayer(player, sessionId);
-                    this.logSystem.addLog('🔵 ' + player.name);
+                    this.logSystem.addLog('➕ ' + player.name);
                 } else {
                     this.updatePlayer(player, sessionId);
                 }
@@ -341,6 +341,8 @@ export class FlagScene extends Phaser.Scene {
             // Detectar los que se fueron
             for (const sessionId in this.playerEntities) {
                 if (!state.players.has(sessionId)) {
+                    const player = this.playerEntities[sessionId];
+                    if (player.HP > 0) this.logSystem.addLog('❌ ' + player.label.text);
                     this.removePlayer(sessionId);
                 }
             }
