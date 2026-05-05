@@ -6,6 +6,7 @@ import { MovementSystem } from "./systems/MovementSystem";
 import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
 import { PortalSystem } from './systems/PortalSystem';
 import { GameConfig } from '../../home/page';
+import { LogSystem } from './systems/LogSystem';
 
 export class MainScene extends Phaser.Scene {
     
@@ -17,6 +18,7 @@ export class MainScene extends Phaser.Scene {
     private movementSystem!: MovementSystem;
     private visualSystem!: PlayerVisualSystem;
     private portalSystem: PortalSystem;
+    private logSystem: LogSystem;
     public sfx!: Phaser.Sound.BaseSound;
     public music!: Phaser.Sound.BaseSound;
     public playerEntities: { [sessionId: string]: any } = {};
@@ -190,6 +192,7 @@ export class MainScene extends Phaser.Scene {
         this.visualSystem = new PlayerVisualSystem(this, min_aura, max_aura);
         this.movementSystem = new MovementSystem(this, this.visualSystem);
         this.portalSystem = new PortalSystem(this.room, this, 16, 48, 48, 4800, 4800);
+        this.logSystem = new LogSystem(this);
 
         // 2. Creamos animaciones específicas para cada personaje
         const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
@@ -294,6 +297,7 @@ export class MainScene extends Phaser.Scene {
             state.players.forEach((player, sessionId) => {
                 if (!this.playerEntities[sessionId]) {
                     this.addPlayer(player, sessionId);
+                    this.logSystem.addLog('⚔ ' + player.name);
                 } else {
                     this.updatePlayer(player, sessionId);
                 }
@@ -301,6 +305,8 @@ export class MainScene extends Phaser.Scene {
             // Detectar los que se fueron
             for (const sessionId in this.playerEntities) {
                 if (!state.players.has(sessionId)) {
+                    const player = this.playerEntities[sessionId];
+                    this.logSystem.addLog('🚀 ' + player.name);
                     this.removePlayer(sessionId);
                 }
             }
@@ -360,11 +366,10 @@ export class MainScene extends Phaser.Scene {
 
         // UI inicial
         this.selectWeapon(0);
-
         // Musica
-        if (this.config.music > 0) {
-            this.music.play();
-        }
+        if (this.config.music > 0) this.music.play();
+
+        this.logSystem.addLog('Welcome!');
 
     }
     
@@ -389,10 +394,14 @@ export class MainScene extends Phaser.Scene {
         //sonido
         this.playSfx("muerte");
 
+        const player = this.playerEntities[sessionId];
+        this.logSystem.addLog(player.name + '☠');
+
         // Si soy yo → deshabilitar controles
         if (sessionId === this.room.sessionId) {
             this.showDeathScreen();
         }
+
     }
 
     private disableControls() {
@@ -410,7 +419,6 @@ export class MainScene extends Phaser.Scene {
         this.potion?.setActive(false);
         this.weaponSelectorRing?.setVisible(false);
         Object.values(this.attackButtonsUI).forEach(img => img.setVisible(false));
-
     }
 
     // #region Inputs
