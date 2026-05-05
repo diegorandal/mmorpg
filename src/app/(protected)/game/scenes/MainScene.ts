@@ -306,7 +306,7 @@ export class MainScene extends Phaser.Scene {
             for (const sessionId in this.playerEntities) {
                 if (!state.players.has(sessionId)) {
                     const player = this.playerEntities[sessionId];
-                    this.logSystem.addLog('🚀 ' + player.label.text);
+                    if(player.HP > 0) this.logSystem.addLog('🚀 ' + player.label.text);
                     this.removePlayer(sessionId);
                 }
             }

@@ -1,18 +1,15 @@
 export class LogSystem extends Phaser.GameObjects.Container {
 
     private messages: Phaser.GameObjects.Text[] = [];
-    private readonly maxMessages: number = 5;
+    private readonly maxMessages: number = 10;
     private readonly messageLifetime: number = 3000;
 
     constructor(scene: Phaser.Scene) {
 
-        // Posicionamiento para Mobile: Esquina inferior izquierda, 
-        // ajustado para no tapar controles virtuales si los tienes.
         super(scene, 16, window.innerHeight - 220);
-
         scene.add.existing(this);
-        this.setScrollFactor(0); // Importante: Que no se mueva con la cámara
-        this.setDepth(10000);      // Siempre por encima del mapa y jugadores
+        this.setScrollFactor(0);
+        this.setDepth(10000);
     }
 
     public addLog(text: string) {
@@ -57,11 +54,9 @@ export class LogSystem extends Phaser.GameObjects.Container {
 
     private updatePositions() {
         this.messages.forEach((msg, index) => {
-            // El mensaje 0 es el más nuevo (abajo), los demás suben
-            // Usamos -index para que los viejos "suban"
             this.scene.tweens.add({
                 targets: msg,
-                y: -index * 22, // 22px de separación entre líneas
+                y: -index * 16, // separacion
                 duration: 150,
                 ease: 'Power1'
             });

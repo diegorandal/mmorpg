@@ -6,7 +6,7 @@ import { MovementSystem } from "./systems/MovementSystem";
 import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
 import { PortalSystem } from './systems/PortalSystem';
 import { GameConfig } from '../../home/page';
-import { ConstructorFragment } from 'ethers';
+import { LogSystem } from './systems/LogSystem';
 
 export class FlagScene extends Phaser.Scene {
 
@@ -17,6 +17,7 @@ export class FlagScene extends Phaser.Scene {
     public room!: Room<FlagRoomState>;
     private movementSystem!: MovementSystem;
     private visualSystem!: PlayerVisualSystem;
+    private logSystem: LogSystem;
     private portalSystem: PortalSystem;
     public sfx!: Phaser.Sound.BaseSound;
     public music!: Phaser.Sound.BaseSound;
@@ -57,6 +58,7 @@ export class FlagScene extends Phaser.Scene {
     private attackButtonsUI: { [key: number]: Phaser.GameObjects.Image } = {};
     private potToShow = 0;
     public flagEntity?: Phaser.Physics.Arcade.Sprite;
+    private flagKeeper: string = '';
     private flagPickupCooldown = 0;
     private portalsNeedRedraw: boolean = false;
     private config: GameConfig;
@@ -199,9 +201,11 @@ export class FlagScene extends Phaser.Scene {
         this.room = roomInstance;
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.input.addPointer(3);
+
         this.visualSystem = new PlayerVisualSystem(this, 10, 6000); // 0.000010 a 0.006
         this.movementSystem = new MovementSystem(this, this.visualSystem);
         this.portalSystem = new PortalSystem(this.room, this, 16, 48, 48, 4800, 4800);
+        this.logSystem = new LogSystem(this);
 
         // 2. Creamos animaciones específicas para cada personaje
         const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
@@ -268,10 +272,6 @@ export class FlagScene extends Phaser.Scene {
             this.addPlayer(player, sessionId);
         });
 
-        this.room.onStateChange((state) => {
-            this.updatePlayerCountUI();
-        });
-
         // 1. Escuchar eventos de ataque desde el servidor
         this.room.onMessage("playerAttack", (msg) => {
             if (msg.sessionId === this.room.sessionId) return;
@@ -327,10 +327,13 @@ export class FlagScene extends Phaser.Scene {
         // 2. Sincronización en Tiempo Real:
         this.room.onStateChange((state) => {
 
+            this.updatePlayerCountUI();
+
             // Detectar nuevos players
             state.players.forEach((player, sessionId) => {
                 if (!this.playerEntities[sessionId]) {
                     this.addPlayer(player, sessionId);
+                    this.logSystem.addLog('🔵 ' + player.name);
                 } else {
                     this.updatePlayer(player, sessionId);
                 }
@@ -375,6 +378,12 @@ export class FlagScene extends Phaser.Scene {
 
                 const isKeeper = state.flag.keeper === this.room.sessionId;
                 const shouldShowDropButton = isKeeper && this.myCurrentWeaponType === 0;
+
+                if(this.flagKeeper != state.flag.keeper) {
+                    const playerKeeper = this.playerEntities[state.flag.keeper];
+                    this.logSystem.addLog('🏴‍☠️ ' + playerKeeper.label.text)
+                    this.flagKeeper = state.flag.keeper;
+                }
 
                 if (this.dropFlagButton) {
                     this.dropFlagButton.setVisible(shouldShowDropButton);
@@ -424,6 +433,8 @@ export class FlagScene extends Phaser.Scene {
         this.selectWeapon(0);
         // Musica
         if(this.config.music > 0) this.music.play();
+        // Welcome log message
+        this.logSystem.addLog('Welcome!');
 
     }
     
@@ -447,6 +458,9 @@ export class FlagScene extends Phaser.Scene {
 
         //sonido
         this.playSfx("muerte");
+        
+        const player = this.playerEntities[sessionId];
+        this.logSystem.addLog('☠' + player.label.text);
 
         // Si soy yo → deshabilitar controles
         if (sessionId === this.room.sessionId) {
