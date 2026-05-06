@@ -39,7 +39,7 @@ export class EmojiSystem extends Phaser.GameObjects.Container {
                 this.EMOJIS[i],
                 { fontSize: '24px' }
             ).setOrigin(0.5);
-
+            emojiText.setDepth(10001);
             emojiText.setInteractive();
             emojiText.on('pointerdown', () => {this.handleEmojiClick(this.EMOJIS[i]);});
 
