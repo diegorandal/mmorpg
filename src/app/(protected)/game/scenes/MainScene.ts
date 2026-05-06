@@ -529,7 +529,11 @@ export class MainScene extends Phaser.Scene {
         // --- LÓGICA PARA JOYSTICK ---
         this.joystickThumb.setInteractive();     
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-            if (pointer.x > window.innerWidth / 2) return;
+            if (this.config.hand === 'right') {
+                if (pointer.x > window.innerWidth / 2) return;
+            } else {
+                if (pointer.x < window.innerWidth / 2) return;
+            }
             const dist = Phaser.Math.Distance.Between(pointer.x, pointer.y, x, y);
             if (dist <= 60) this.joystickPointerId = pointer.id;
         });
