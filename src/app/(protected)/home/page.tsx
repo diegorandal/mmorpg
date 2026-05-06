@@ -75,7 +75,6 @@ export default function Home() {
   const fetchProfile = async () => {
     if (!session?.user?.id || !session.user.username) return;
     try {
-
       setLoadingProfile(true);
       const wallet = session.user.id.toLowerCase();
       const username = session.user.username;
@@ -147,7 +146,6 @@ export default function Home() {
       const lobby = await colyseusClient.joinOrCreate("lobby");
       
       lobby.removeAllListeners();
-
       lobby.onMessage("rooms", (rooms: any[]) => {
 
         const formatted: Room[] = rooms.map((r) => ({

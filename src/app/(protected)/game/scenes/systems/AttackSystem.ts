@@ -15,17 +15,16 @@ interface AttackContext {
 
 const attackCooldowns: { [key: string]: number } = {};
 
+const attackSpeeds: { [key: string]: number } = {
+    "1-1": 250, "1-2": 500, "1-3": 600, "1-4": 1000, // sword
+    "2-1": 350, "2-2": 750, "2-3": 900, "2-4": 1000, // bow
+    "3-1": 450, "3-2": 500, "3-3": 900, "3-4": 1000, // wand
+    "4-1": 700, "4-2": 600, "4-3": 900, "4-4": 1000  // spell
+};
+
 export function handleAttack(ctx: AttackContext) {
     
     const {room, playerEntities, myCurrentWeaponType, attackNumber, time, playAttackOnce, clearTarget, currentTargetId} = ctx;
-
-
-    const attackSpeeds: { [key: string]: number } = {
-        "1-1": 250, "1-2": 500, "1-3": 600, // sword
-        "2-1": 350, "2-2": 750, "2-3": 900, // bow
-        "3-1": 450, "3-2": 500, "3-3": 900, // wand
-        "4-1": 700, "4-2": 600, "4-3": 900, // spell
-    };
 
      if (!room || !playerEntities[room.sessionId]) return;
     const myEntity = playerEntities[room.sessionId];

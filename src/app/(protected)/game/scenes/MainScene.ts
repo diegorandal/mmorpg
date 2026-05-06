@@ -7,6 +7,7 @@ import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
 import { PortalSystem } from './systems/PortalSystem';
 import { GameConfig } from '../../home/page';
 import { LogSystem } from './systems/LogSystem';
+import { EmojiSystem } from './systems/EmojiSystem';
 
 export class MainScene extends Phaser.Scene {
     
@@ -19,6 +20,7 @@ export class MainScene extends Phaser.Scene {
     private visualSystem!: PlayerVisualSystem;
     private portalSystem: PortalSystem;
     private logSystem: LogSystem;
+    private emojiSystem: EmojiSystem;
     public sfx!: Phaser.Sound.BaseSound;
     public music!: Phaser.Sound.BaseSound;
     public playerEntities: { [sessionId: string]: any } = {};
@@ -193,6 +195,7 @@ export class MainScene extends Phaser.Scene {
         this.movementSystem = new MovementSystem(this, this.visualSystem);
         this.portalSystem = new PortalSystem(this.room, this, 16, 48, 48, 4800, 4800);
         this.logSystem = new LogSystem(this);
+        this.emojiSystem = new EmojiSystem(this);
 
         // 2. Creamos animaciones específicas para cada personaje
         const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
@@ -615,8 +618,7 @@ export class MainScene extends Phaser.Scene {
    
         // label con el nombre del jugador
         const label = this.add.text(data.x, data.y - 40, data.name, { fontSize: '14px', color: '#ffffff' }).setOrigin(0.5);
-        // barra de HP )
-
+        // barra de HP
         const hpBar = this.add.graphics();
         // aura
         const glow = sprite.postFX.addGlow(0x99faae, 0, 0, false); //let color: '#99faae';
@@ -627,7 +629,16 @@ export class MainScene extends Phaser.Scene {
 
         // 4. Guardamos el characterId para saber qué animación llamar después
         this.playerEntities[sessionId] = { sprite, label, hpBar, defenceCircle, glow,  characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
-        if (sessionId === this.room.sessionId) this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
+        if (sessionId === this.room.sessionId) {
+            this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
+
+            sprite.on('pointerdown', () => {
+                if (!this.emojiSystem.visible) {
+                    this.emojiSystem.show();
+                }
+            });
+            
+        }
 
     }
 
