@@ -21,18 +21,32 @@ export class EmojiSystem extends Phaser.GameObjects.Container {
     }
 
     private createEmojiCircle() {
+
         const totalEmojis = this.EMOJIS.length;
 
         for (let i = 0; i < totalEmojis; i++) {
 
-            const angle = (i / totalEmojis) * Math.PI * 2; // [cite: 4]
-            const x = Math.cos(angle) * this.RADIUS;       // [cite: 5]
-            const y = Math.sin(angle) * this.RADIUS;       // [cite: 5]
+            const angle = (i / totalEmojis) * Math.PI * 2;
 
-            // Fondo circular del botón
-            //const bg = this.scene.add.circle(x, y, 24, 0xffffff, 0.2).setStrokeStyle(2, 0xd1851f, 0.5);
-            //const emojiText = this.scene.add.text(x, y, this.EMOJIS[i], {fontSize: '24px'}).setOrigin(0.5);
+            const x = Math.cos(angle) * this.RADIUS;
+            const y = Math.sin(angle) * this.RADIUS;
 
+            // HIT AREA
+            const hit = new Phaser.GameObjects.Arc(
+                this.scene,
+                x,
+                y,
+                28,
+                0,
+                360,
+                false,
+                0xffffff,
+                0.001
+            );
+
+            hit.setInteractive();
+
+            // EMOJI VISUAL
             const emojiText = new Phaser.GameObjects.Text(
                 this.scene,
                 x,
@@ -40,11 +54,14 @@ export class EmojiSystem extends Phaser.GameObjects.Container {
                 this.EMOJIS[i],
                 { fontSize: '24px' }
             ).setOrigin(0.5);
-            emojiText.setInteractive();
-            emojiText.on('pointerdown', () => {this.handleEmojiClick(this.EMOJIS[i]);});
 
-            this.add([emojiText]);
+            hit.on('pointerdown', () => {
+                this.handleEmojiClick(this.EMOJIS[i]);
+            });
 
+            this.add(hit);
+            this.add(emojiText);
+            
         }
     }
 
