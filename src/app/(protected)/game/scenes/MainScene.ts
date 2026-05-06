@@ -424,32 +424,29 @@ export class MainScene extends Phaser.Scene {
     // #region Inputs
     private setupJoystick() {
 
-        const x = 120;
+        let x = 0;
+        let xAttack = 0;
         const margin = 120;
-        const y = window.innerHeight - 120;
-        const xAttack = window.innerWidth - margin;
-        const buttonAlpha = 0.85;
         
-        this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.10)
-            .setScrollFactor(0)
-            .setDepth(10000);
+        if(this.config.hand === 'right'){
+            x = 120;
+            xAttack = window.innerWidth - margin;
+        } else {
+            x = window.innerWidth - margin;
+            xAttack = 120;
+        }
 
-        this.joystickThumb = this.add.image(x, y, 'button-joystick')
-            .setScrollFactor(0)
-            .setDepth(10001)
-            .setDisplaySize(64, 64) // Ajusta el tamaño según tu asset
-            .setAlpha(buttonAlpha);
+        const y = window.innerHeight - 120;
+        const buttonAlpha = 1;
+        
+        this.joystickBase = this.add.circle(x, y, 60, 0xffffff, 0.10).setScrollFactor(0).setDepth(10000);
+        this.joystickThumb = this.add.image(x, y, 'button-joystick').setScrollFactor(0).setDepth(10001).setDisplaySize(64, 64).setAlpha(buttonAlpha);
 
         // --- BOTÓN DE ATAQUE ---
         this.attackButton = this.add.circle(xAttack, y, 50, 0xffffff, 0).setScrollFactor(0).setDepth(10000).setInteractive();
         // Crear las 4 imágenes de ataque encima del botón de interacción
         for (let i = 1; i <= 4; i++) {
-            this.attackButtonsUI[i] = this.add.image(xAttack, y, `button-attack${i}`)
-                .setScrollFactor(0)
-                .setDepth(10001) // Por encima del círculo de interacción
-                .setDisplaySize(112, 112) // Ajusta el tamaño según necesites
-                .setVisible(false) // Solo la primera es visible al inicio
-                .setAlpha(buttonAlpha);
+            this.attackButtonsUI[i] = this.add.image(xAttack, y, `button-attack${i}`).setScrollFactor(0).setDepth(10001).setDisplaySize(112, 112).setVisible(false).setAlpha(buttonAlpha);
         }
         this.input.setDraggable(this.attackButton);
 
@@ -497,12 +494,20 @@ export class MainScene extends Phaser.Scene {
         const wsize = 30; // tamaño del botón
         const targetSize = 60;
 
-        this.weapon0 = this.add.image(ax + r, ay - r, 'button-run-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
-        this.weapon1 = this.add.image(ax + (r * 1.40), ay, 'button-sword-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
-        this.weapon2 = this.add.image(ax + r, ay + r, 'button-bow-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
-        this.weapon3 = this.add.image(ax, ay + (r * 1.40), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);        
-        this.weapon4 = this.add.image(ax - r, ay + r, 'button-spell-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
-        
+        if (this.config.hand === 'right') {
+            this.weapon0 = this.add.image(ax + r, ay - r, 'button-run-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+            this.weapon1 = this.add.image(ax + (r * 1.40), ay, 'button-sword-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+            this.weapon2 = this.add.image(ax + r, ay + r, 'button-bow-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+            this.weapon3 = this.add.image(ax, ay + (r * 1.40), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+            this.weapon4 = this.add.image(ax - r, ay + r, 'button-spell-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+        } else {
+            this.weapon0 = this.add.image(ax - r, ay - r, 'button-run-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+            this.weapon1 = this.add.image(ax - (r * 1.40), ay, 'button-sword-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+            this.weapon2 = this.add.image(ax - r, ay + r, 'button-bow-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+            this.weapon3 = this.add.image(ax, ay + (r * 1.40), 'button-wand-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+            this.weapon4 = this.add.image(ax + r, ay + r, 'button-spell-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+        }
+
         this.weaponSelectorRing = this.add.circle(-100, -100, wsize + 8).setStrokeStyle(4, 0xffff00, 0.5).setScrollFactor(0).setDepth(10001);
 
         this.weapon0.on('pointerdown', () => this.selectWeapon(0));
@@ -513,22 +518,23 @@ export class MainScene extends Phaser.Scene {
 
         // Pocion
         if (this.roomName === "my_room") {
-            this.potion = this.add.image(35, this.weapon3.y, 'button-potion-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+            if (this.config.hand === 'right') {
+                this.potion = this.add.image(35, this.weapon3.y, 'button-potion-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+            } else {
+                this.potion = this.add.image(window.innerWidth - 35, this.weapon3.y, 'button-potion-image').setScrollFactor(0).setInteractive().setDepth(10002).setDisplaySize(targetSize, targetSize).setAlpha(buttonAlpha);
+            }
             this.potion.on('pointerdown', () => { this.room.send("useItem", { item: 1 }); });
         }
 
         // --- LÓGICA PARA JOYSTICK ---
         this.joystickThumb.setInteractive();     
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-
             if (pointer.x > window.innerWidth / 2) return;
             const dist = Phaser.Math.Distance.Between(pointer.x, pointer.y, x, y);
             if (dist <= 60) this.joystickPointerId = pointer.id;
-
         });
         
         this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-
             if (pointer.id !== this.joystickPointerId) return;
             const dx = pointer.x - x;
             const dy = pointer.y - y;
@@ -537,17 +543,14 @@ export class MainScene extends Phaser.Scene {
             this.joystickThumb.x = x + Math.cos(angle) * distance;
             this.joystickThumb.y = y + Math.sin(angle) * distance;
             this.potion?.setVisible(false);
-
         });
 
         this.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-
             if (pointer.id !== this.joystickPointerId) return;
             this.joystickPointerId = null;
             this.joystickThumb.x = x;
             this.joystickThumb.y = y;
             this.potion?.setVisible(true);
-
         });
 
     }

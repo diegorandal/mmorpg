@@ -6,7 +6,7 @@ export class LogSystem extends Phaser.GameObjects.Container {
 
     constructor(scene: Phaser.Scene) {
 
-        super(scene, 16, window.innerHeight - 220);
+        super(scene, 16, window.innerHeight - 250);
         scene.add.existing(this);
         this.setScrollFactor(0);
         this.setDepth(10000);
