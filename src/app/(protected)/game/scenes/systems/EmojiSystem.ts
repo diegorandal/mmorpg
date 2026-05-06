@@ -28,7 +28,8 @@ export class EmojiSystem extends Phaser.GameObjects.Container {
             const y = Math.sin(angle) * this.RADIUS;       // [cite: 5]
 
             // Fondo circular del botón
-            const bg = this.scene.add.circle(x, y, 24, 0xffffff, 0.2).setStrokeStyle(2, 0xd1851f, 0.5);
+            const bg = this.scene.add.circle(x, y, 24, 0xffffff, 0.2).setStrokeStyle(2, 0xd1851f, 0.5).setDepth(10000);
+            
             const emojiText = this.scene.add.text(x, y, this.EMOJIS[i], {fontSize: '24px'}).setOrigin(0.5);
             bg.setInteractive();
             bg.on('pointerdown', () => {this.handleEmojiClick(this.EMOJIS[i]);});
@@ -51,5 +52,6 @@ export class EmojiSystem extends Phaser.GameObjects.Container {
         // this.scene.room.send("chat_emoji", { emoji });
 
         this.hide(); // En lugar de destroy(), ahora solo ocultamos
+
     }
 }
