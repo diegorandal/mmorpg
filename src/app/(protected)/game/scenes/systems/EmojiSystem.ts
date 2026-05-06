@@ -28,37 +28,22 @@ export class EmojiSystem extends Phaser.GameObjects.Container {
             const y = Math.sin(angle) * this.RADIUS;       // [cite: 5]
 
             // Fondo circular del botón
-            const bg = this.scene.add.circle(x, y, 16, 0x000000, 0.6)
-                .setStrokeStyle(2, 0xffffff);
-
-            const emojiText = this.scene.add.text(x, y, this.EMOJIS[i], {
-                fontSize: '20px'
-            }).setOrigin(0.5);
-
-            bg.setInteractive({ useHandCursor: true });
-
-            bg.on('pointerdown', () => {
-                this.handleEmojiClick(this.EMOJIS[i]);
-            });
+            const bg = this.scene.add.circle(x, y, 24, 0xffffff, 0.2).setStrokeStyle(2, 0xd1851f, 0.5);
+            const emojiText = this.scene.add.text(x, y, this.EMOJIS[i], {fontSize: '24px'}).setOrigin(0.5);
+            bg.setInteractive();
+            bg.on('pointerdown', () => {this.handleEmojiClick(this.EMOJIS[i]);});
 
             this.add([bg, emojiText]);
+
         }
     }
 
-    // Método para mostrar el menú
     public show() {
         this.setVisible(true);
-        this.iterate((child: any) => {
-            if (child.input) child.setInteractive();
-        });
     }
 
-    // Método para ocultar el menú
     public hide() {
         this.setVisible(false);
-        this.iterate((child: any) => {
-            if (child.input) child.disableInteractive();
-        });
     }
 
     private handleEmojiClick(emoji: string) {
