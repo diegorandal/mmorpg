@@ -531,6 +531,7 @@ export class MainScene extends Phaser.Scene {
 
         // --- LÓGICA PARA JOYSTICK ---
         this.joystickThumb.setInteractive();     
+
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
             if (this.config.hand === 'right') {
                 if (pointer.x > window.innerWidth / 2) return;
@@ -631,13 +632,13 @@ export class MainScene extends Phaser.Scene {
         this.playerEntities[sessionId] = { sprite, label, hpBar, defenceCircle, glow,  characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
         if (sessionId === this.room.sessionId) {
             this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
-
+            sprite.setInteractive();
             sprite.on('pointerdown', () => {
                 if (!this.emojiSystem.visible) {
                     this.emojiSystem.show();
                 }
             });
-            
+
         }
 
     }
