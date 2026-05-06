@@ -9,6 +9,8 @@ export class EmojiSystem extends Phaser.GameObjects.Container {
         const { width, height } = scene.scale;
         super(scene, width / 2, height / 2);
 
+        scene.add.existing(this);
+
         this.createEmojiCircle();
 
         // Configuración inicial
@@ -16,7 +18,6 @@ export class EmojiSystem extends Phaser.GameObjects.Container {
         this.setDepth(10000);
         this.setVisible(false);
 
-        scene.add.existing(this);
     }
 
     private createEmojiCircle() {
@@ -39,7 +40,6 @@ export class EmojiSystem extends Phaser.GameObjects.Container {
                 this.EMOJIS[i],
                 { fontSize: '24px' }
             ).setOrigin(0.5);
-            emojiText.setDepth(10001);
             emojiText.setInteractive();
             emojiText.on('pointerdown', () => {this.handleEmojiClick(this.EMOJIS[i]);});
 
