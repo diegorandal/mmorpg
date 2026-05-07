@@ -7,8 +7,7 @@ export class EmojiSystem {
     > = [];
     private onEmojiClick: (emoji: string) => void;
     private readonly RADIUS = 120;
-
-    private readonly EMOJIS = ['😀', '😂', '🔥', '⚔️'];
+    private readonly EMOJIS = ['😀', '😉', '🙄', '🤣', '😘', '😮', '😛', '🤑', '🙁', '😭', '👻', '💀', '💩', '👀', '🤩', '😎', '🤨', '👍', '🖐', '💰',];
 
     constructor(scene: Phaser.Scene, onEmojiClick: (emoji: string) => void) {
 
@@ -27,18 +26,13 @@ export class EmojiSystem {
             const x = cx + Math.cos(angle) * this.RADIUS;
             const y = cy + Math.sin(angle) * this.RADIUS;
 
-            const hit = scene.add.circle(x, y, 28, 0xffffff, 0.15)
+            const hit = scene.add.circle(x, y, 24, 0xffffff, 0.15)
                 .setScrollFactor(0)
                 .setDepth(10000)
                 .setInteractive()
                 .setVisible(false);
 
-            const text = scene.add.text(
-                x,
-                y,
-                this.EMOJIS[i],
-                { fontSize: '24px' }
-            )
+            const text = scene.add.text(x, y, this.EMOJIS[i], { fontSize: '24px' })
                 .setOrigin(0.5)
                 .setScrollFactor(0)
                 .setDepth(10001)

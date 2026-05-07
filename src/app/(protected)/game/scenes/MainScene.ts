@@ -195,13 +195,8 @@ export class MainScene extends Phaser.Scene {
         this.movementSystem = new MovementSystem(this, this.visualSystem);
         this.portalSystem = new PortalSystem(this.room, this, 16, 48, 48, 4800, 4800);
         this.logSystem = new LogSystem(this);
-        this.emojiSystem = new EmojiSystem(
-            this,
-            (emoji: string) => {
-                //this.room.send("chat_emoji", { emoji });
-                this.logSystem.addLog(emoji);
-            }
-        );
+        this.emojiSystem = new EmojiSystem(this, this.sendEmoji);
+
 
         // 2. Creamos animaciones específicas para cada personaje
         const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
@@ -966,6 +961,12 @@ export class MainScene extends Phaser.Scene {
   
     private formatPot(pot: number): string {
         return (pot / 1000000).toFixed(6);
+    }
+
+    private sendEmoji(emoji: string) {
+
+        this.room.send('emoji', emoji);
+
     }
 
 }
