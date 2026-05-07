@@ -9,7 +9,9 @@ export class EmojiSystem {
     private readonly RADIUS = 180;
 //    private readonly EMOJIS = ['😀', '😉', '🙄', '🤣', '😘', '😮', '😛', '🤑', '🙁', '😭', '👻', '💀', '💩', '👀', '🤩', '😎', '🤨', '👍', '🖐', '💰',];
 
-    private readonly EMOJIS = ['😀', '😉', '🙄', '🤣', '😘', '😮', '😛', '🤑', '🙁', '😭', '💀', '🤩', '😎', '🤨', '👍', '🖐',];
+//    private readonly EMOJIS = ['😀', '😉', '🙄', '🤣', '😘', '😮', '😛', '🤑', '🙁', '😭', '💀', '🤩', '😎', '🤨', '👍', '🖐',];
+
+    private readonly EMOJIS = ['😀', '😉', '🙄', '🤣'];
 
     constructor(scene: Phaser.Scene, onEmojiClick: (emoji: string) => void) {
 
