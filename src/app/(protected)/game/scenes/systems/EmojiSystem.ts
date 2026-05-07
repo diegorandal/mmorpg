@@ -1,85 +1,68 @@
-export class EmojiSystem extends Phaser.GameObjects.Container {
+export class EmojiSystem {
+
+    private scene: Phaser.Scene;
+    private emojis: Array<
+        Phaser.GameObjects.Text |
+        Phaser.GameObjects.Arc
+    > = [];
+
     private readonly RADIUS = 120;
-    private readonly EMOJIS = [
-        '😀', '😂', '🔥', '⚔️', '🛡️', '💀', '🚩', '💰',
-        '❤️', '⚡', '🤖', '👑', '👋', '🎯', '🧪', '💨'
-    ];
+
+    private readonly EMOJIS = ['😀', '😂', '🔥', '⚔️'];
 
     constructor(scene: Phaser.Scene) {
-        const { width, height } = scene.scale;
-        super(scene, width / 2, height / 2);
 
-        scene.add.existing(this);
+        this.scene = scene;
 
-        this.createEmojiCircle();
+        const cx = scene.scale.width / 2;
+        const cy = scene.scale.height / 2;
 
-        // Configuración inicial
-        this.setScrollFactor(0);
-        this.setDepth(10000);
-        this.setVisible(false);
+        const total = this.EMOJIS.length;
 
-    }
+        for (let i = 0; i < total; i++) {
 
-    private createEmojiCircle() {
+            const angle = (i / total) * Math.PI * 2;
 
-        const totalEmojis = this.EMOJIS.length;
+            const x = cx + Math.cos(angle) * this.RADIUS;
+            const y = cy + Math.sin(angle) * this.RADIUS;
 
-        for (let i = 0; i < totalEmojis; i++) {
+            const hit = scene.add.circle(x, y, 28, 0xffffff, 0.15)
+                .setScrollFactor(0)
+                .setDepth(10000)
+                .setInteractive()
+                .setVisible(false);
 
-            const angle = (i / totalEmojis) * Math.PI * 2;
-
-            const x = Math.cos(angle) * this.RADIUS;
-            const y = Math.sin(angle) * this.RADIUS;
-
-            // HIT AREA
-            const hit = new Phaser.GameObjects.Arc(
-                this.scene,
-                x,
-                y,
-                28,
-                0,
-                360,
-                false,
-                0xffffff,
-                0.1
-            );
-            this.scene.add.existing(hit);
-            hit.setInteractive();
-
-            // EMOJI VISUAL
-            const emojiText = new Phaser.GameObjects.Text(
-                this.scene,
+            const text = scene.add.text(
                 x,
                 y,
                 this.EMOJIS[i],
                 { fontSize: '24px' }
-            ).setOrigin(0.5);
-            
-            this.scene.add.existing(emojiText);
+            )
+                .setOrigin(0.5)
+                .setScrollFactor(0)
+                .setDepth(10001)
+                .setVisible(false);
 
             hit.on('pointerdown', () => {
-                this.handleEmojiClick(this.EMOJIS[i]);
+
+                console.log("emoji");
+
+                this.hide();
             });
 
-            this.add(hit);
-            this.add(emojiText);
-
+            this.emojis.push(hit);
+            this.emojis.push(text);
         }
     }
 
     public show() {
-        this.setVisible(true);
+
+        this.emojis.forEach(obj => obj.setVisible(true));
+        
     }
 
     public hide() {
-        this.setVisible(false);
-    }
 
-    private handleEmojiClick(emoji: string) {
- 
-        // this.scene.room.send("chat_emoji", { emoji });
-
-        this.hide(); // En lugar de destroy(), ahora solo ocultamos
-
+        this.emojis.forEach(obj => obj.setVisible(false));
     }
 }

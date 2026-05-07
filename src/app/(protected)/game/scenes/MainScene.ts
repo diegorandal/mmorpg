@@ -634,9 +634,7 @@ export class MainScene extends Phaser.Scene {
             this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
             sprite.setInteractive();
             sprite.on('pointerdown', () => {
-                if (!this.emojiSystem.visible) {
-                    this.emojiSystem.show();
-                }
+                this.emojiSystem.show();
             });
 
         }
