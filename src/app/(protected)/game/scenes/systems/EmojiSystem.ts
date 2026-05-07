@@ -41,9 +41,9 @@ export class EmojiSystem extends Phaser.GameObjects.Container {
                 360,
                 false,
                 0xffffff,
-                0.001
+                0.1
             );
-
+            this.scene.add.existing(hit);
             hit.setInteractive();
 
             // EMOJI VISUAL
@@ -54,6 +54,8 @@ export class EmojiSystem extends Phaser.GameObjects.Container {
                 this.EMOJIS[i],
                 { fontSize: '24px' }
             ).setOrigin(0.5);
+            
+            this.scene.add.existing(emojiText);
 
             hit.on('pointerdown', () => {
                 this.handleEmojiClick(this.EMOJIS[i]);
@@ -61,7 +63,7 @@ export class EmojiSystem extends Phaser.GameObjects.Container {
 
             this.add(hit);
             this.add(emojiText);
-            
+
         }
     }
 
