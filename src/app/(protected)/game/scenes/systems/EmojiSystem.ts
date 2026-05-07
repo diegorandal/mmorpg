@@ -6,7 +6,7 @@ export class EmojiSystem {
         Phaser.GameObjects.Arc
     > = [];
     private onEmojiClick: (emoji: string) => void;
-    private readonly RADIUS = 150;
+    private readonly RADIUS = 180;
     private readonly EMOJIS = ['😀', '😉', '🙄', '🤣', '😘', '😮', '😛', '🤑', '🙁', '😭', '👻', '💀', '💩', '👀', '🤩', '😎', '🤨', '👍', '🖐', '💰',];
 
     constructor(scene: Phaser.Scene, onEmojiClick: (emoji: string) => void) {
