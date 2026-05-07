@@ -5,14 +5,15 @@ export class EmojiSystem {
         Phaser.GameObjects.Text |
         Phaser.GameObjects.Arc
     > = [];
-
+    private onEmojiClick: (emoji: string) => void;
     private readonly RADIUS = 120;
 
     private readonly EMOJIS = ['😀', '😂', '🔥', '⚔️'];
 
-    constructor(scene: Phaser.Scene) {
+    constructor(scene: Phaser.Scene, onEmojiClick: (emoji: string) => void) {
 
         this.scene = scene;
+        this.onEmojiClick = onEmojiClick;
 
         const cx = scene.scale.width / 2;
         const cy = scene.scale.height / 2;
@@ -44,9 +45,7 @@ export class EmojiSystem {
                 .setVisible(false);
 
             hit.on('pointerdown', () => {
-
-                console.log("emoji");
-
+                this.onEmojiClick(this.EMOJIS[i]);
                 this.hide();
             });
 
