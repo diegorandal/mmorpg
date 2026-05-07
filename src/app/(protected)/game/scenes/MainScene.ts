@@ -195,7 +195,7 @@ export class MainScene extends Phaser.Scene {
         this.movementSystem = new MovementSystem(this, this.visualSystem);
         this.portalSystem = new PortalSystem(this.room, this, 16, 48, 48, 4800, 4800);
         this.logSystem = new LogSystem(this);
-        this.emojiSystem = new EmojiSystem(this, this.sendEmoji);
+        this.emojiSystem = new EmojiSystem(this, this.sendEmoji.bind(this));
 
 
         // 2. Creamos animaciones específicas para cada personaje
