@@ -98,6 +98,13 @@ export class PlayerVisualSystem {
             y: y - 60,
             duration: 1000,
             ease: "Cubic.out",
+            onUpdate: () => {
+                // En cada frame de la animación, lo pegamos al sprite del jugador
+                if (entity.sprite && entity.sprite.active) {
+                    emojiLabel.setPosition(entity.sprite.x, entity.sprite.y - 10);
+                    emojiLabel.setScale(entity.offset.scale);
+                }
+            },
             onComplete: () => {
                 this.scene.time.delayedCall(500, () => {
                     emojiLabel.destroy();
