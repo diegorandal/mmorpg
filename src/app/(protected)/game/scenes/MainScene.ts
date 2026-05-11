@@ -972,6 +972,9 @@ export class MainScene extends Phaser.Scene {
     private sendEmoji(emoji: string) {
 
         this.room.send('emoji', { emoji: emoji });
+        const myId = this.room.sessionId;
+        const myEntity = this.playerEntities[myId];
+        this.visualSystem.playEmoji(myEntity, { emoji: emoji });
 
     }
 
