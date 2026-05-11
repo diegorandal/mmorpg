@@ -971,7 +971,7 @@ export class MainScene extends Phaser.Scene {
 
     private sendEmoji(emoji: string) {
 
-        this.room.send('emoji', emoji);
+        this.room.send('emoji', { emoji: emoji });
 
     }
 

@@ -85,7 +85,7 @@ export class PlayerVisualSystem {
         
         const x = entity.sprite.x;
         const y = entity.sprite.y;
-        const emoji = msg;
+        const emoji = msg.emoji;
 
         const damageLabel = this.scene.add.text(
             x, y - 20,
