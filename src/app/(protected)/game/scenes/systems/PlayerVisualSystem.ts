@@ -87,19 +87,22 @@ export class PlayerVisualSystem {
         const y = entity.sprite.y;
         const emoji = msg.emoji;
 
-        const damageLabel = this.scene.add.text(
-            x, y - 20,
+        const emojiLabel = this.scene.add.text(
+            x, y - 10,
             emoji,
-            { fontSize: "20px", color: "#ffffff"}
+            { fontSize: "32px", color: "#ffffff"}
         ).setOrigin(0.5).setDepth(3000);
 
         this.scene.tweens.add({
-            targets: damageLabel,
-            y: y - 80,
-            alpha: 0,
-            duration: 1500,
+            targets: emojiLabel,
+            y: y - 60,
+            duration: 1000,
             ease: "Cubic.out",
-            onComplete: () => damageLabel.destroy(),
+            onComplete: () => {
+                this.scene.time.delayedCall(500, () => {
+                    emojiLabel.destroy();
+                });
+            }
         });
 
     }
