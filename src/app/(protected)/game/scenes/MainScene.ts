@@ -243,15 +243,21 @@ export class MainScene extends Phaser.Scene {
             this.updatePlayerCountUI();
         });
 
-        // 1. Escuchar eventos de ataque desde el servidor
+        // Escuchar eventos de ataque desde el servidor
         this.room.onMessage("playerAttack", (msg) => {
             if (msg.sessionId === this.room.sessionId) return;
             const entity = this.playerEntities[msg.sessionId];
             if (!entity || entity.isDead) return;
             this.visualSystem.playAttackOnce(entity, msg);
         });
-
-        // 1. Escuchar teleports
+        // Escuchar emojis
+        this.room.onMessage("emoji", (msg) => {
+            if (msg.sessionId === this.room.sessionId) return;
+            const entity = this.playerEntities[msg.sessionId];
+            if (!entity || entity.isDead) return;
+            this.visualSystem.playEmoji(entity, msg);
+        });
+        // Escuchar teleports
         this.room.onMessage("playerTeleport", (msg) => {
 
             if (msg.portalType === 'exit' && msg.sessionId === this.room.sessionId) {

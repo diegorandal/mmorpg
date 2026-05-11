@@ -81,6 +81,29 @@ export class PlayerVisualSystem {
         
     }
 
+    playEmoji(entity: any, msg: any) {
+        
+        const x = entity.sprite.x;
+        const y = entity.sprite.y;
+        const emoji = msg;
+
+        const damageLabel = this.scene.add.text(
+            x, y - 20,
+            emoji,
+            { fontSize: "20px", color: "#ffffff"}
+        ).setOrigin(0.5).setDepth(3000);
+
+        this.scene.tweens.add({
+            targets: damageLabel,
+            y: y - 80,
+            alpha: 0,
+            duration: 1500,
+            ease: "Cubic.out",
+            onComplete: () => damageLabel.destroy(),
+        });
+
+    }
+
     updateAura(entity: any) {
 
         if (!entity.glow) return;
