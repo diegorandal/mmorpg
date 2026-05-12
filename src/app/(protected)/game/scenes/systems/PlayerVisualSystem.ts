@@ -84,16 +84,16 @@ export class PlayerVisualSystem {
     playEmoji(entity: any, msg: any) {
         if (!entity?.container) return;
 
-        const emojiLabel = this.scene.add.text(0, -20, msg.emoji, { fontSize: "32px", color: "#ffffff" }).setOrigin(0.5).setScale(0.8);
+        const emojiLabel = this.scene.add.text(0, -20, msg.emoji, { fontSize: "32px", color: "#ffffff" }).setOrigin(0.5);
         entity.container.add(emojiLabel);
 
         this.scene.tweens.add({
             targets: emojiLabel,
             y: -32,
-            duration: 1000,
+            duration: 500,
             ease: "Cubic.out",
             onComplete: () => {
-                this.scene.time.delayedCall(500, () => {
+                this.scene.time.delayedCall(1000, () => {
                     if (emojiLabel.active) emojiLabel.destroy();
                 });
             }
