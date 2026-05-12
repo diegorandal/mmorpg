@@ -606,44 +606,55 @@ export class MainScene extends Phaser.Scene {
 
     // #region addPlayer
     private addPlayer(data: any, sessionId: string) {
-        // 3. Obtenemos el ID del character y asignamos su textura
         const charId = data.character || 1;
-        const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
 
+        // 1. Crear el contenedor en la posición inicial
+        const container = this.add.container(data.x, data.y);
+
+        const sprite = this.add.sprite(0, 0, `char_${charId}`);
         sprite.setScale(3); 
-        sprite.setDepth(sprite.y); 
 
-        const hitboxW = 8;
-        const hitboxH = 8;
+        // 3. Configurar física sobre el CONTENEDOR (no sobre el sprite)
+        this.physics.add.existing(container);
+        const body = container.body as Phaser.Physics.Arcade.Body;
 
-        const offsetX = (32 - hitboxW) / 2; // Centrado automático
-        const offsetY = 16; // Empujamos el hitbox hacia la base del sprite
+        const hitboxW = 24; // Ajustado por la escala 3 del sprite (8 * 3)
+        const hitboxH = 24;
 
-        sprite.body?.setSize(hitboxW, hitboxH);
-        sprite.body?.setOffset(offsetX, offsetY);
+        body.setSize(hitboxW, hitboxH);
+        body.setOffset(-hitboxW / 2, 0); // Centrar la física
 
-        if (this.collisionLayer) this.physics.add.collider(sprite, this.collisionLayer);
-   
-        // label con el nombre del jugador
-        const label = this.add.text(data.x, data.y - 40, data.name, { fontSize: '14px', color: '#ffffff' }).setOrigin(0.5);
-        // barra de HP
-        const hpBar = this.add.graphics();
-        // aura
-        const glow = sprite.postFX.addGlow(0x99faae, 0, 0, false); //let color: '#99faae';
-        // circulo indica defensa
+        if (this.collisionLayer) this.physics.add.collider(container, this.collisionLayer);
+
+        const label = this.add.text(0, -40, data.name, { fontSize: '14px' }).setOrigin(0.5);
+        const hpBar = this.add.graphics(); // Se posicionará en (0,0) relativo al container
+        const glow = sprite.postFX.addGlow(0x99faae, 0, 0, false);
         const defenceCircle = this.add.graphics();
-        defenceCircle.setVisible(false);
-        defenceCircle.setDepth(sprite.depth - 1);
+        
+        container.add([defenceCircle, sprite, label, hpBar]);
+        container.setDepth(data.y);
 
-        // 4. Guardamos el characterId para saber qué animación llamar después
-        this.playerEntities[sessionId] = { sprite, label, hpBar, defenceCircle, glow,  characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
+        // 6. Guardar la referencia del contenedor en la entidad
+        this.playerEntities[sessionId] = {
+            container, // <-- Nueva referencia
+            sprite,
+            label,
+            hpBar,
+            defenceCircle,
+            glow,
+            characterId: charId,
+            serverX: data.x,
+            serverY: data.y,
+            hp: data.hp,
+            isDead: false,
+            lookDir: { x: 0, y: 1 }
+        };
+
         if (sessionId === this.room.sessionId) {
-            this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
+            this.cameras.main.startFollow(container, true, 0.1, 0.1);
+            // El input interactivo se mantiene en el sprite o se pone en el container
             sprite.setInteractive();
-            sprite.on('pointerdown', () => {
-                this.emojiSystem.show();
-            });
-
+            sprite.on('pointerdown', () => this.emojiSystem.show());
         }
 
     }
@@ -656,17 +667,15 @@ export class MainScene extends Phaser.Scene {
         // --- DETECCIÓN DE DAÑO ---
         if (data.hp !== undefined && data.hp < entity.hp) {
             const damageTaken = entity.hp - data.hp;
-            this.visualSystem.showDamageText(entity.sprite.x, entity.sprite.y, damageTaken);
+            // Cambiamos sprite.x/y por worldX/worldY
+            this.visualSystem.showDamageText(entity, damageTaken);
             this.visualSystem.updateHealthBar(entity);
         }
-        
-        // -- DEFIENDE ---
+
+        // -- DEFIENDE / POCION / MUERTE ---
         if (entity.defence === 1 && data.defence === 2) this.visualSystem.playDefence(entity);
-        // -- POCION ---
         if (data.hp !== undefined && data.hp > entity.hp) this.visualSystem.playPotion(entity);
-        // --- MUERTE ---
-        if (data.hp !== undefined && data.hp <= 0 && entity.hp > 0) 
-        {
+        if (data.hp !== undefined && data.hp <= 0 && entity.hp > 0) {
             if (this.config.vibration) navigator.vibrate(50);
             this.handleDeath(entity, sessionId);
         }
@@ -677,6 +686,7 @@ export class MainScene extends Phaser.Scene {
             this.visualSystem.updateAura(entity);
         }
 
+        // Actualización de estado
         entity.hp = data.hp;
         entity.weapon = data.weapon;
         entity.lookDir.x = data.lookx;
@@ -684,10 +694,15 @@ export class MainScene extends Phaser.Scene {
         entity.defence = data.defence;
 
         if (data.name) entity.label.setText(data.name);
+
+        // Sincronización de posición para otros jugadores
         if (sessionId !== this.room.sessionId) {
             entity.serverX = data.x;
             entity.serverY = data.y;
         }
+
+        // Depth sorting basado en la base del contenedor
+        entity.container.setDepth(entity.container.y);
 
         // #region DirectionIndicator
         const myId = this.room.sessionId;
@@ -697,17 +712,15 @@ export class MainScene extends Phaser.Scene {
             let closestEnemy: any = null;
             let minDistance = Infinity;
 
-            // 1. Buscar el jugador (enemigo) más cercano
-            for (const sessionId in this.playerEntities) {
-                if (sessionId === myId) continue;
-
-                const enemy = this.playerEntities[sessionId];
+            for (const id in this.playerEntities) {
+                if (id === myId) continue;
+                const enemy = this.playerEntities[id];
                 if (enemy.isDead) continue;
-                // if (enemy.characterId == 8) continue; // Carandir, NPC, MAGO
 
+                // Comparamos distancias entre CONTAINERS
                 const dist = Phaser.Math.Distance.Between(
-                    myEntity.sprite.x, myEntity.sprite.y,
-                    enemy.sprite.x, enemy.sprite.y
+                    myEntity.container.x, myEntity.container.y,
+                    enemy.container.x, enemy.container.y
                 );
 
                 if (dist < minDistance) {
@@ -716,38 +729,30 @@ export class MainScene extends Phaser.Scene {
                 }
             }
 
-            // 2. Lógica del indicador
-            // Si no hay nadie cerca (distancia > 1000) y encontramos a alguien
             if (minDistance > 600 && closestEnemy) {
-                
                 this.directionIndicator?.setVisible(true);
 
-                // Calcular ángulo hacia el enemigo
                 const angle = Phaser.Math.Angle.Between(
-                    myEntity.sprite.x, myEntity.sprite.y,
-                    closestEnemy.sprite.x, closestEnemy.sprite.y
+                    myEntity.container.x, myEntity.container.y,
+                    closestEnemy.container.x, closestEnemy.container.y
                 );
 
-                // Posicionar el indicador en un círculo alrededor del centro de la pantalla
                 const cam = this.cameras.main;
-                const playerScreenX = (myEntity.sprite.x - cam.scrollX) * cam.zoom;
-                const playerScreenY = (myEntity.sprite.y - cam.scrollY) * cam.zoom;
-                const radius = 60; // Distancia desde el centro de la pantalla
+                // Posición relativa a la cámara usando el contenedor
+                const playerScreenX = (myEntity.container.x - cam.scrollX) * cam.zoom;
+                const playerScreenY = (myEntity.container.y - cam.scrollY) * cam.zoom;
+                const radius = 60;
 
                 this.directionIndicator?.setPosition(
                     playerScreenX + Math.cos(angle) * radius,
                     playerScreenY + Math.sin(angle) * radius
                 );
 
-                // Rotar el triángulo para que apunte hacia allá
-                // Sumamos 90 grados (PI/2) porque el triángulo apunta hacia arriba por defecto
                 this.directionIndicator?.setRotation(angle + Math.PI / 2);
             } else {
-                // Si hay alguien cerca (< 1000) o no hay nadie en el mapa, ocultamos
                 this.directionIndicator?.setVisible(false);
             }
         }
-
     }
 
     // #region removePlayer
@@ -782,11 +787,7 @@ export class MainScene extends Phaser.Scene {
         if (myState) {
             if (myState.hp < myEntity.hp) {
                 this.visualSystem.updateHealthBar(myEntity);
-                this.visualSystem.showDamageText(
-                    myEntity.sprite.x,
-                    myEntity.sprite.y,
-                    myEntity.hp - myState.hp
-                );
+                this.visualSystem.showDamageText(myEntity, myEntity.hp - myState.hp);
 
             }
 

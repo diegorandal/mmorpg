@@ -1,4 +1,3 @@
-// systems/MovementSystem.ts
 import Phaser from "phaser";
 import { MainScene } from "../MainScene";
 import { FlagScene } from "../FlagScene";
@@ -12,15 +11,12 @@ export class MovementSystem {
     ) { }
 
     update(delta: number) {
-
         const room = this.scene.room;
-
         const myId = room.sessionId;
         const myEntity = this.scene.playerEntities[myId];
-        if (!myEntity) return;
+        if (!myEntity || myEntity.isDead) return;
 
         let currentSpeed = 3.84;
-        // 2. Aplicar reducción si el arma no es 0
         if (this.scene.myCurrentWeaponType !== 0) currentSpeed = 3.2;
 
         let dx = 0;
@@ -28,50 +24,26 @@ export class MovementSystem {
         let moved = false;
         const maxRadius = 50;
 
-        if (
-            this.scene.joystickPointerId !== null &&
-            this.scene.joystickThumb &&
-            this.scene.joystickBase
-        ) {
+        // 🕹️ LÓGICA DE INPUT (Joystick)
+        if (this.scene.joystickPointerId !== null && this.scene.joystickThumb && this.scene.joystickBase) {
             const rawDx = this.scene.joystickThumb.x - this.scene.joystickBase.x;
             const rawDy = this.scene.joystickThumb.y - this.scene.joystickBase.y;
-
             dx = rawDx / maxRadius;
             dy = rawDy / maxRadius;
-
-            const deadzone = 0.1;
-
             const magnitude = Math.hypot(dx, dy);
-
-            if (magnitude < deadzone) {
-                dx = 0;
-                dy = 0;
+            if (magnitude < 0.1) {
+                dx = 0; dy = 0;
             } else {
-                // Clamp máximo a 1 pero NO normalizar siempre
                 const clamped = Math.min(magnitude, 1);
                 dx = (dx / magnitude) * clamped;
                 dy = (dy / magnitude) * clamped;
             }
-
             moved = dx !== 0 || dy !== 0;
+        } 
 
-        } else {
-            // 🎹 Teclado (digital)
-            if (this.scene.cursors.left.isDown) dx -= 1;
-            if (this.scene.cursors.right.isDown) dx += 1;
-            if (this.scene.cursors.up.isDown) dy -= 1;
-            if (this.scene.cursors.down.isDown) dy += 1;
-
-            if (dx !== 0 || dy !== 0) {
-                const length = Math.hypot(dx, dy);
-                dx /= length;  // solo teclado se normaliza
-                dy /= length;
-                moved = true;
-            }
-        }
-
-        // 🧱 FÍSICA
-        myEntity.sprite.body.setVelocity(dx * currentSpeed * 60, dy * currentSpeed * 60);
+        // 🧱 FÍSICA: Ahora aplicamos velocidad al BODY del CONTAINER
+        const myBody = myEntity.container.body as Phaser.Physics.Arcade.Body;
+        myBody.setVelocity(dx * currentSpeed * 60, dy * currentSpeed * 60);
 
         if (moved) {
             const len = Math.sqrt(dx * dx + dy * dy);
@@ -79,39 +51,35 @@ export class MovementSystem {
             myEntity.lookDir.y = dy / len;
         }
 
-        // 🎞 ANIMACIÓN
-        myEntity.sprite.setDepth(myEntity.sprite.y);
-        myEntity.label.setDepth(myEntity.sprite.y + 1);
+        // Ya no necesitamos setPosition para el label o hpBar porque son hijos del container
+        myEntity.container.setDepth(myEntity.container.y);
         this.visualSystem.updatePlayerAnimation(myEntity, dx, dy);
-        myEntity.label.setPosition(myEntity.sprite.x, myEntity.sprite.y - 45);
         this.visualSystem.updateHealthBar(myEntity);
         this.visualSystem.updateAura(myEntity);
         this.visualSystem.updateDefenceCircle(myEntity);
-    
+
         // 📡 ENVÍO AL SERVER
         this.scene.moveTimer += delta;
-
         if (this.scene.moveTimer >= this.scene.SEND_RATE) {
             this.scene.room.send("move", {
-                x: Math.floor(myEntity.sprite.x),
-                y: Math.floor(myEntity.sprite.y),
+                x: Math.floor(myEntity.container.x), // Coordenada del container
+                y: Math.floor(myEntity.container.y),
                 direction: myEntity.currentDir || 'down',
                 lookx: myEntity.lookDir.x,
                 looky: myEntity.lookDir.y,
             });
-
             this.scene.moveTimer = 0;
         }
 
         // 👥 OTROS JUGADORES (Interpolación)
         for (const id in this.scene.playerEntities) {
-
             if (id === myId) continue;
-
             const entity = this.scene.playerEntities[id];
+            if (entity.isDead) continue;
 
-            const diffX = entity.serverX - entity.sprite.x;
-            const diffY = entity.serverY - entity.sprite.y;
+            // Interpolamos la posición del CONTAINER
+            const diffX = entity.serverX - entity.container.x;
+            const diffY = entity.serverY - entity.container.y;
 
             const STOP_EPSILON = 1;
             entity.isMoving = Math.abs(diffX) > STOP_EPSILON || Math.abs(diffY) > STOP_EPSILON;
@@ -123,17 +91,14 @@ export class MovementSystem {
             );
 
             if (entity.isMoving) {
-                entity.sprite.x = Phaser.Math.Linear(entity.sprite.x, entity.serverX, 0.4);
-                entity.sprite.y = Phaser.Math.Linear(entity.sprite.y, entity.serverY, 0.4);
+                entity.container.x = Phaser.Math.Linear(entity.container.x, entity.serverX, 0.4);
+                entity.container.y = Phaser.Math.Linear(entity.container.y, entity.serverY, 0.4);
             } else {
-                entity.sprite.x = entity.serverX;
-                entity.sprite.y = entity.serverY;
+                entity.container.x = entity.serverX;
+                entity.container.y = entity.serverY;
             }
 
-            entity.sprite.setDepth(entity.sprite.y);
-            entity.label.setDepth(entity.sprite.y + 1);
-            entity.label.setPosition(entity.sprite.x, entity.sprite.y - 55);
-
+            entity.container.setDepth(entity.container.y);
             this.visualSystem.updateHealthBar(entity);
             this.visualSystem.updateDefenceCircle(entity);
         }

@@ -732,7 +732,7 @@ export class FlagScene extends Phaser.Scene {
         // --- DETECCIÓN DE DAÑO ---
         if (data.hp !== undefined && data.hp < entity.hp) {
             const damageTaken = entity.hp - data.hp;
-            this.visualSystem.showDamageText(entity.sprite.x, entity.sprite.y, damageTaken);
+            this.visualSystem.showDamageText(entity, damageTaken);
             this.visualSystem.updateHealthBar(entity);
         }
         
@@ -841,12 +841,7 @@ export class FlagScene extends Phaser.Scene {
         if (myState) {
             if (myState.hp < myEntity.hp) {
                 this.visualSystem.updateHealthBar(myEntity);
-                this.visualSystem.showDamageText(
-                    myEntity.sprite.x,
-                    myEntity.sprite.y,
-                    myEntity.hp - myState.hp
-                );
-
+                this.visualSystem.showDamageText(myEntity, myEntity.hp - myState.hp);
             }
 
             if(myState.hp > myEntity.hp){

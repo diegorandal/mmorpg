@@ -10,10 +10,6 @@ export class PlayerVisualSystem {
         private AURA_MAX: number,
     ) {}
 
-    update() {
-        // aquí podemos actualizar cosas visuales globales si hace falta
-    }
-
     updatePlayerAnimation(entity: any, dx: number, dy: number) {
         const id = entity.characterId;
         const sprite = entity.sprite;
@@ -28,18 +24,10 @@ export class PlayerVisualSystem {
         if (newDir) entity.currentDir = newDir;
 
         const dir = entity.currentDir || "down";
-
         const weaponType = entity.weapon || 0;
-        const weaponMap: any = {
-            0: "",
-            1: "sword-",
-            2: "bow-",
-            3: "wand-",
-            4: "spell-",
-        };
+        const weaponMap: any = { 0: "", 1: "sword-", 2: "bow-", 3: "wand-", 4: "spell-" };
 
         const weaponPrefix = weaponMap[weaponType] || "";
-
         const isMoving = Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1;
         const action = isMoving ? "walk" : `${weaponPrefix}idle`;
 
@@ -51,7 +39,6 @@ export class PlayerVisualSystem {
     }
 
     playAttackOnce(entity: any, msg: any) {
-        
         const dir = entity.currentDir || "down";
         const weaponMap: any = {
             1: "sword-attack",
@@ -60,12 +47,12 @@ export class PlayerVisualSystem {
             4: "spell-attack",
         };
 
-        if (msg.attackNumber != 4){ // defensa
+        if (msg.attackNumber != 4) {
             const animKey = `${weaponMap[msg.weaponType]}-${dir}-${entity.characterId}`;
             entity.sprite.anims.play(animKey, true);
         }
 
-        // FX
+        // FX (Pasamos la entidad para obtener la posición global del container)
         if (msg.weaponType === 1 && msg.attackNumber === 1) this.playSwordFX();
         if (msg.weaponType === 1 && msg.attackNumber === 2) this.playSword2FX(entity);
         if (msg.weaponType === 1 && msg.attackNumber === 3) this.playSword3FX(entity);
@@ -78,68 +65,63 @@ export class PlayerVisualSystem {
         if (msg.weaponType === 4 && msg.attackNumber === 1) this.playSpellFX(entity);
         if (msg.weaponType === 4 && msg.attackNumber === 2) this.playSpell2FX(entity, msg);
         if (msg.weaponType === 4 && msg.attackNumber === 3) this.playSpell3FX(entity, msg);
-        
     }
-
-    playEmoji(entity: any, msg: any) {
-        
-        const x = entity.sprite.x;
-        const y = entity.sprite.y;
-        const emoji = msg.emoji;
-
-        const emojiLabel = this.scene.add.text(
-            x, y - 10,
-            emoji,
-            { fontSize: "32px", color: "#ffffff"}
-        ).setOrigin(0.5).setDepth(3000);
-
-        this.scene.tweens.add({
-            targets: emojiLabel,
-            y: y - 60,
-            duration: 500,
-            ease: "Cubic.out",
-            onComplete: () => {
-                this.scene.time.delayedCall(500, () => {
-                    emojiLabel.destroy();
-                });
-            }
-        });
-
-    }
-
+    
     updateAura(entity: any) {
-
         if (!entity.glow) return;
         const pot = entity.pot ?? 0;
         let strength = 0;
-        if (pot <= this.AURA_MIN) strength = 0; // 1. Si POT es menor o igual al mínimo, el aura es 0
-        else if (pot >= this.AURA_MAX) strength = 8; // 2. Si POT es mayor o igual al máximo, se queda en el tope (8)
-        else { // 3. Si está en el rango intermedio, calculamos la progresión
-            const range = this.AURA_MAX - this.AURA_MIN;
-            const progress = (pot - this.AURA_MIN) / range;
+        if (pot <= this.AURA_MIN) strength = 0;
+        else if (pot >= this.AURA_MAX) strength = 8;
+        else {
+            const progress = (pot - this.AURA_MIN) / (this.AURA_MAX - this.AURA_MIN);
             strength = progress * 8;
         }
         entity.glow.outerStrength = strength;
         entity.glow.innerStrength = strength * 0.5;
+    }
 
+    playEmoji(entity: any, msg: any) {
+        if (!entity?.container) return;
+
+        // Lo añadimos al CONTENEDOR: X=0 es el centro del jugador
+        const emojiLabel = this.scene.add.text(
+            0, -20,
+            msg.emoji,
+            { fontSize: "48px", color: "#ffffff" } // Fuente grande para nitidez
+        ).setOrigin(0.5).setScale(0.5); // Escala inicial pequeña
+
+        entity.container.add(emojiLabel);
+
+        this.scene.tweens.add({
+            targets: emojiLabel,
+            y: -100,      // Sube relativo al jugador
+            scale: 1,     // Crece al tamaño real (48px)
+            duration: 1000,
+            ease: "Cubic.out",
+            onComplete: () => {
+                this.scene.time.delayedCall(500, () => {
+                    if (emojiLabel.active) emojiLabel.destroy();
+                });
+            }
+        });
     }
 
     updateHealthBar(entity: any) {
-
         if (!entity?.label || !entity?.hpBar) return;
-        
-        const { label, hpBar, hp } = entity;
 
-        const fullWidth = label.displayWidth + 2;
+        const { label, hpBar, hp } = entity;
         const hpPercent = Phaser.Math.Clamp(hp / 100, 0, 1);
+
+        // Ahora las coordenadas son LOCALES al contenedor
+        // Suponiendo que el label está en (0, -45)
+        const fullWidth = label.displayWidth + 2;
         const currentWidth = fullWidth * hpPercent;
-        const barX = label.x - fullWidth / 2;
+        const barX = -fullWidth / 2;
         const barY = label.y - 6;
 
         hpBar.clear();
-
-        hpBar.fillStyle(0x888888, 0.2);// 'rgb(19,10,10)' 
-        //'rgb(136, 136, 136)'
+        hpBar.fillStyle(0x888888, 0.2);
         hpBar.fillRect(barX, barY, fullWidth, label.displayHeight);
 
         let color = 0x00ff00;
@@ -148,21 +130,10 @@ export class PlayerVisualSystem {
 
         hpBar.fillStyle(color, 0.2);
         hpBar.fillRect(barX, barY, currentWidth, label.displayHeight);
-        hpBar.setDepth(label.depth - 1);
-
-        if (entity.sprite.alpha < 1) {
-            hpBar.setVisible(false);
-            label.setVisible(false);
-        } else {
-            hpBar.setVisible(true);
-            label.setVisible(true);
-        }
-
     }
 
     updateDefenceCircle(entity: any) {
-        if (!entity?.sprite || !entity?.defenceCircle) return;
-
+        if (!entity?.container || !entity?.defenceCircle) return;
         const circle = entity.defenceCircle;
 
         if (entity.defence === 1 && !entity.isDead) {
@@ -170,87 +141,85 @@ export class PlayerVisualSystem {
             circle.clear();
             circle.fillStyle(0x00ff00, 0.15);
             circle.lineStyle(1, 0x00ff00, 0.25);
-            circle.fillCircle(entity.sprite.x, entity.sprite.y + 16, 24);
-            circle.strokeCircle(entity.sprite.x, entity.sprite.y + 16, 24);
-            circle.setDepth(entity.sprite.depth - 1);
-
+            circle.fillCircle(0, 16, 24); // Coordenada (0, 16) relativa al padre
+            circle.strokeCircle(0, 16, 24);
         } else {
             circle.setVisible(false);
         }
     }
 
-    showDamageText(x: number, y: number, amount: number) {
+    showDamageText(entity: any, amount: number) {
+        // El daño sigue siendo GLOBAL (añadido a la escena) para que no se mueva con el jugador
         const damageLabel = this.scene.add.text(
-            x, y - 20,
+            0, -20,
             `-${amount}`,
-            {fontSize: "20px", color: "#ff0000", fontStyle: "bold", stroke: "#000000", strokeThickness: 4}
-        ) .setOrigin(0.5).setDepth(3000);
+            { fontSize: "20px", color: "#ff0000", fontStyle: "bold", stroke: "#000000", strokeThickness: 4 }
+        ).setOrigin(0.5);
+        
+        entity.container.add(damageLabel);
 
         this.scene.tweens.add({
             targets: damageLabel,
-            y: y - 80,
+            y: -100,
             alpha: 0,
             duration: 750,
             ease: "Cubic.out",
             onComplete: () => damageLabel.destroy(),
         });
     }
-    
-    playDefence(entity: any) {
 
+    playDefence(entity: any) {
         const damageLabel = this.scene.add.text(
-            entity.sprite.x, entity.sprite.y - 20, 'def',
+            entity.container.x, entity.container.y - 20, 'def',
             { fontSize: "20px", color: "#003cff", fontStyle: "bold", stroke: "#000000", strokeThickness: 4 }
-            ).setOrigin(0.5).setDepth(entity.sprite.depth);
+        ).setOrigin(0.5).setDepth(entity.container.depth + 1);
 
         this.scene.tweens.add({
             targets: damageLabel,
-            y: entity.sprite.y - 80,
+            y: entity.container.y - 80,
             alpha: 0,
             duration: 750,
             ease: "Cubic.out",
             onComplete: () => damageLabel.destroy(),
         });
-
     }
 
     playPotion(entity: any) {
 
-        const damageLabel = this.scene.add.text(
-            entity.sprite.x, entity.sprite.y - 20, 'pot',
+        const potLabel = this.scene.add.text(
+            0, -20, 'pot',
             { fontSize: "20px", color: "#2bff00d8", fontStyle: "bold", stroke: "#000000", strokeThickness: 4 }
-            ).setOrigin(0.5).setDepth(entity.sprite.depth);
+            ).setOrigin(0.5);
+        
+        entity.container.add(potLabel);
 
         this.scene.tweens.add({
-            targets: damageLabel,
-            y: entity.sprite.y - 80,
+            targets: potLabel,
+            y: -80,
             alpha: 0,
             duration: 750,
             ease: "Cubic.out",
-            onComplete: () => damageLabel.destroy(),
+            onComplete: () => potLabel.destroy(),
         });
 
     }
 
     private playSwordFX(entity?: any) {
 
-        // Sonido
         this.scene.sfx.play("espada");
 
     }
 
-
-
     private playSword2FX(entity: any) {
-
         const length = 60;
-        const startX = entity.sprite.x;
-        const startY = entity.sprite.y;
+
+        const startX = entity.container.x;
+        const startY = entity.container.y;
+
         const endX = startX + entity.lookDir.x * length;
         const endY = startY + entity.lookDir.y * length;
 
-        // Línea principal
-        const slash = this.scene.add.graphics().setDepth(entity.sprite.depth);
+        const slash = this.scene.add.graphics().setDepth(entity.container.depth);
 
         slash.lineStyle(4, 0xffffff, 1);
         slash.beginPath();
@@ -258,12 +227,19 @@ export class PlayerVisualSystem {
         slash.lineTo(endX, endY);
         slash.strokePath();
 
-        // Animación rápida
-        this.scene.tweens.add({targets: slash, alpha: 0.5, duration: 100, ease: "Cubic.out", onComplete: () => {slash.destroy();}});
+        // 3. Animación de desvanecimiento
+        this.scene.tweens.add({
+            targets: slash,
+            alpha: 0, // Desvanecer completamente
+            duration: 100,
+            ease: "Cubic.out",
+            onComplete: () => {
+                slash.destroy();
+            }
+        });
 
         // Sonido
         this.scene.playSfx("estocada");
-
     }
 
     private playSword3FX(entity: any) {
@@ -271,10 +247,10 @@ export class PlayerVisualSystem {
         const radius = 32;
         const startAngle = 305 * Math.PI / 180;
         const endAngle = 595 * Math.PI / 180;
-        const arc = this.scene.add.graphics().setDepth(entity.sprite.depth + 1).setAlpha(0.5);
+        const arc = this.scene.add.graphics().setDepth(entity.container.depth + 1).setAlpha(0.4);
         arc.lineStyle(15, 0xffffff, 0.5);
         arc.beginPath();
-        arc.arc(entity.sprite.x, entity.sprite.y, radius, startAngle, endAngle);
+        arc.arc(entity.container.x, entity.container.y, radius, startAngle, endAngle);
         arc.strokePath();
         this.scene.time.delayedCall(50, () => {
             arc.destroy();
@@ -289,8 +265,8 @@ export class PlayerVisualSystem {
         // Usamos la posición final enviada por el servidor (donde ocurrió el impacto)
         const endX = msg.position.x;
         const endY = msg.position.y;
-        const startX = entity.sprite.x;
-        const startY = entity.sprite.y;
+        const startX = entity.container.x;
+        const startY = entity.container.y;
 
         const arrow = this.scene.add
             .image(startX, startY, "arrow")
@@ -304,7 +280,7 @@ export class PlayerVisualSystem {
             targets: arrow,
             x: endX,
             y: endY,
-            duration: 200, // Un poco más rápida por ser tiro directo
+            duration: 200,
             ease: "Linear",
             onComplete: () => {
                 arrow.destroy();
@@ -323,13 +299,13 @@ export class PlayerVisualSystem {
         // Si no hay objetivo válido, disparamos hacia adelante por defecto
         if (!targetEntity) return;
 
-        const startX = entity.sprite.x;
-        const startY = entity.sprite.y;
-        const endX = targetEntity.sprite.x;
-        const endY = targetEntity.sprite.y;
+        const startX = entity.container.x;
+        const startY = entity.container.y;
+        const endX = targetEntity.container.x;
+        const endY = targetEntity.container.y;
 
         // 2. Crear el sprite de la flecha
-        const arrow = this.scene.add.image(startX, startY, "arrow").setOrigin(0.5).setDepth(entity.sprite.depth + 10).setScale(3);
+        const arrow = this.scene.add.image(startX, startY, "arrow").setOrigin(0.5).setDepth(entity.container.depth).setScale(3);
         // 3. Orientar la flecha hacia el objetivo
         arrow.rotation = Phaser.Math.Angle.Between(startX, startY, endX, endY);
         // 4. Tween hacia la posición actual del enemigo
@@ -344,18 +320,18 @@ export class PlayerVisualSystem {
 
         if (!msg.targets || msg.targets.length === 0) return;
 
-        const startX = entity.sprite.x;
-        const startY = entity.sprite.y;
+        const startX = entity.container.x;
+        const startY = entity.container.y;
 
         msg.targets.forEach((targetId: string) => {
 
             const targetEntity = this.scene.playerEntities[targetId];
             if (!targetEntity) return;
-            const endX = targetEntity.sprite.x;
-            const endY = targetEntity.sprite.y;
+            const endX = targetEntity.container.x;
+            const endY = targetEntity.container.y;
 
             // Crear flecha
-            const arrow = this.scene.add.image(startX, startY, "arrow").setOrigin(0.5).setDepth(entity.sprite.depth + 10).setScale(3);
+            const arrow = this.scene.add.image(startX, startY, "arrow").setOrigin(0.5).setDepth(entity.container.depth).setScale(3);
             // Orientar hacia el target
             arrow.rotation = Phaser.Math.Angle.Between(startX, startY, endX, endY);
             // Tween independiente
@@ -369,8 +345,8 @@ export class PlayerVisualSystem {
     }
 
     private playWandFX(entity: any) {
-        const attackX = entity.sprite.x + entity.lookDir.x * 64;
-        const attackY = entity.sprite.y + entity.lookDir.y * 64;
+        const attackX = entity.container.x + entity.lookDir.x * 64;
+        const attackY = entity.container.y + entity.lookDir.y * 64;
 
         const magicCircle = this.scene.add.circle(
             attackX,
@@ -400,11 +376,11 @@ export class PlayerVisualSystem {
         const targetEntity = this.scene.playerEntities[targetId];
         if (!targetEntity) return;
 
-        const startX = entity.sprite.x;
-        const startY = entity.sprite.y;
-        const endX = targetEntity.sprite.x;
-        const endY = targetEntity.sprite.y;
-        const fireball = this.scene.add.circle(startX, startY, 8, 0xff7700, 0.7).setDepth(entity.sprite.depth);
+        const startX = entity.container.x;
+        const startY = entity.container.y;
+        const endX = targetEntity.container.x;
+        const endY = targetEntity.container.y;
+        const fireball = this.scene.add.circle(startX, startY, 8, 0xff7700, 0.7).setDepth(entity.container.depth);
         fireball.setBlendMode(Phaser.BlendModes.ADD);
 
         this.scene.tweens.add({
@@ -427,7 +403,7 @@ export class PlayerVisualSystem {
         const targetId = msg.targets && msg.targets[0];
         const targetEntity = this.scene.playerEntities[targetId];
         if (!targetEntity) return;
-        const targetSprite = targetEntity.sprite;
+        const targetSprite = targetEntity.container;
 
         // 1. Creamos un círculo simple en la posición del objetivo
         const spark = this.scene.add.circle(
@@ -455,8 +431,8 @@ export class PlayerVisualSystem {
 
     private playSpellFX(entity: any) {
         const aura = this.scene.add.circle(
-            entity.sprite.x,
-            entity.sprite.y,
+            entity.container.x,
+            entity.container.y,
             5,
             0xbf40bf,
             0.6
@@ -486,7 +462,7 @@ export class PlayerVisualSystem {
             return;
         }
 
-        const targetSprite = targetEntity.sprite;
+        const targetSprite = targetEntity.container;
 
         // 1. Creamos un círculo simple en la posición del objetivo
         const spark = this.scene.add.circle(
@@ -516,19 +492,19 @@ export class PlayerVisualSystem {
 
         if (!msg.targets || msg.targets.length === 0) return;
 
-        const startX = entity.sprite.x;
-        const startY = entity.sprite.y;
+        const startX = entity.container.x;
+        const startY = entity.container.y;
 
         msg.targets.forEach((targetId: string) => {
 
             const targetEntity = this.scene.playerEntities[targetId];
             if (!targetEntity) return;
 
-            const endX = targetEntity.sprite.x;
-            const endY = targetEntity.sprite.y;
+            const endX = targetEntity.container.x;
+            const endY = targetEntity.container.y;
 
             const lightning = this.scene.add.graphics()
-                .setDepth(entity.sprite.depth);
+                .setDepth(entity.container.depth);
 
             lightning.lineStyle(2, 0x66ccff, 0.8);
             lightning.beginPath();
