@@ -196,8 +196,8 @@ export class PortalSystem {
         // Cooldown anti spam (3000ms)
         if (time < this.portalCheckCooldown) return;
 
-        const px = myEntity.sprite.x;
-        const py = myEntity.sprite.y;
+        const px = myEntity.container.x;
+        const py = myEntity.container.y;
         const radiusSq = 576; // 24 * 24
 
         let foundPortal: string | null = null;

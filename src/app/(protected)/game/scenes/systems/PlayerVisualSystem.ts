@@ -84,7 +84,7 @@ export class PlayerVisualSystem {
     playEmoji(entity: any, msg: any) {
         if (!entity?.container) return;
 
-        const emojiLabel = this.scene.add.text(0, -20, msg.emoji, { fontSize: "32px", color: "#ffffff" }).setOrigin(0.5);
+        const emojiLabel = this.scene.add.text(0, -20, msg.emoji, { fontSize: "32px", color: "#ffffff" }).setOrigin(0.5).setScale(0.8);
         entity.container.add(emojiLabel);
 
         this.scene.tweens.add({
