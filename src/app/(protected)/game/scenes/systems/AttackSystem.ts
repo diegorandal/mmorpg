@@ -55,13 +55,13 @@ export function handleAttack(ctx: AttackContext) {
         distanceOffset = 32; // Distancia desde el jugador hacia adelante
         attackRadius = 32;   // Radio del área de impacto
         // Calculamos el centro del ataque usando el vector lookDir
-        attackX = myEntity.sprite.x + (myEntity.lookDir.x * distanceOffset);
-        attackY = myEntity.sprite.y + (myEntity.lookDir.y * distanceOffset);
+        attackX = myEntity.container.x + (myEntity.lookDir.x * distanceOffset);
+        attackY = myEntity.container.y + (myEntity.lookDir.y * distanceOffset);
         
         for (const id in playerEntities) {
             if (id === room.sessionId) continue;
             const enemy = playerEntities[id];
-            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.container.x, enemy.container.y);
             if (dist <= attackRadius) {targets.push(id);}
         }
 
@@ -73,8 +73,8 @@ export function handleAttack(ctx: AttackContext) {
         const stabLength = 60;   // largo del rectángulo
         const stabWidth = 24;    // ancho del rectángulo
 
-        const originX = myEntity.sprite.x;
-        const originY = myEntity.sprite.y;
+        const originX = myEntity.container.x;
+        const originY = myEntity.container.y;
 
         const dirX = myEntity.lookDir.x;
         const dirY = myEntity.lookDir.y;
@@ -89,8 +89,8 @@ export function handleAttack(ctx: AttackContext) {
             if (id === room.sessionId) continue;
             const enemy = playerEntities[id];
             // Vector jugador → enemigo
-            const dx = enemy.sprite.x - originX;
-            const dy = enemy.sprite.y - originY;
+            const dx = enemy.container.x - originX;
+            const dy = enemy.container.y - originY;
             // Rotamos el punto al sistema local del ataque
             const localX = dx * Math.cos(-angle) - dy * Math.sin(-angle);
             const localY = dx * Math.sin(-angle) + dy * Math.cos(-angle);
@@ -108,13 +108,13 @@ export function handleAttack(ctx: AttackContext) {
     if (myCurrentWeaponType === 1 && attackNumber === 3) {
 
         attackRadius = 50;   // Radio del área de impacto
-        attackX = myEntity.sprite.x; // El centro del ataque es el jugador
-        attackY = myEntity.sprite.y;
+        attackX = myEntity.container.x; // El centro del ataque es el jugador
+        attackY = myEntity.container.y;
 
         for (const id in playerEntities) {
             if (id === room.sessionId) continue;
             const enemy = playerEntities[id];
-            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.container.x, enemy.container.y);
             if (dist <= attackRadius) { targets.push(id); }
         }
 
@@ -129,16 +129,16 @@ export function handleAttack(ctx: AttackContext) {
         let minDistance = arrowRange;
 
         // El origen de la flecha
-        const startX = myEntity.sprite.x;
-        const startY = myEntity.sprite.y;
+        const startX = myEntity.container.x;
+        const startY = myEntity.container.y;
 
         for (const id in playerEntities) {
             if (id === room.sessionId) continue;
             const enemy = playerEntities[id];
 
             // 1. Vector desde el jugador hacia el enemigo
-            const dx = enemy.sprite.x - startX;
-            const dy = enemy.sprite.y - startY;
+            const dx = enemy.container.x - startX;
+            const dy = enemy.container.y - startY;
 
             // 2. Proyectar el enemigo sobre la línea del vector lookDir
             // (Producto punto para saber qué tan lejos está el enemigo a lo largo de la flecha)
@@ -149,7 +149,7 @@ export function handleAttack(ctx: AttackContext) {
                 // 4. Calcular distancia perpendicular a la línea (qué tan lejos está de la trayectoria)
                 const closestX = startX + myEntity.lookDir.x * projection;
                 const closestY = startY + myEntity.lookDir.y * projection;
-                const distToLine = Phaser.Math.Distance.Between(enemy.sprite.x, enemy.sprite.y, closestX, closestY);
+                const distToLine = Phaser.Math.Distance.Between(enemy.container.x, enemy.container.y, closestX, closestY);
 
                 // 5. Si está dentro del "ancho" de la flecha y es el más cercano
                 if (distToLine <= arrowWidth) {
@@ -165,8 +165,8 @@ export function handleAttack(ctx: AttackContext) {
             targets.push(closestTargetId);
             // La posición del impacto para el servidor será la del enemigo golpeado
             const victim = playerEntities[closestTargetId];
-            attackX = victim.sprite.x;
-            attackY = victim.sprite.y;
+            attackX = victim.container.x;
+            attackY = victim.container.y;
         } else {
             // Si no hay objetivo, el punto de impacto es el final del rango
             attackX = startX + myEntity.lookDir.x * arrowRange;
@@ -182,8 +182,8 @@ export function handleAttack(ctx: AttackContext) {
         if (!currentTargetId || !target || target.isDead) return;
         // 2. Asignar datos del objetivo
         targets.push(currentTargetId);
-        attackX = target.sprite.x;
-        attackY = target.sprite.y;
+        attackX = target.container.x;
+        attackY = target.container.y;
         // 4. Limpiar el apuntado
         ctx.clearTarget?.();
     }
@@ -196,14 +196,14 @@ export function handleAttack(ctx: AttackContext) {
         // 1. Validar objetivo
         if (!currentTargetId || !target || target.isDead) return;
         // 2. Centro del área = posición del target
-        attackX = target.sprite.x;
-        attackY = target.sprite.y;
+        attackX = target.container.x;
+        attackY = target.container.y;
         // 3. Buscar todos los enemigos dentro del radio
         for (const id in playerEntities) {
             if (id === room.sessionId) continue;
             const enemy = playerEntities[id];
             if (enemy.isDead) continue;
-            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.container.x, enemy.container.y);
             if (dist <= aoeRadius) targets.push(id);
         }
         // 5. Limpiar apuntado
@@ -217,13 +217,13 @@ export function handleAttack(ctx: AttackContext) {
         distanceOffset = 64; // Distancia desde el jugador hacia adelante
         attackRadius = 80;   // Radio del área de impacto
         // Calculamos el centro del ataque usando el vector lookDir
-        attackX = myEntity.sprite.x + (myEntity.lookDir.x * distanceOffset);
-        attackY = myEntity.sprite.y + (myEntity.lookDir.y * distanceOffset);
+        attackX = myEntity.container.x + (myEntity.lookDir.x * distanceOffset);
+        attackY = myEntity.container.y + (myEntity.lookDir.y * distanceOffset);
 
         for (const id in playerEntities) {
             if (id === room.sessionId) continue;
             const enemy = playerEntities[id];
-            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.container.x, enemy.container.y);
             if (dist <= attackRadius) { targets.push(id); }
         }
 
@@ -236,8 +236,8 @@ export function handleAttack(ctx: AttackContext) {
         if (!currentTargetId || !target || target.isDead) return;
         // 2. Asignar datos del objetivo
         targets.push(currentTargetId);
-        attackX = target.sprite.x;
-        attackY = target.sprite.y;
+        attackX = target.container.x;
+        attackY = target.container.y;
         // 4. Limpiar el apuntado
         ctx.clearTarget?.();
     }
@@ -247,8 +247,8 @@ export function handleAttack(ctx: AttackContext) {
 
         const maxRange = 400;
         const maxRangeSq = maxRange * maxRange;
-        const originX = myEntity.sprite.x;
-        const originY = myEntity.sprite.y;
+        const originX = myEntity.container.x;
+        const originY = myEntity.container.y;
         let closestId: string | null = null;
         let closestDistSq = Infinity;
 
@@ -256,8 +256,8 @@ export function handleAttack(ctx: AttackContext) {
             if (id === room.sessionId) continue;
             const enemy = playerEntities[id];
             if (!enemy || enemy.isDead) continue;
-            const dx = enemy.sprite.x - originX;
-            const dy = enemy.sprite.y - originY;
+            const dx = enemy.container.x - originX;
+            const dy = enemy.container.y - originY;
             const distSq = dx * dx + dy * dy;
             if (distSq < closestDistSq && distSq <= maxRangeSq) {
                 closestDistSq = distSq;
@@ -269,8 +269,8 @@ export function handleAttack(ctx: AttackContext) {
 
         const target = playerEntities[closestId];
         targets.push(closestId);
-        attackX = target.sprite.x;
-        attackY = target.sprite.y;
+        attackX = target.container.x;
+        attackY = target.container.y;
         
     }
 
@@ -278,14 +278,14 @@ export function handleAttack(ctx: AttackContext) {
     if (myCurrentWeaponType === 4 && attackNumber === 1) {
         
         attackRadius = 100; // Radio amplio alrededor del jugador
-        attackX = myEntity.sprite.x;
-        attackY = myEntity.sprite.y;
+        attackX = myEntity.container.x;
+        attackY = myEntity.container.y;
 
         for (const id in playerEntities) {
             if (id === room.sessionId) continue;
             const enemy = playerEntities[id];
             if (enemy.isDead) continue;
-            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.container.x, enemy.container.y);
             if (dist <= attackRadius) targets.push(id);
         }
 
@@ -298,21 +298,21 @@ export function handleAttack(ctx: AttackContext) {
         if (!currentTargetId || !target || target.isDead) return;
         // 2. Asignar datos del objetivo
         targets.push(currentTargetId);
-        attackX = target.sprite.x;
-        attackY = target.sprite.y;
+        attackX = target.container.x;
+        attackY = target.container.y;
     }
 
     // SPELL ATTACK 3
     if (myCurrentWeaponType === 4 && attackNumber === 3) {
 
         attackRadius = 500; // Radio amplio alrededor del jugador
-        attackX = myEntity.sprite.x;
-        attackY = myEntity.sprite.y;
+        attackX = myEntity.container.x;
+        attackY = myEntity.container.y;
         for (const id in playerEntities) {
             if (id === room.sessionId) continue;
             const enemy = playerEntities[id];
             if (enemy.isDead) continue;
-            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.sprite.x, enemy.sprite.y);
+            const dist = Phaser.Math.Distance.Between(attackX, attackY, enemy.container.x, enemy.container.y);
             if (dist <= attackRadius) targets.push(id);
         }
 
