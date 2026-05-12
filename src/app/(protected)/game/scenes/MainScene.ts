@@ -271,31 +271,28 @@ export class MainScene extends Phaser.Scene {
             const entity = this.playerEntities[msg.sessionId];
             if (!entity || entity.isDead) return;
             // Guardamos la posición de ORIGEN antes de actualizarla
-            const oldX = entity.sprite.x;
-            const oldY = entity.sprite.y;
+            const oldX = entity.container.x;
+            const oldY = entity.container.y;
             // Actualizamos a la posición de DESTINO
             entity.serverX = msg.newX;
             entity.serverY = msg.newY;
-            entity.sprite.setPosition(msg.newX, msg.newY);
+            entity.container.setPosition(msg.newX, msg.newY);
             const myEntity = this.playerEntities[this.room.sessionId];
             if (msg.sessionId === this.room.sessionId) { // Si soy yo: Efectos locales y sonido siempre
                 this.cameras.main.shake(150, 0.025);
                 if(this.config.vibration) navigator.vibrate(50);
-                this.cameras.main.centerOn(entity.sprite.x, entity.sprite.y);
+                this.cameras.main.centerOn(entity.container.x, entity.container.y);
                 this.playSfx("teleport");
             } else {                 // Si es otro usuario:
-                this.visualSystem.playTeleportFade(entity.sprite);
+                this.visualSystem.playTeleportFade(entity);
                 if (myEntity) {
                     // Calculamos distancia al ORIGEN (donde estaba)
-                    const distOrigin = Phaser.Math.Distance.Between(myEntity.sprite.x, myEntity.sprite.y, oldX, oldY);
+                    const distOrigin = Phaser.Math.Distance.Between(myEntity.container.x, myEntity.container.y, oldX, oldY);
                     // Calculamos distancia al DESTINO (donde apareció)
-                    const distDest = Phaser.Math.Distance.Between(myEntity.sprite.x, myEntity.sprite.y, msg.newX, msg.newY);
+                    const distDest = Phaser.Math.Distance.Between(myEntity.container.x, myEntity.container.y, msg.newX, msg.newY);
                     // Si cualquiera de los dos puntos está cerca, disparamos el sonido
-                    if (distOrigin <= 1000 || distDest <= 1000) {
-                        const minContextDist = Math.min(distOrigin, distDest); // Usamos la distancia más corta para calcular el volumen (para que suene más fuerte si alguna es muy cercana)
-                        const volume = 1 - (minContextDist / 1000);
-                        this.playSfx("teleport");
-                    }
+                    if (distOrigin <= 1000 || distDest <= 1000) this.playSfx("teleport");
+                    
                 }
             }
 
@@ -391,21 +388,22 @@ export class MainScene extends Phaser.Scene {
         const dir = entity.currentDir || 'down';
         const animKey = `death-${dir}-${entity.characterId}`;
 
-        entity.sprite.setVelocity(0, 0);
+        // 1. Detener física en el CONTAINER (no en el sprite)
+        if (entity.container.body) {
+            entity.container.body.setVelocity(0, 0);
+            entity.container.body.enable = false;
+        }
         entity.sprite.anims.play(animKey, true);
 
         //quitar label y hpbar
         entity.label?.setVisible(false);
         entity.hpBar?.setVisible(false);
-
-        // Opcional: que no colisione más
-        entity.sprite.body.enable = false;
+        if (entity.defenceCircle) entity.defenceCircle.setVisible(false);
 
         //sonido
         this.playSfx("muerte");
-
-        const player = this.playerEntities[sessionId];
-        this.logSystem.addLog('☠ ' + player.label.text);
+        
+        this.logSystem.addLog('☠ ' + entity.label.text);
 
         // Si soy yo → deshabilitar controles
         if (sessionId === this.room.sessionId) {
@@ -667,7 +665,6 @@ export class MainScene extends Phaser.Scene {
         // --- DETECCIÓN DE DAÑO ---
         if (data.hp !== undefined && data.hp < entity.hp) {
             const damageTaken = entity.hp - data.hp;
-            // Cambiamos sprite.x/y por worldX/worldY
             this.visualSystem.showDamageText(entity, damageTaken);
             this.visualSystem.updateHealthBar(entity);
         }
@@ -848,7 +845,7 @@ export class MainScene extends Phaser.Scene {
                 this.targetCircle?.setVisible(false);
             } else {
                 // 2. Validar visibilidad en cámara
-                const isVisible = this.cameras.main.worldView.contains(target.sprite.x, target.sprite.y);
+                const isVisible = this.cameras.main.worldView.contains(target.container.x, target.container.y);
 
                 // 3. Validar que sigas con el arma/ataque correcto (opcional, por si cambias)
                 const hasRightEquip = (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2) ||
@@ -861,7 +858,7 @@ export class MainScene extends Phaser.Scene {
                     this.targetCircle?.setVisible(false);
                 } else {
                     // 4. Actualizar posición del círculo
-                    this.targetCircle?.setPosition(target.sprite.x, target.sprite.y + 10);
+                    this.targetCircle?.setPosition(target.container.x, target.container.y + 10);
                     this.targetCircle?.setVisible(true);
                     // 5. W2A3 agranda circulo
                     if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 3){

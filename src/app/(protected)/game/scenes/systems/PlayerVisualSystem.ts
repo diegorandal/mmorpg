@@ -165,7 +165,7 @@ export class PlayerVisualSystem {
     playDefence(entity: any) {
         
         const defenceLabel = this.scene.add.text(
-            entity.container.x, entity.container.y - 20, 'def',
+            0, -20, 'def',
             { fontSize: "20px", color: "#003cff", fontStyle: "bold", stroke: "#000000", strokeThickness: 4 }
         ).setOrigin(0.5);
 
@@ -542,11 +542,13 @@ export class PlayerVisualSystem {
 
     }
 
-    playTeleportFade(playerContainer: Phaser.GameObjects.Container) {
+    playTeleportFade(entity: any) {
+        
+        if (!entity?.container) return;
 
-        playerContainer.setAlpha(0);
+        entity.container.setAlpha(0);
         this.scene.tweens.add({
-            targets: playerContainer,
+            targets: entity.container,
             alpha: 1,
             delay: 500, 
             duration: 1000,
