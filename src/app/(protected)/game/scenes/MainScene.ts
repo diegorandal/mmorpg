@@ -344,9 +344,6 @@ export class MainScene extends Phaser.Scene {
         this.playersText = this.add.text(this.scale.width - 20, 20, `👥 ${this.room.state.players.size}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }}).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
         this.dianaText = this.add.text(this.scale.width - 20, 60, '🎯', { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 } }).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
 
-        // Un triángulo pequeño que apunta al enemigo mas cercano
-        this.directionIndicator = this.add.triangle(0, 0, 0, 10, 5, 0, 10, 10, 0xff0000).setVisible(false).setDepth(10010).setScrollFactor(0);
-
         this.setupJoystick();
 
         //target circle
@@ -648,8 +645,13 @@ export class MainScene extends Phaser.Scene {
         };
 
         if (sessionId === this.room.sessionId) {
+
+            // enemy indicator
+            this.directionIndicator = this.add.triangle(0, 0, 0, 10, 5, 0, 10, 10, 0xff0000);
+            container.add(this.directionIndicator);
+            this.directionIndicator.setVisible(false);
+
             this.cameras.main.startFollow(container, true, 0.1, 0.1);
-            // El input interactivo se mantiene en el sprite o se pone en el container
             sprite.setInteractive();
             sprite.on('pointerdown', () => this.emojiSystem.show());
         }
@@ -727,23 +729,9 @@ export class MainScene extends Phaser.Scene {
 
             if (minDistance > 600 && closestEnemy) {
                 this.directionIndicator?.setVisible(true);
-
-                const angle = Phaser.Math.Angle.Between(
-                    myEntity.container.x, myEntity.container.y,
-                    closestEnemy.container.x, closestEnemy.container.y
-                );
-
-                const cam = this.cameras.main;
-                // Posición relativa a la cámara usando el contenedor
-                const playerScreenX = (myEntity.container.x - cam.scrollX) * cam.zoom;
-                const playerScreenY = (myEntity.container.y - cam.scrollY) * cam.zoom;
+                const angle = Phaser.Math.Angle.Between(myEntity.container.x, myEntity.container.y, closestEnemy.container.x, closestEnemy.container.y);
                 const radius = 60;
-
-                this.directionIndicator?.setPosition(
-                    playerScreenX + Math.cos(angle) * radius,
-                    playerScreenY + Math.sin(angle) * radius
-                );
-
+                this.directionIndicator?.setPosition(Math.cos(angle) * radius, Math.sin(angle) * radius);
                 this.directionIndicator?.setRotation(angle + Math.PI / 2);
             } else {
                 this.directionIndicator?.setVisible(false);

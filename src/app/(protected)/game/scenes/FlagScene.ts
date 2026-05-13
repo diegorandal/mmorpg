@@ -26,7 +26,6 @@ export class FlagScene extends Phaser.Scene {
     public playerEntities: { [sessionId: string]: any } = {};
     public portalEntities: { [id: string]: Phaser.GameObjects.Container } = {};
     public readonly SEND_RATE = 100;
-    public cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private collisionLayer?: Phaser.Tilemaps.TilemapLayer;
     public joystickBase?: Phaser.GameObjects.Arc;
     public joystickThumb?: Phaser.GameObjects.Image;
@@ -201,7 +200,7 @@ export class FlagScene extends Phaser.Scene {
         this.cameras.main.setBounds(0, 0, worldWidth, worldHeight);
         this.physics.world.setBounds(0, 0, worldWidth, worldHeight);
         this.room = roomInstance;
-        this.cursors = this.input.keyboard!.createCursorKeys();
+
         this.input.addPointer(3);
 
         this.visualSystem = new PlayerVisualSystem(this, 10, 6000); // 0.000010 a 0.006
@@ -742,7 +741,7 @@ export class FlagScene extends Phaser.Scene {
 
         if (sessionId === this.room.sessionId) {
 
-            this.directionIndicator = this.add.triangle(0, 0, 0, 10, 5, 0, 10, 10, 0xff0000);
+            this.directionIndicator = this.add.triangle(0, 0, 0, 10, 5, 0, 10, 10, 0xff0000); '#ff8520'
             container.add(this.directionIndicator);
             this.directionIndicator.setVisible(false);
 
