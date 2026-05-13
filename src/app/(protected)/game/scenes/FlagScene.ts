@@ -7,6 +7,7 @@ import { PlayerVisualSystem } from './systems/PlayerVisualSystem';
 import { PortalSystem } from './systems/PortalSystem';
 import { GameConfig } from '../../home/page';
 import { LogSystem } from './systems/LogSystem';
+import { EmojiSystem } from './systems/EmojiSystem';
 
 export class FlagScene extends Phaser.Scene {
 
@@ -19,6 +20,7 @@ export class FlagScene extends Phaser.Scene {
     private visualSystem!: PlayerVisualSystem;
     private logSystem: LogSystem;
     private portalSystem: PortalSystem;
+    private emojiSystem: EmojiSystem;
     public sfx!: Phaser.Sound.BaseSound;
     public music!: Phaser.Sound.BaseSound;
     public playerEntities: { [sessionId: string]: any } = {};
@@ -206,6 +208,7 @@ export class FlagScene extends Phaser.Scene {
         this.movementSystem = new MovementSystem(this, this.visualSystem);
         this.portalSystem = new PortalSystem(this.room, this, 16, 48, 48, 4800, 4800);
         this.logSystem = new LogSystem(this);
+        this.emojiSystem = new EmojiSystem(this, this.sendEmoji.bind(this));
 
         // 2. Creamos animaciones específicas para cada personaje
         const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
@@ -279,7 +282,13 @@ export class FlagScene extends Phaser.Scene {
             if (!entity || entity.isDead) return;
             this.visualSystem.playAttackOnce(entity, msg);
         });
-
+        // Escuchar emojis
+        this.room.onMessage("emoji", (msg) => {
+            if (msg.sessionId === this.room.sessionId) return;
+            const entity = this.playerEntities[msg.sessionId];
+            if (!entity || entity.isDead) return;
+            this.visualSystem.playEmoji(entity, msg);
+        });
         // 1. Escuchar teleports
         this.room.onMessage("playerTeleport", (msg) => {
 
@@ -410,9 +419,6 @@ export class FlagScene extends Phaser.Scene {
         this.playersText = this.add.text(this.scale.width - 20, 20, `👥 ${this.room.state.players.size}`, {fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 }}).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
         this.dianaText = this.add.text(this.scale.width - 20, 60, '🎯', { fontSize: '18px', backgroundColor: 'rgba(96, 96, 96, 0.20)', padding: { x: 10, y: 5 } }).setOrigin(1, 0).setScrollFactor(0).setDepth(10000);
 
-        // Un triángulo pequeño que apunta al enemigo mas cercano
-        this.directionIndicator = this.add.triangle(0, 0, 0, 10, 5, 0, 10, 10, 0xff520e).setVisible(false).setDepth(10010).setScrollFactor(0);
-
         this.setupJoystick();
 
         //target circle
@@ -453,26 +459,28 @@ export class FlagScene extends Phaser.Scene {
         const dir = entity.currentDir || 'down';
         const animKey = `death-${dir}-${entity.characterId}`;
 
-        entity.sprite.setVelocity(0, 0);
+        // 1. Detener física en el CONTAINER (no en el sprite)
+        if (entity.container.body) {
+            entity.container.body.setVelocity(0, 0);
+            entity.container.body.enable = false;
+        }
         entity.sprite.anims.play(animKey, true);
 
         //quitar label y hpbar
         entity.label?.setVisible(false);
         entity.hpBar?.setVisible(false);
-
-        // Opcional: que no colisione más
-        entity.sprite.body.enable = false;
+        if (entity.defenceCircle) entity.defenceCircle.setVisible(false);
 
         //sonido
         this.playSfx("muerte");
-        
-        const player = this.playerEntities[sessionId];
-        this.logSystem.addLog('☠' + player.label.text);
+
+        this.logSystem.addLog('☠ ' + entity.label.text);
 
         // Si soy yo → deshabilitar controles
         if (sessionId === this.room.sessionId) {
             this.showDeathScreen();
         }
+
     }
 
     private disableControls() {
@@ -688,39 +696,60 @@ export class FlagScene extends Phaser.Scene {
 
     // #region addPlayer
     private addPlayer(data: any, sessionId: string) {
-        // 3. Obtenemos el ID del character y asignamos su textura
         const charId = data.character || 1;
-        const sprite = this.physics.add.sprite(data.x, data.y, `char_${charId}`);
 
+        // 1. Crear el contenedor en la posición inicial
+        const container = this.add.container(data.x, data.y);
+
+        const sprite = this.add.sprite(0, 0, `char_${charId}`);
         sprite.setScale(3); 
-        sprite.setDepth(sprite.y); 
 
-        const hitboxW = 8;
-        const hitboxH = 8;
+        // 3. Configurar física sobre el CONTENEDOR (no sobre el sprite)
+        this.physics.add.existing(container);
+        const body = container.body as Phaser.Physics.Arcade.Body;
 
-        const offsetX = (32 - hitboxW) / 2; // Centrado automático
-        const offsetY = 16; // Empujamos el hitbox hacia la base del sprite
+        const hitboxW = 24; // Ajustado por la escala 3 del sprite (8 * 3)
+        const hitboxH = 24;
 
-        sprite.body?.setSize(hitboxW, hitboxH);
-        sprite.body?.setOffset(offsetX, offsetY);
+        body.setSize(hitboxW, hitboxH);
+        body.setOffset(-hitboxW / 2, 0); // Centrar la física
 
-        if (this.collisionLayer) this.physics.add.collider(sprite, this.collisionLayer);
-   
-        // label con el nombre del jugador
-        const label = this.add.text(data.x, data.y - 40, data.name, { fontSize: '14px', color: '#ffffff' }).setOrigin(0.5);
-        // barra de HP )
-        const hpBar = this.add.graphics();
-        // aura
-        const glow = sprite.postFX.addGlow(0xff4800, 0, 0, false); // '#ff4800';
-        
-        // circulo indica defensa
+        if (this.collisionLayer) this.physics.add.collider(container, this.collisionLayer);
+
+        const label = this.add.text(0, -40, data.name, { fontSize: '14px' }).setOrigin(0.5);
+        const hpBar = this.add.graphics(); // Se posicionará en (0,0) relativo al container
+        const glow = sprite.postFX.addGlow(0x99faae, 0, 0, false);
         const defenceCircle = this.add.graphics();
-        defenceCircle.setVisible(false);
-        defenceCircle.setDepth(sprite.depth - 1);
+        
+        container.add([defenceCircle, sprite, label, hpBar]);
+        container.setDepth(data.y);
 
-        // 4. Guardamos el characterId para saber qué animación llamar después
-        this.playerEntities[sessionId] = { sprite, label, hpBar, defenceCircle, glow,  characterId: charId, serverX: data.x, serverY: data.y, hp: data.hp, isMoving: false, isDead: false, lookDir: { x: 0, y: 1 }};
-        if (sessionId === this.room.sessionId) this.cameras.main.startFollow(sprite, true, 0.1, 0.1);
+        // 6. Guardar la referencia del contenedor en la entidad
+        this.playerEntities[sessionId] = {
+            container, // <-- Nueva referencia
+            sprite,
+            label,
+            hpBar,
+            defenceCircle,
+            glow,
+            characterId: charId,
+            serverX: data.x,
+            serverY: data.y,
+            hp: data.hp,
+            isDead: false,
+            lookDir: { x: 0, y: 1 }
+        };
+
+        if (sessionId === this.room.sessionId) {
+
+            this.directionIndicator = this.add.triangle(0, 0, 0, 10, 5, 0, 10, 10, 0xff0000);
+            container.add(this.directionIndicator);
+            this.directionIndicator.setVisible(false);
+
+            this.cameras.main.startFollow(container, true, 0.1, 0.1);
+            sprite.setInteractive();
+            sprite.on('pointerdown', () => this.emojiSystem.show());
+        }
 
     }
 
@@ -737,15 +766,14 @@ export class FlagScene extends Phaser.Scene {
         }
         
         // -- DEFIENDE ---
+        // -- DEFIENDE / POCION / MUERTE ---
         if (entity.defence === 1 && data.defence === 2) this.visualSystem.playDefence(entity);
-        // -- POCION ---
         if (data.hp !== undefined && data.hp > entity.hp) this.visualSystem.playPotion(entity);
-        // --- MUERTE ---
-        if (data.hp !== undefined && data.hp <= 0 && entity.hp > 0)
-        {
+        if (data.hp !== undefined && data.hp <= 0 && entity.hp > 0) {
             if (this.config.vibration) navigator.vibrate(50);
             this.handleDeath(entity, sessionId);
         }
+
         // --- CAMBIA POT ---
         if (data.pot !== undefined && entity.pot !== data.pot) {
             entity.pot = data.pot;
@@ -763,6 +791,9 @@ export class FlagScene extends Phaser.Scene {
             entity.serverX = data.x;
             entity.serverY = data.y;
         }
+        
+        // Depth sorting basado en la base del contenedor
+        entity.container.setDepth(entity.container.y);
 
         // #region FLAG indicator
         const myId = this.room.sessionId;
@@ -771,40 +802,21 @@ export class FlagScene extends Phaser.Scene {
         if (myEntity && !myEntity.isDead && this.showDirectionIndicator) {
 
             const dist = Phaser.Math.Distance.Between(
-                myEntity.sprite.x, myEntity.sprite.y,
+                myEntity.container.x, myEntity.container.y,
                 this.flagEntity?.x, this.flagEntity?.y
             );
 
             // 2. Lógica del indicador
-            // Si no hay nadie cerca (distancia > 1000) y encontramos a alguien
             if (dist > 100) {
-                
                 this.directionIndicator?.setVisible(true);
-
-                // Calcular ángulo hacia el enemigo
-                const angle = Phaser.Math.Angle.Between(
-                    myEntity.sprite.x, myEntity.sprite.y,
-                    this.flagEntity?.x, this.flagEntity?.y
-                );
-
-                // Posicionar el indicador en un círculo alrededor del centro de la pantalla
-                const cam = this.cameras.main;
-                const playerScreenX = (myEntity.sprite.x - cam.scrollX) * cam.zoom;
-                const playerScreenY = (myEntity.sprite.y - cam.scrollY) * cam.zoom;
-                const radius = 60; // Distancia desde el centro de la pantalla
-
-                this.directionIndicator?.setPosition(
-                    playerScreenX + Math.cos(angle) * radius,
-                    playerScreenY + Math.sin(angle) * radius
-                );
-
-                
-                // Rotar el triángulo para que apunte hacia allá
-                // Sumamos 90 grados (PI/2) porque el triángulo apunta hacia arriba por defecto
+                const angle = Phaser.Math.Angle.Between(myEntity.container.x, myEntity.container.y, this.flagEntity?.x, this.flagEntity?.y);
+                const radius = 60;
+                this.directionIndicator?.setPosition(Math.cos(angle) * radius, Math.sin(angle) * radius);
                 this.directionIndicator?.setRotation(angle + Math.PI / 2);
             } else {
                 this.directionIndicator?.setVisible(false);
             }
+
         }
 
     }
@@ -843,11 +855,9 @@ export class FlagScene extends Phaser.Scene {
                 this.visualSystem.updateHealthBar(myEntity);
                 this.visualSystem.showDamageText(myEntity, myEntity.hp - myState.hp);
             }
-
             if(myState.hp > myEntity.hp){
                 this.visualSystem.playPotion(myEntity);
             }
-
             if (myState.hp <= 0 && myEntity.hp > 0) {
                 if (this.config.vibration) navigator.vibrate(100);
                 this.handleDeath(myEntity, myId);
@@ -900,7 +910,7 @@ export class FlagScene extends Phaser.Scene {
                 this.targetCircle?.setVisible(false);
             } else {
                 // 2. Validar visibilidad en cámara
-                const isVisible = this.cameras.main.worldView.contains(target.sprite.x, target.sprite.y);
+                const isVisible = this.cameras.main.worldView.contains(target.container.x, target.container.y);
 
                 // 3. Validar que sigas con el arma/ataque correcto (opcional, por si cambias)
                 const hasRightEquip = (this.myCurrentWeaponType === 2 && this.attackDragSelect === 2) ||
@@ -913,7 +923,7 @@ export class FlagScene extends Phaser.Scene {
                     this.targetCircle?.setVisible(false);
                 } else {
                     // 4. Actualizar posición del círculo
-                    this.targetCircle?.setPosition(target.sprite.x, target.sprite.y + 10);
+                    this.targetCircle?.setPosition(target.container.x, target.container.y + 10);
                     this.targetCircle?.setVisible(true);
                     // 5. W2A3 agranda circulo
                     if (this.myCurrentWeaponType === 2 && this.attackDragSelect === 3){
@@ -944,8 +954,8 @@ export class FlagScene extends Phaser.Scene {
                 // Buscamos al jugador que la lleva en tus entidades
                 const keeperEntity = this.playerEntities[flagState.keeper];
                 if (keeperEntity && keeperEntity.sprite) {
-                    this.flagEntity.setPosition(keeperEntity.sprite.x + 5, keeperEntity.sprite.y - 8);
-                    this.flagEntity.setDepth(keeperEntity.sprite.y - 1);
+                    this.flagEntity.setPosition(keeperEntity.container.x + 5, keeperEntity.container.y - 8);
+                    this.flagEntity.setDepth(keeperEntity.container.y - 1);
                     if (this.flagEntity.anims.currentAnim?.key !== 'flag-move') {
                         this.flagEntity.play('flag-move');
                     }
@@ -972,8 +982,8 @@ export class FlagScene extends Phaser.Scene {
         const myEntity = this.playerEntities[myId];
         if (!myEntity) return;
 
-        const px = myEntity.sprite.x;
-        const py = myEntity.sprite.y;
+        const px = myEntity.container.x;
+        const py = myEntity.container.y;
         const radiusSq = 576; // 24*24
         const dx = px - this.flagEntity?.x;
         const dy = py - this.flagEntity?.y;
@@ -1069,6 +1079,15 @@ export class FlagScene extends Phaser.Scene {
 
     private formatPot(pot: number): string {
         return (pot / 1000000).toFixed(6);
+    }
+
+    private sendEmoji(emoji: string) {
+
+        this.room.send('emoji', { emoji: emoji });
+        const myId = this.room.sessionId;
+        const myEntity = this.playerEntities[myId];
+        this.visualSystem.playEmoji(myEntity, { emoji: emoji });
+
     }
 
 }

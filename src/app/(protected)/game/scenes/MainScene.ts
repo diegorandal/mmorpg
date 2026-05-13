@@ -197,7 +197,6 @@ export class MainScene extends Phaser.Scene {
         this.logSystem = new LogSystem(this);
         this.emojiSystem = new EmojiSystem(this, this.sendEmoji.bind(this));
 
-
         // 2. Creamos animaciones específicas para cada personaje
         const directions = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
         const actionsConfig = {
@@ -785,13 +784,10 @@ export class MainScene extends Phaser.Scene {
             if (myState.hp < myEntity.hp) {
                 this.visualSystem.updateHealthBar(myEntity);
                 this.visualSystem.showDamageText(myEntity, myEntity.hp - myState.hp);
-
             }
-
             if(myState.hp > myEntity.hp){
                 this.visualSystem.playPotion(myEntity);
             }
-
             if (myState.hp <= 0 && myEntity.hp > 0) {
                 if (this.config.vibration) navigator.vibrate(100);
                 this.handleDeath(myEntity, myId);
