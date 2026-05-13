@@ -303,25 +303,25 @@ export class FlagScene extends Phaser.Scene {
             const entity = this.playerEntities[msg.sessionId];
             if (!entity || entity.isDead) return;
             // Guardamos la posición de ORIGEN antes de actualizarla
-            const oldX = entity.sprite.x;
-            const oldY = entity.sprite.y;
+            const oldX = entity.container.x;
+            const oldY = entity.container.y;
             // Actualizamos a la posición de DESTINO
             entity.serverX = msg.newX;
             entity.serverY = msg.newY;
-            entity.sprite.setPosition(msg.newX, msg.newY);
+            entity.container.setPosition(msg.newX, msg.newY);
             const myEntity = this.playerEntities[this.room.sessionId];
             if (msg.sessionId === this.room.sessionId) { // Si soy yo: Efectos locales y sonido siempre
                 this.cameras.main.shake(150, 0.025);
                 if(this.config.vibration) navigator.vibrate(50);
-                this.cameras.main.centerOn(entity.sprite.x, entity.sprite.y);
+                this.cameras.main.centerOn(entity.container.x, entity.container.y);
                 this.playSfx("teleport");
             } else {                 // Si es otro usuario:
                 this.visualSystem.playTeleportFade(entity.sprite);
                 if (myEntity) {
                     // Calculamos distancia al ORIGEN (donde estaba)
-                    const distOrigin = Phaser.Math.Distance.Between(myEntity.sprite.x, myEntity.sprite.y, oldX, oldY);
+                    const distOrigin = Phaser.Math.Distance.Between(myEntity.container.x, myEntity.container.y, oldX, oldY);
                     // Calculamos distancia al DESTINO (donde apareció)
-                    const distDest = Phaser.Math.Distance.Between(myEntity.sprite.x, myEntity.sprite.y, msg.newX, msg.newY);
+                    const distDest = Phaser.Math.Distance.Between(myEntity.container.x, myEntity.container.y, msg.newX, msg.newY);
                     // Si cualquiera de los dos puntos está cerca, disparamos el sonido
                     if (distOrigin <= 1000 || distDest <= 1000) {
                         const minContextDist = Math.min(distOrigin, distDest); // Usamos la distancia más corta para calcular el volumen (para que suene más fuerte si alguna es muy cercana)
