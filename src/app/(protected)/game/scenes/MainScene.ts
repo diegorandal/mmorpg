@@ -654,6 +654,18 @@ export class MainScene extends Phaser.Scene {
             this.cameras.main.startFollow(container, true, 0.1, 0.1);
             sprite.setInteractive();
             sprite.on('pointerdown', () => this.emojiSystem.show());
+
+        } else {
+
+            container.setAlpha(0);
+            this.tweens.add({
+                targets: container,
+                alpha: 1,
+                delay: 2000,
+                duration: 1000,
+                ease: 'Cubic.Out'
+            });
+            
         }
 
     }

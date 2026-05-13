@@ -741,13 +741,24 @@ export class FlagScene extends Phaser.Scene {
 
         if (sessionId === this.room.sessionId) {
 
-            this.directionIndicator = this.add.triangle(0, 0, 0, 10, 5, 0, 10, 10, 0xff0000); '#ff8520'
+            this.directionIndicator = this.add.triangle(0, 0, 0, 10, 5, 0, 10, 10, 0xff8520); //'#ff8520'
             container.add(this.directionIndicator);
             this.directionIndicator.setVisible(false);
 
             this.cameras.main.startFollow(container, true, 0.1, 0.1);
             sprite.setInteractive();
             sprite.on('pointerdown', () => this.emojiSystem.show());
+        } else {
+
+            container.setAlpha(0);
+            this.tweens.add({
+                targets: container,
+                alpha: 1,
+                delay: 2000,
+                duration: 1000,
+                ease: 'Cubic.Out'
+            });
+
         }
 
     }
@@ -764,7 +775,6 @@ export class FlagScene extends Phaser.Scene {
             this.visualSystem.updateHealthBar(entity);
         }
         
-        // -- DEFIENDE ---
         // -- DEFIENDE / POCION / MUERTE ---
         if (entity.defence === 1 && data.defence === 2) this.visualSystem.playDefence(entity);
         if (data.hp !== undefined && data.hp > entity.hp) this.visualSystem.playPotion(entity);
